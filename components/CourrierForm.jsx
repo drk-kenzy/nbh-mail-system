@@ -74,71 +74,71 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl h-[90vh] overflow-hidden">
-        <div className="h-full overflow-y-auto px-6 sm:px-10 py-10">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl h-[80vh] overflow-hidden">
+        <div className="h-full overflow-y-auto px-4 sm:px-6 py-6">
 
-          <h2 className="text-2xl font-bold mb-6">Ajouter un nouveau courrier</h2>
+          <h2 className="text-xl font-bold mb-4">Ajouter un nouveau courrier</h2>
 
           {/* Étapes */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6">
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step === 1 ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
-              <div className={`w-16 h-1 ${step === 1 ? 'bg-gray-300' : 'bg-emerald-800'}`}></div>
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step === 2 ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 1 ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-600'} text-sm`}>1</div>
+              <div className={`w-12 h-1 ${step === 1 ? 'bg-gray-300' : 'bg-emerald-800'}`}></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 2 ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-600'} text-sm`}>2</div>
             </div>
           </div>
 
           {step === 1 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div>
-                <label className="block font-semibold mb-2">Expéditeur</label>
+                <label className="block font-semibold mb-1 text-sm">Expéditeur</label>
                 <input
                   type="text"
                   value={expediteur}
                   onChange={(e) => setExpediteur(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 placeholder-gray-400 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 placeholder-gray-400 text-sm"
                   placeholder="Saisir l'expéditeur"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Destinataire</label>
+                <label className="block font-semibold mb-1 text-sm">Destinataire</label>
                 <input
                   type="text"
                   value={destinataire}
                   onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 placeholder-gray-400 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 placeholder-gray-400 text-sm"
                   placeholder="Saisir le destinataire"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Objet</label>
+                <label className="block font-semibold mb-1 text-sm">Objet</label>
                 <input
                   type="text"
                   value={objet}
                   onChange={(e) => setObjet(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 placeholder-gray-400 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 placeholder-gray-400 text-sm"
                   placeholder="Saisir l'objet du courrier"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Date</label>
+                <label className="block font-semibold mb-1 text-sm">Date</label>
                 <input
                   type="datetime-local"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Canal</label>
+                <label className="block font-semibold mb-1 text-sm">Canal</label>
                 <select
                   value={canal}
                   onChange={(e) => setCanal(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="Physique">Physique</option>
                   <option value="Email">Email</option>
@@ -147,11 +147,11 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Statut</label>
+                <label className="block font-semibold mb-1 text-sm">Statut</label>
                 <select
                   value={statut}
                   onChange={(e) => setStatut(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   {STATUTS.map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -160,56 +160,56 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div>
-                <label className="block font-semibold mb-2">Planification</label>
+                <label className="block font-semibold mb-1 text-sm">Planification</label>
                 <input
                   type="datetime-local"
                   value={planif}
                   onChange={(e) => setPlanif(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Délai</label>
+                <label className="block font-semibold mb-1 text-sm">Délai</label>
                 <input
                   type="datetime-local"
                   value={delai}
                   onChange={(e) => setDelai(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Référence</label>
+                <label className="block font-semibold mb-1 text-sm">Référence</label>
                 <input
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   placeholder="Saisir la référence"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">Service</label>
+                <label className="block font-semibold mb-1 text-sm">Service</label>
                 <input
                   type="text"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   placeholder="Saisir le service concerné"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block font-semibold mb-2">Observations</label>
+                <label className="block font-semibold mb-1 text-sm">Observations</label>
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-lg"
-                  rows="3"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  rows="2"
                   placeholder="Ajouter des observations (optionnel)"
                 />
               </div>
@@ -225,12 +225,12 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between mt-12">
+          <div className="flex justify-between mt-6">
             <div>
               {step === 2 && (
                 <button
                   type="button"
-                  className="px-7 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 text-lg"
+                  className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 text-sm"
                   onClick={() => setStep(1)}
                 >
                   Retour
@@ -238,10 +238,10 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               )}
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex gap-3">
               <button
                 type="button"
-                className="px-7 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 text-lg"
+                className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 text-sm"
                 onClick={onClose}
               >
                 Annuler
@@ -250,7 +250,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               {step === 1 ? (
                 <button
                   type="button"
-                  className="px-7 py-3 rounded-xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 text-lg"
+                  className="px-4 py-2 rounded-xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 text-sm"
                   onClick={handleNextStep}
                 >
                   Suivant
@@ -258,7 +258,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               ) : (
                 <button
                   type="button"
-                  className="px-7 py-3 rounded-xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 text-lg"
+                  className="px-4 py-2 rounded-xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 text-sm"
                   onClick={handleSubmit}
                 >
                   Enregistrer
