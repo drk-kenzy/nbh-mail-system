@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Suppression de @apply dark; qui provoque une erreur, le dark mode est géré via la classe 'dark' sur <html> dans _document.js */
+
+body {
+  font-family: 'Inter', 'Geist', 'Geist Mono', 'sans-serif';
+}
+
+/* Thème clair */
+:root,
+.light {
+  --bg-main: #f8fafc;
+  --bg-surface: #fff;
+  --text-main: #18181b;
+  --text-secondary: #334155;
+  --border-main: #e5e7eb;
+  --primary: #2563eb;
+}
+
+/* Thème sombre (déjà existant via Tailwind/dark) */
+.dark {
+  --bg-main: #181818;
+  --bg-surface: #232347;
+  --text-main: #fff;
+  --text-secondary: #a3a3a3;
+  --border-main: #232347;
+  --primary: #2563eb;
+}
+
+/* Utilitaires pour appliquer les couleurs dynamiquement */
+.bg-main { background-color: var(--bg-main) !important; }
+.bg-surface { background-color: var(--bg-surface) !important; }
+.text-main { color: var(--text-main) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.border-main { border-color: var(--border-main) !important; }
+.text-primary { color: var(--primary) !important; }
+.bg-primary { background-color: var(--primary) !important; }
+
+/* Animations utilitaires pour les composants UI */
+@layer utilities {
+  .animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+  }
+  .animate-scale-in {
+    transform: scale(0.95);
+    opacity: 0;
+    animation: scaleIn 0.2s forwards;
+  }
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 1. Scrollbar customisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #232347 40%, #2563eb 100%);
+  border-radius: 8px;
+  min-height: 40px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #232347 100%);
+}
+
+/* 2. Effet glassmorphism plus marqué */
+.glass {
+  background: linear-gradient(135deg, rgba(24,24,24,0.85) 60%, rgba(37,99,235,0.12) 100%);
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  backdrop-filter: blur(12px) saturate(120%);
+  border: 1.5px solid rgba(37,99,235,0.18);
+}
+
+/* 3. Animation badge statut */
+@keyframes badgePulse {
+  0% { box-shadow: 0 0 0 0 #2563eb44; }
+  70% { box-shadow: 0 0 0 8px #2563eb00; }
+  100% { box-shadow: 0 0 0 0 #2563eb00; }
+}
+.badge-animated {
+  animation: badgePulse 1.8s infinite;
+}
+
+/* 4. Effet hover ligne tableau */
+.table-row-animated:hover {
+  background: linear-gradient(90deg, #232347 60%, #2563eb22 100%) !important;
+  transform: scale(1.012);
+  box-shadow: 0 2px 12px 0 #2563eb22;
+  transition: all 0.18s cubic-bezier(.4,2,.6,1);
+}
+
+/* 5. Effet focus visible */
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px #2563eb55;
+}
+
+/* 6. Fond animé subtil (noise) */
+@layer utilities {
+  .bg-noise {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="%23181818"/><g opacity="0.08"><circle cx="60" cy="60" r="60" fill="%23fff"/></g></svg>');
+    background-size: 200px 200px;
+    opacity: 0.95;
+  }
+}
+
+/* 7. Micro-interactions bouton */
+.btn-animated {
+  transition: transform 0.12s cubic-bezier(.4,2,.6,1), box-shadow 0.12s;
+}
+.btn-animated:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px 0 #2563eb33;
+}
+
+/* 8. Typo accent titres */
+.title-accent {
+  font-family: 'Geist Mono', 'Geist', 'Inter', monospace;
+  letter-spacing: 0.04em;
+  font-weight: 900;
+  text-shadow: 0 2px 8px #23234799;
+}
