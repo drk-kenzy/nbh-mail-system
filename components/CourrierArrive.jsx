@@ -43,7 +43,7 @@ export default function CourrierArrive() {
   const [search, setSearch] = useState('');
   const { mails, addMail, removeMail, updateMail } = useMailList('arrive');
   const { addToast } = useToast();
- 
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
 
