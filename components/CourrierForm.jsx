@@ -89,7 +89,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
           </div>
 
           {step === 1 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
               <div>
                 <label className="block font-semibold mb-1 text-sm">Expéditeur</label>
                 <input
@@ -160,7 +160,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
               <div>
                 <label className="block font-semibold mb-1 text-sm">Planification</label>
                 <input
