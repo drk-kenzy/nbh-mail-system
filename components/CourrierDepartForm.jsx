@@ -100,30 +100,30 @@ export default function CourrierDepartForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('registerNumber')}</label>
-            <input type="text" value={form.numero} disabled className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30" />
+            <input type="text" value={form.numero} disabled className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30" />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('sendDate')}</label>
-            <input type="date" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required aria-required="true" />
+            <input type="date" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required aria-required="true" />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('recipientPartner')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
               {PARTENAIRES.map(p => <option key={p}>{p}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('mailSubject')}</label>
-            <input type="text" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.objet} onChange={e => setForm({ ...form, objet: e.target.value })} required aria-required="true" />
+            <input type="text" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.objet} onChange={e => setForm({ ...form, objet: e.target.value })} required aria-required="true" />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('internalReference')}</label>
-            <input type="text" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} />
+            <input type="text" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('sendChannel')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.canal} onChange={e => setForm({ ...form, canal: e.target.value })}>
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.canal} onChange={e => setForm({ ...form, canal: e.target.value })}>
               <option>Physique</option>
               <option>E-mail</option>
               <option>En ligne</option>
@@ -143,14 +143,14 @@ export default function CourrierDepartForm() {
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('senderService')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.emetteur} onChange={e => setForm({ ...form, emetteur: e.target.value })} required aria-required="true">
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.emetteur} onChange={e => setForm({ ...form, emetteur: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
               {EMETTEURS.map(e => <option key={e}>{e}</option>)}
             </select>
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm mb-1 text-main font-medium">{t('observations')}</label>
-            <textarea className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 min-h-[60px] border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70 resize-none placeholder-gray-400" value={form.observations} onChange={e => setForm({ ...form, observations: e.target.value })} placeholder="Ajoutez vos observations ici..." />
+            <textarea className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 min-h-[60px] border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white resize-none placeholder-gray-600" value={form.observations} onChange={e => setForm({ ...form, observations: e.target.value })} placeholder="Ajoutez vos observations ici..." />
           </div>
         </div>
         <div className="flex gap-2 mt-4">
@@ -167,7 +167,7 @@ export default function CourrierDepartForm() {
           placeholder={t('searchBySubject')}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="bg-surface/50 text-gray-100 rounded-lg px-3 py-2 w-full md:w-1/2 mb-4 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70 placeholder-gray-400"
+          className="bg-white/90 text-gray-900 rounded-lg px-3 py-2 w-full md:w-1/2 mb-4 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white placeholder-gray-600"
           aria-label={t('searchBySubject')}
         />
         <div className="overflow-x-auto">

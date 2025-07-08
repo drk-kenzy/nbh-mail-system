@@ -117,22 +117,22 @@ export default function CourrierArriveForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('registerNumber')}</label>
-            <input type="text" value={form.numero} disabled className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30" />
+            <input type="text" value={form.numero} disabled className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30" />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('receiveDate')}</label>
-            <input type="datetime-local" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required aria-required="true" />
+            <input type="datetime-local" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required aria-required="true" />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('expediteur')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.expediteur} onChange={e => setForm({ ...form, expediteur: e.target.value })} required aria-required="true">
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.expediteur} onChange={e => setForm({ ...form, expediteur: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
               {PARTENAIRES.map(p => <option key={p}>{p}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('mailSubject')}</label>
-            <input type="text" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.objet} onChange={e => setForm({ ...form, objet: e.target.value })} required aria-required="true" />
+            <input type="text" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.objet} onChange={e => setForm({ ...form, objet: e.target.value })} required aria-required="true" />
           </div>
           <div>
             <label className="block text-sm mb-1">{t('canal')}</label>
@@ -159,24 +159,24 @@ export default function CourrierArriveForm() {
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('destinataire')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
               {DESTINATAIRES.map(d => <option key={d}>{d}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('statut')}</label>
-            <select className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.statut} onChange={e => setForm({ ...form, statut: e.target.value })}>
+            <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.statut} onChange={e => setForm({ ...form, statut: e.target.value })}>
               {STATUTS.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('planif')}</label>
-            <input type="datetime-local" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.planif} onChange={e => setForm({ ...form, planif: e.target.value })} />
+            <input type="datetime-local" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.planif} onChange={e => setForm({ ...form, planif: e.target.value })} />
           </div>
           <div>
             <label className="block text-sm mb-1 text-main font-medium">{t('delai')}</label>
-            <input type="datetime-local" className="w-full bg-surface/50 text-gray-100 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70" value={form.delai} onChange={e => setForm({ ...form, delai: e.target.value })} />
+            <input type="datetime-local" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.delai} onChange={e => setForm({ ...form, delai: e.target.value })} />
           </div>
         </div>
         <div className="flex gap-2 mt-4">
@@ -195,13 +195,13 @@ export default function CourrierArriveForm() {
             placeholder={t('searchBySubject')}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="bg-surface/50 text-gray-100 rounded-lg px-3 py-2 w-full md:w-1/2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70 placeholder-gray-400"
+            className="bg-white/90 text-gray-900 rounded-lg px-3 py-2 w-full md:w-1/2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white placeholder-gray-600"
             aria-label={t('searchBySubject')}
           />
           <select
             value={statutFilter}
             onChange={e => setStatutFilter(e.target.value)}
-            className="bg-surface/50 text-gray-100 rounded-lg px-3 py-2 w-full md:w-1/4 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-surface/70"
+            className="bg-white/90 text-gray-900 rounded-lg px-3 py-2 w-full md:w-1/4 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
             aria-label={t('processingStatus')}
           >
             <option value="">{t('allStatus')}</option>
