@@ -86,7 +86,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
               <div className={`w-12 h-1 ${step === 1 ? 'bg-gray-300' : 'bg-emerald-800'}`}></div>
               <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 2 ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-600'} text-sm`}>2</div>
             </div>
-          </div>
+          </div>/div>
 
           {step === 1 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
