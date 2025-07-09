@@ -145,7 +145,7 @@ export default function CourrierArrive() {
           className="px-6 py-3 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors flex items-center gap-2 whitespace-nowrap shadow-sm"
         >
           <span>➕</span>
-          Ajouter un courrier
+          Ajouter un nouveau courrier arrivé
         </button>
       </div>
 
