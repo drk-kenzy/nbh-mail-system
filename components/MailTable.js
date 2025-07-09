@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FiSearch, FiMail, FiEye, FiEdit2, FiTrash2, FiInbox, FiDownload, FiCircle } from 'react-icons/fi';
+import { FiSearch, FiMail, FiEye, FiEdit2, FiTrash2, FiInbox, FiCircle } from 'react-icons/fi';
 
 const STATUS_COLORS = {
   'en cours': 'bg-yellow-500/20 text-yellow-400',
@@ -31,9 +31,17 @@ function getStatusClass(status) {
     : 'bg-gray-700 text-gray-200';
 }
 
-export default function MailTable({ mails = [], onRemove, search, setSearch, onView, onEdit, lastAddedId }) {
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+export default function MailTable({ 
+  mails = [], 
+  onRemove, 
+  search, 
+  setSearch, 
+  onView, 
+  onEdit, 
+  lastAddedId 
+}) {
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const filteredMails = useMemo(() => {
     if (!search) return mails;
@@ -46,15 +54,49 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
     );
   }, [mails, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredMails.length / pageSize));
+  const sortedMails = useMemo(() => {
+    const sorted = [...filteredMails].sort((a, b) => {
+      const aVal = a[sortBy] || '';
+      const bVal = b[sortBy] || '';
+
+      if (sortOrder === 'asc') {
+        return aVal.localeCompare(bVal);
+      } else {
+        return bVal.localeCompare(aVal);
+      }
+    });
+    return sorted;
+  }, [filteredMails, sortBy, sortOrder]);
+
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const totalPages = Math.max(1, Math.ceil(sortedMails.length / pageSize));
   const pagedMails = useMemo(() => {
     const start = (page - 1) * pageSize;
-    return filteredMails.slice(start, start + pageSize);
-  }, [filteredMails, page, pageSize]);
+    return sortedMails.slice(start, start + pageSize);
+  }, [sortedMails, page, pageSize]);
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
+                   'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
 
   return (
     <div className="w-full h-full flex flex-col space-y-4">
-      {/* Barre de recherche + Export */}
+      {/* Nouvelle barre d'outils */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch">
         <div className="relative flex-grow max-w-2xl">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -66,13 +108,20 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button
-          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-5 py-3 rounded-lg font-semibold shadow-lg transition-colors"
-          onClick={() => exportToCSV(filteredMails)}
-        >
-          <FiDownload className="w-5 h-5" />
-          <span>Exporter CSV</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-400 whitespace-nowrap">Trier par:</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="date">Date</option>
+            <option value="expediteur">Expéditeur</option>
+            <option value="destinataire">Destinataire</option>
+            <option value="objet">Objet</option>
+            <option value="statut">Statut</option>
+          </select>
+        </div>
       </div>
 
       {/* Tableau principal - Version Desktop */}
@@ -81,12 +130,38 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
           <table className="w-full">
             <thead className="sticky top-0 bg-gray-800">
               <tr>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">Date</th>
-                <th className="px-4 py-3 text-left w-[18%] border-b border-gray-600">Expéditeur</th>
-                <th className="px-4 py-3 text-left w-[18%] border-b border-gray-600">Destinataire</th>
-                <th className="px-4 py-3 text-left flex-1 min-w-[200px] border-b border-gray-600">Objet</th>
+                <th 
+                  className="px-4 py-3 text-left w-[12%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleSort('date')}
+                >
+                  Date d'arrivée {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th 
+                  className="px-4 py-3 text-left w-[18%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleSort('expediteur')}
+                >
+                  Expéditeur {sortBy === 'expediteur' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">N° d'enregistrement</th>
+                <th 
+                  className="px-4 py-3 text-left w-[18%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleSort('destinataire')}
+                >
+                  Destinataire {sortBy === 'destinataire' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th 
+                  className="px-4 py-3 text-left flex-1 min-w-[200px] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleSort('objet')}
+                >
+                  Objet {sortBy === 'objet' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
                 <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">Canal</th>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">Statut</th>
+                <th 
+                  className="px-4 py-3 text-left w-[12%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleSort('statut')}
+                >
+                  Statut {sortBy === 'statut' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
                 <th className="px-4 py-3 text-left w-[16%] border-b border-gray-600">Actions</th>
               </tr>
             </thead>
@@ -94,8 +169,9 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
               {pagedMails.length > 0 ? (
                 pagedMails.map((mail) => (
                   <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
-                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.date)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{formatDate(mail.date)}</td>
                     <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.expediteur || mail.sender)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.numero)}</td>
                     <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.destinataire || mail.recipient)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -141,7 +217,7 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="text-center py-16">
+                  <td colSpan={8} className="text-center py-16">
                     <div className="flex flex-col items-center justify-center gap-4 text-gray-400">
                       <FiInbox className="w-12 h-12 text-primary animate-pulse" />
                       <p className="text-lg font-medium">Aucun courrier trouvé</p>
@@ -182,7 +258,7 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
                 </div>
                 <div>
                   <p className="text-gray-400">Date</p>
-                  <p>{safeString(mail.date)}</p>
+                  <p>{formatDate(mail.date)}</p>
                 </div>
               </div>
 
@@ -210,10 +286,10 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
       </div>
 
       {/* Pagination */}
-      {filteredMails.length > 0 && (
+      {sortedMails.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
           <div className="text-sm text-gray-400">
-            {pageSize * (page - 1) + 1}-{Math.min(page * pageSize, filteredMails.length)} sur {filteredMails.length}
+            {pageSize * (page - 1) + 1}-{Math.min(page * pageSize, sortedMails.length)} sur {sortedMails.length}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -238,9 +314,4 @@ export default function MailTable({ mails = [], onRemove, search, setSearch, onV
       )}
     </div>
   );
-}
-
-function exportToCSV(data) {
-  // Implémentez votre logique d'export CSV ici
-  console.log("Exporting data:", data);
 }
