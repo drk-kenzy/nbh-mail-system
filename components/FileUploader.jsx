@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { PaperClipIcon } from '@heroicons/react/24/outline';
 
 export default function FileUploader({ onUpload }) {
@@ -22,11 +21,8 @@ export default function FileUploader({ onUpload }) {
 
   return (
     <div
-      className={`relative border-2 border-dashed rounded-lg p-6 transition-all ${
-        dragActive 
-          ? 'border-primary bg-primary/10' 
-          : 'border-gray-600 hover:border-gray-500'
-      }`}
+      className={`relative rounded-md border border-dashed p-3 text-sm transition-all 
+        ${dragActive ? 'border-primary bg-primary/10' : 'border-gray-500 hover:border-gray-400'}`}
       onDrop={handleDrop}
       onDragOver={(e) => {
         e.preventDefault();
@@ -45,34 +41,19 @@ export default function FileUploader({ onUpload }) {
         onChange={handleChange}
         accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
       />
-      
-      <div className="text-center space-y-2">
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="inline-block"
-        >
-          <PaperClipIcon className="mx-auto h-10 w-10 text-primary" />
-        </motion.div>
-        
-        <div className="space-y-1">
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.95 }}
-            className="font-medium text-primary hover:text-indigo-400 transition-colors"
-            onClick={() => inputRef.current.click()}
-          >
-            Cliquez pour sélectionner des fichiers
-          </motion.button>
-          
-          <p className="text-sm text-gray-300">
-            ou glissez-déposez directement ici
-          </p>
-        </div>
-        
-        <p className="text-xs text-gray-400 pt-1">
-          Formats supportés : PDF, DOC, XLS, JPG, PNG (max 10 Mo)
-        </p>
-      </div>
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="flex items-center justify-center gap-2 bg-primary text-white text-sm px-3 py-1.5 rounded-md hover:bg-primary-dark transition w-full sm:w-auto"
+      >
+        <PaperClipIcon className="w-4 h-4" />
+        Joindre des fichiers
+      </button>
+
+      <p className="text-xs text-gray-400 mt-2 text-center sm:text-left">
+        Glissez-déposez ici ou cliquez sur le bouton. Formats supportés : PDF, DOC, XLS, JPG, PNG (max 10 Mo)
+      </p>
     </div>
   );
 }
