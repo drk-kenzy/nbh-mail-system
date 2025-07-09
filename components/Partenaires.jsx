@@ -153,15 +153,24 @@ export default function Partenaires() {
                     </td>
                     <td className="py-4 px-6 text-gray-700">{p.email}</td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
                         p.statut === 'Actif' 
-                          ? 'bg-green-100 text-green-800' 
+                          ? 'bg-green-100 text-green-800 border border-green-200' 
                           : p.statut === 'Inactif'
-                          ? 'bg-gray-100 text-gray-800'
+                          ? 'bg-gray-100 text-gray-700 border border-gray-200'
                           : p.statut === 'En attente'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                          : 'bg-red-100 text-red-800 border border-red-200'
                       }`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          p.statut === 'Actif' 
+                            ? 'bg-green-600' 
+                            : p.statut === 'Inactif'
+                            ? 'bg-gray-500'
+                            : p.statut === 'En attente'
+                            ? 'bg-orange-500'
+                            : 'bg-red-600'
+                        }`}></span>
                         {p.statut}
                       </span>
                     </td>
