@@ -105,9 +105,9 @@ export default function CourrierDepart() {
             placeholder="Rechercher..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#15514f]"
           />
-          <select className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary">
+          <select className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#15514f]">
             <option value="">Trier par</option>
             <option value="date">Date</option>
             <option value="destinataire">Destinataire</option>
@@ -116,7 +116,7 @@ export default function CourrierDepart() {
           </select>
           <button
             onClick={() => setShowForm(f => !f)}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors flex items-center gap-2"
           >
             <span>➕</span>
             Ajouter un courrier

@@ -11,22 +11,22 @@ body {
 /* Thème clair */
 :root,
 .light {
-  --bg-main: #f8fafc;
-  --bg-surface: #fff;
+  --bg-main: #fafaf9;
+  --bg-surface: #f7f6f5;
   --text-main: #18181b;
   --text-secondary: #334155;
   --border-main: #e5e7eb;
-  --primary: #2563eb;
+  --primary: #15514f;
 }
 
 /* Thème sombre (déjà existant via Tailwind/dark) */
 .dark {
   --bg-main: #181818;
-  --bg-surface: #232347;
+  --bg-surface: #232c38;
   --text-main: #fff;
   --text-secondary: #a3a3a3;
-  --border-main: #232347;
-  --primary: #2563eb;
+  --border-main: #232c38;
+  --primary: #15514f;
 }
 
 /* Utilitaires pour appliquer les couleurs dynamiquement */
@@ -74,18 +74,18 @@ body {
 
 /* 2. Effet glassmorphism plus marqué */
 .glass {
-  background: linear-gradient(135deg, rgba(24,24,24,0.85) 60%, rgba(37,99,235,0.12) 100%);
-  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  background: linear-gradient(135deg, rgba(24,24,24,0.85) 60%, rgba(21,81,79,0.12) 100%);
+  box-shadow: 0 8px 32px 0 rgba(21,81,79,0.18);
   -webkit-backdrop-filter: blur(12px) saturate(120%);
   backdrop-filter: blur(12px) saturate(120%);
-  border: 1.5px solid rgba(37,99,235,0.18);
+  border: 1.5px solid rgba(21,81,79,0.18);
 }
 
 /* 3. Animation badge statut */
 @keyframes badgePulse {
-  0% { box-shadow: 0 0 0 0 #2563eb44; }
-  70% { box-shadow: 0 0 0 8px #2563eb00; }
-  100% { box-shadow: 0 0 0 0 #2563eb00; }
+  0% { box-shadow: 0 0 0 0 #15514f44; }
+  70% { box-shadow: 0 0 0 8px #15514f00; }
+  100% { box-shadow: 0 0 0 0 #15514f00; }
 }
 .badge-animated {
   animation: badgePulse 1.8s infinite;
@@ -93,17 +93,17 @@ body {
 
 /* 4. Effet hover ligne tableau */
 .table-row-animated:hover {
-  background: linear-gradient(90deg, #232347 60%, #2563eb22 100%) !important;
+  background: linear-gradient(90deg, #232c38 60%, #15514f22 100%) !important;
   transform: scale(1.012);
-  box-shadow: 0 2px 12px 0 #2563eb22;
+  box-shadow: 0 2px 12px 0 #15514f22;
   transition: all 0.18s cubic-bezier(.4,2,.6,1);
 }
 
 /* 5. Effet focus visible */
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #15514f;
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px #2563eb55;
+  box-shadow: 0 0 0 3px #15514f55;
 }
 
 /* 6. Fond animé subtil (noise) */
@@ -121,7 +121,7 @@ body {
 }
 .btn-animated:active {
   transform: scale(0.96);
-  box-shadow: 0 2px 8px 0 #2563eb33;
+  box-shadow: 0 2px 8px 0 #15514f33;
 }
 
 /* 8. Typo accent titres */

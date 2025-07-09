@@ -98,33 +98,6 @@ export default function MailTable({
 
   return (
     <div className="w-full h-full flex flex-col space-y-4">
-      {/* Nouvelle barre d'outils */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch">
-        <div className="relative flex-grow max-w-2xl">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            className="w-full pl-10 pr-4 py-3 bg-gray-800/80 text-white placeholder-gray-400 border-2 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary shadow-inner transition-all"
-            placeholder="Rechercher..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400 whitespace-nowrap">Trier par:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="date">Date</option>
-            <option value="expediteur">Expéditeur</option>
-            <option value="destinataire">Destinataire</option>
-            <option value="objet">Objet</option>
-            <option value="statut">Statut</option>
-          </select>
-        </div>
-      </div>
 
       {/* Tableau principal - Version Desktop */}
       <div className="hidden md:block flex-1 border border-gray-700 rounded-lg overflow-hidden">
@@ -132,6 +105,7 @@ export default function MailTable({
           <table className="w-full">
             <thead className="sticky top-0 bg-gray-800">
               <tr>
+                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">N° d'enregistrement</th>
                 <th 
                   className="px-4 py-3 text-left w-[12%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
                   onClick={() => handleSort('date')}
@@ -144,7 +118,6 @@ export default function MailTable({
                 >
                   Expéditeur {sortBy === 'expediteur' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">N° d'enregistrement</th>
                 <th 
                   className="px-4 py-3 text-left w-[18%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
                   onClick={() => handleSort('destinataire')}
@@ -171,9 +144,9 @@ export default function MailTable({
               {pagedMails.length > 0 ? (
                 pagedMails.map((mail) => (
                   <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
+                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.numero)}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{formatDate(mail.date)}</td>
                     <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.expediteur || mail.sender)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.numero)}</td>
                     <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.destinataire || mail.recipient)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
