@@ -95,52 +95,15 @@ export default function CourrierDepart() {
     );
   });
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-  };
-
-  const getStatusClass = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'en attente': return 'bg-yellow-500/20 text-yellow-400';
-      case 'en cours': return 'bg-blue-500/20 text-blue-400';
-      case 'traité': return 'bg-green-500/20 text-green-400';
-      case 'archivé': return 'bg-gray-500/20 text-gray-300';
-      default: return 'bg-gray-500/20 text-gray-300';
-    }
-  };
-
   return (
     <div ref={containerRef} className="relative w-full h-[100dvh] flex flex-col bg-main text-main">
-      
+      <AddCourierButton onClick={() => setShowForm(f => !f)} open={showForm} />
 
-      {/* Nouvelle barre d'outils avec recherche, tri et bouton ajouter */}
-      <div className="flex items-center justify-between gap-4 mb-4 px-4 pt-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <input
-              type="text"
-              className="w-full pl-4 pr-4 py-2 bg-gray-800/80 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary shadow-inner transition-all"
-              placeholder="Rechercher..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <select className="bg-gray-800/80 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-            <option value="">Trier par</option>
-            <option value="date">Date</option>
-            <option value="destinataire">Destinataire</option>
-            <option value="statut">Statut</option>
-          </select>
-        </div>
-        <button
-          onClick={() => setShowForm(f => !f)}
-          className="bg-primary hover:bg-primary/80 text-white px-6 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap"
-        >
-          Ajouter un courrier
-        </button>
+      <div className="flex items-center justify-between mb-2 px-4 pt-2">
+        <h1 className="text-xl font-extrabold bg-gradient-to-r from-primary to-indigo-700 bg-clip-text text-transparent drop-shadow-lg flex items-center gap-2">
+          📤 Courriers Départ
+        </h1>
+        {/* ⛔️ Bouton plein écran supprimé */}
       </div>
 
       {/* Formulaire immédiat */}
@@ -183,56 +146,17 @@ export default function CourrierDepart() {
         </div>
       )}
 
-      {/* Tableau simplifié */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
-        <div className="border border-gray-700 rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left text-white">Date d'arrivée</th>
-                <th className="px-4 py-3 text-left text-white">Expéditeur</th>
-                <th className="px-4 py-3 text-left text-white">N° d'enregistrement</th>
-                <th className="px-4 py-3 text-left text-white">Destinataire</th>
-                <th className="px-4 py-3 text-left text-white">Objet</th>
-                <th className="px-4 py-3 text-left text-white">Canal</th>
-                <th className="px-4 py-3 text-left text-white">Statut</th>
-                <th className="px-4 py-3 text-left text-white">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredMails.length > 0 ? (
-                filteredMails.map((mail) => (
-                  <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
-                    <td className="px-4 py-3 text-white">{formatDate(mail.date)}</td>
-                    <td className="px-4 py-3 text-white">{mail.expediteur || mail.emetteur}</td>
-                    <td className="px-4 py-3 text-white">{mail.numero || mail.id}</td>
-                    <td className="px-4 py-3 text-white">{mail.destinataire}</td>
-                    <td className="px-4 py-3 text-white">{mail.objet}</td>
-                    <td className="px-4 py-3 text-white">{mail.canal}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(mail.statut)}`}>
-                        {mail.statut}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button onClick={() => handleView(mail)} className="text-blue-400 hover:text-blue-300" title="Voir">👁</button>
-                        <button onClick={() => handleEdit(mail)} className="text-yellow-400 hover:text-yellow-300" title="Éditer">✏️</button>
-                        <button onClick={() => handleRemove(mail.id)} className="text-red-400 hover:text-red-300" title="Supprimer">🗑️</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={8} className="text-center py-8 text-gray-400">
-                    Aucun courrier trouvé
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Tableau */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-4">
+        <MailTable
+          mails={filteredMails}
+          onRemove={handleRemove}
+          search={search}
+          setSearch={setSearch}
+          onView={handleView}
+          onEdit={handleEdit}
+          lastAddedId={lastAddedId}
+        />
       </div>
     </div>
   );
