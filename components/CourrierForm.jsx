@@ -90,7 +90,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={expediteur}
                   onChange={(e) => setExpediteur(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir l'expéditeur"
                 />
               </div>
@@ -101,7 +101,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={destinataire}
                   onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir le destinataire"
                 />
               </div>
@@ -112,7 +112,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={objet}
                   onChange={(e) => setObjet(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir l'objet du courrier"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -132,7 +132,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <select
                   value={canal}
                   onChange={(e) => setCanal(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
                 >
                   <option value="Physique">Physique</option>
                   <option value="Email">Email</option>
@@ -145,7 +145,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <select
                   value={statut}
                   onChange={(e) => setStatut(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
                 >
                   {STATUTS.map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -162,7 +162,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={planif}
                   onChange={(e) => setPlanif(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -172,7 +172,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={delai}
                   onChange={(e) => setDelai(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir la référence"
                 />
               </div>
@@ -193,7 +193,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir le service concerné"
                 />
               </div>
@@ -203,7 +203,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white resize-none"
                   rows="2"
                   placeholder="Ajouter des observations (optionnel)"
                 />
