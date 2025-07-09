@@ -120,7 +120,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
       <div className="bg-gray-50 rounded-xl shadow-lg w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
-        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-3 space-y-3"></div>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-3 space-y-3">
           <h2 className="text-lg font-bold mb-2 text-black">
             {initialValues ? 'Modifier le courrier' : `Ajouter un nouveau courrier ${type === 'ARRIVE' ? 'arrivé' : 'départ'}`}
           </h2>
