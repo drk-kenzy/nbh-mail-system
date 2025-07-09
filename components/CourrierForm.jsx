@@ -66,8 +66,8 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
+          <div className="w-full max-w-md bg-gray-100 rounded-xl shadow-lg overflow-y-auto border border-primary" style={{ minHeight: '250px', maxHeight: '85vh' }}>
         <div className="h-full overflow-y-auto px-4 sm:px-5 py-3 space-y-3">
 
           <h2 className="text-lg font-bold mb-2">Ajouter un nouveau courrier</h2>
