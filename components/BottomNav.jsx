@@ -2,7 +2,7 @@ import { NAV } from './SidebarMenu.jsx';
 
 export default function BottomNav({ currentView, setCurrentView }) {
   return (
-    <nav className="fixed bottom-0 left-[100px] right-0 z-50 bg-surface/95 border-t border-main flex justify-around items-center py-2 shadow-2xl backdrop-blur-lg">
+    <nav className="fixed bottom-0 left-[100px] right-0 z-50 border-t border-main flex justify-around items-center py-2 shadow-2xl backdrop-blur-lg" style={{ backgroundColor: '#232c38' }}>
       {NAV.map(nav => (
         <button
           key={nav.key}

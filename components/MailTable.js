@@ -103,41 +103,41 @@ export default function MailTable({
       <div className="hidden md:block flex-1 border border-gray-700 rounded-lg overflow-hidden">
         <div className="h-full overflow-auto">
           <table className="w-full">
-            <thead className="sticky top-0 bg-gray-800">
+            <thead className="sticky top-0 bg-[#FCFCFC]">
               <tr>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">N° d'enregistrement</th>
+                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-300 text-gray-800">N° d'enregistrement</th>
                 <th 
-                  className="px-4 py-3 text-left w-[12%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  className="px-4 py-3 text-left w-[12%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
                   onClick={() => handleSort('date')}
                 >
                   Date d'arrivée {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left w-[18%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  className="px-4 py-3 text-left w-[18%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
                   onClick={() => handleSort('expediteur')}
                 >
                   Expéditeur {sortBy === 'expediteur' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left w-[18%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  className="px-4 py-3 text-left w-[18%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
                   onClick={() => handleSort('destinataire')}
                 >
                   Destinataire {sortBy === 'destinataire' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left flex-1 min-w-[200px] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  className="px-4 py-3 text-left flex-1 min-w-[200px] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
                   onClick={() => handleSort('objet')}
                 >
                   Objet {sortBy === 'objet' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-600">Canal</th>
+                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-300 text-gray-800">Canal</th>
                 <th 
-                  className="px-4 py-3 text-left w-[12%] border-b border-gray-600 cursor-pointer hover:text-primary transition-colors"
+                  className="px-4 py-3 text-left w-[12%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
                   onClick={() => handleSort('statut')}
                 >
                   Statut {sortBy === 'statut' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="px-4 py-3 text-left w-[16%] border-b border-gray-600">Actions</th>
+                <th className="px-4 py-3 text-left w-[16%] border-b border-gray-300 text-gray-800">Actions</th>
               </tr>
             </thead>
             <tbody>
