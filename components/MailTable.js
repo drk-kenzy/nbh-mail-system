@@ -317,8 +317,3 @@ export default function MailTable({
     </div>
   );
 }
-```
-
-```text
-The code has been modified to update the date format and reorder the columns in the MailTable component.
-</text>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import SidebarMenu from './SidebarMenu.jsx';
 import BottomNav from './BottomNav.jsx';
-import Header from './Header';
 import Dashboard from './Dashboard.jsx';
 import CourrierArrive from './CourrierArrive.jsx';
 import CourrierDepart from './CourrierDepart.jsx';
@@ -14,8 +13,7 @@ export default function MainLayout({ children }) {
     <div className={`min-h-screen flex bg-main text-main`}>
       <SidebarMenu currentView={currentView} setCurrentView={setCurrentView} />
       <div className="flex-1 flex flex-col min-h-screen pl-[80px] md:pl-[120px] transition-all duration-300 pb-16">
-        <Header />
-        <main className="flex-1 w-full py-8 px-4 pr-6">
+        <main className="flex-1 w-full py-4 px-4 pr-6">
           {currentView === 'accueil' && <Dashboard />}
           {currentView === 'arrive' && <CourrierArrive />}
           {currentView === 'depart' && <CourrierDepart />}
