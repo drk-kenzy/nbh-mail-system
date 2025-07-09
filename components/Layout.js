@@ -5,7 +5,7 @@ import MainNav from './MainNav';
  */
 export default function Layout({ children }) {
   return (
-    <div className="h-screen flex bg-surface text-gray-100 dark">
+    <div className="h-screen flex bg-[#F7F8FA] text-[#18181b]">
       {/* MainNav vertical fixe à gauche */}
       <MainNav />
       <div className="flex-1 flex flex-col min-h-screen ml-56">
