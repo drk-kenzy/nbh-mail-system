@@ -6,13 +6,14 @@
 
 body {
   font-family: 'Inter', 'Geist', 'Geist Mono', 'sans-serif';
+  background-color: #F7F8FA;
 }
 
 /* Thème clair */
 :root,
 .light {
-  --bg-main: #fafaf9;
-  --bg-surface: #f7f6f5;
+  --bg-main: #F7F8FA;
+  --bg-surface: #15514f;
   --text-main: #18181b;
   --text-secondary: #334155;
   --border-main: #e5e7eb;

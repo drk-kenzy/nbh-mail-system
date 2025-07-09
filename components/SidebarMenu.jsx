@@ -10,7 +10,7 @@ export const NAV = [
 
 export default function SidebarMenu({ currentView, setCurrentView }) {
   return (
-    <div className="fixed top-0 left-0 h-screen w-[100px] bg-surface text-main flex flex-col items-center pt-6 space-y-6 z-50">
+    <div className="fixed top-0 left-0 h-screen w-[100px] text-main flex flex-col items-center pt-6 space-y-6 z-50" style={{ backgroundColor: '#15514f' }}>
       {/* Sidebar minimaliste, sans navigation principale */}
       <div className="flex flex-col items-center gap-4 mt-8">
         <span className="text-3xl">📬</span>
