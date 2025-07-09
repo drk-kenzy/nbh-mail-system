@@ -97,31 +97,37 @@ export default function CourrierDepart() {
 
   return (
     <div ref={containerRef} className="relative w-full h-[100dvh] flex flex-col bg-main text-main">
+      {/* Titre avec logo */}
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-2xl font-bold text-[#15514f] flex items-center gap-3">
+          <span className="text-3xl">📤</span>
+          Courrier Départ
+        </h1>
+      </div>
+
       {/* Barre d'outils avec recherche, tri et ajouter */}
-      <div className="flex items-center justify-between gap-4 mb-4 px-4 pt-4">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-2 bg-[#FCFCFC] border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-          />
-          <select className="px-3 py-2 bg-[#FCFCFC] border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#15514f]">
-            <option value="">Trier par</option>
-            <option value="date">Date</option>
-            <option value="destinataire">Destinataire</option>
-            <option value="objet">Objet</option>
-            <option value="statut">Statut</option>
-          </select>
-          <button
-            onClick={() => setShowForm(f => !f)}
-            className="px-4 py-2 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors flex items-center gap-2"
-          >
-            <span>➕</span>
-            Ajouter un courrier
-          </button>
-        </div>
+      <div className="flex items-center gap-4 mb-4 px-4">
+        <input
+          type="text"
+          placeholder="Rechercher par objet, destinataire..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 px-4 py-3 bg-[#FCFCFC] border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#15514f] shadow-sm"
+        />
+        <select className="px-4 py-3 bg-[#FCFCFC] border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#15514f] shadow-sm min-w-[140px]">
+          <option value="">Trier par</option>
+          <option value="date">Date</option>
+          <option value="destinataire">Destinataire</option>
+          <option value="objet">Objet</option>
+          <option value="statut">Statut</option>
+        </select>
+        <button
+          onClick={() => setShowForm(f => !f)}
+          className="px-6 py-3 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors flex items-center gap-2 whitespace-nowrap shadow-sm"
+        >
+          <span>➕</span>
+          Ajouter un courrier
+        </button>
       </div>
 
       {/* Formulaire immédiat */}
