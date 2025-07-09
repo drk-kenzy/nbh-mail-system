@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { PlusIcon, UserGroupIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import InviteMemberModal from './InviteMemberModal';
 
 const PARTENAIRES_MOCK = [
   { id: 1, nom: 'Direction Générale', type: 'Partenaire', email: 'dg@entreprise.com', statut: 'Actif', secteur: 'Administration', contact: 'Mme Martin', tel: '+33 1 23 45 67 89', ville: 'Paris', pays: 'France', notes: '', courriers: 12, dernierContact: '2025-06-30' },
@@ -16,7 +17,7 @@ export default function Partenaires() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [editId, setEditId] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [form, setForm] = useState({
     nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: ''
   });
@@ -35,6 +36,14 @@ export default function Partenaires() {
   const handleDelete = (id) => {
     if(window.confirm('Confirmer la suppression de ce partenaire ?'))
       setPartenaires(ps => ps.filter(p => p.id !== id));
+  };
+
+  const handleInvite = async (email) => {
+    // Ici vous pouvez ajouter la logique d'invitation
+    console.log('Inviter membre avec email:', email);
+    // Simulation d'un appel API
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    alert(`Invitation envoyée à ${email}`);
   };
 
   const handleSubmit = (e) => {
@@ -62,7 +71,7 @@ export default function Partenaires() {
               Partenaires
             </h1>
             <button
-              onClick={() => { setShowForm(f => !f); setEditId(null); setForm({ nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: '' }); }}
+              onClick={() => setShowInviteModal(true)}
               className="flex items-center gap-2 bg-[#15514f] hover:bg-[#0f3e3c] text-white px-6 py-3 rounded-xl font-semibold transition-colors shadow-md"
             >
               <PlusIcon className="w-5 h-5" />
@@ -96,81 +105,12 @@ export default function Partenaires() {
             </div>
           </div>
 
-          {/* Formulaire d'ajout/édition */}
-          {showForm && (
-            <div className="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200">
-              <h3 className="text-lg font-semibold text-[#15514f] mb-4">
-                {editId ? 'Modifier le partenaire' : 'Nouveau partenaire'}
-              </h3>
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  placeholder="Nom/Raison sociale" 
-                  value={form.nom} 
-                  onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} 
-                  required 
-                />
-                <input 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  placeholder="Contact principal" 
-                  value={form.contact} 
-                  onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} 
-                />
-                <select 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  value={form.type} 
-                  onChange={e => setForm(f => ({ ...f, type: e.target.value }))} 
-                  required
-                >
-                  {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <input 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  placeholder="Email" 
-                  type="email" 
-                  value={form.email} 
-                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))} 
-                  required 
-                />
-                <select 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  value={form.statut} 
-                  onChange={e => setForm(f => ({ ...f, statut: e.target.value }))}
-                >
-                  {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <input 
-                  className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  placeholder="Téléphone" 
-                  value={form.tel} 
-                  onChange={e => setForm(f => ({ ...f, tel: e.target.value }))} 
-                />
-                <textarea 
-                  className="md:col-span-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#15514f] focus:border-transparent" 
-                  placeholder="Notes et commentaires..." 
-                  value={form.notes} 
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} 
-                  rows={3}
-                />
-                <div className="md:col-span-2 flex gap-3">
-                  <button 
-                    type="submit" 
-                    className="flex items-center gap-2 bg-[#15514f] hover:bg-[#0f3e3c] text-white px-6 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <CheckCircleIcon className="w-5 h-5" />
-                    {editId ? 'Modifier' : 'Ajouter'}
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowForm(false)}
-                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold transition-colors"
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
+          {/* Modal d'invitation */}
+          <InviteMemberModal
+            isOpen={showInviteModal}
+            onClose={() => setShowInviteModal(false)}
+            onInvite={handleInvite}
+          />
 
           {/* Tableau */}
           <div className="overflow-x-auto">
