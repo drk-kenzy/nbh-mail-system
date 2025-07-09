@@ -97,13 +97,31 @@ export default function CourrierDepart() {
 
   return (
     <div ref={containerRef} className="relative w-full h-[100dvh] flex flex-col bg-main text-main">
-      <AddCourierButton onClick={() => setShowForm(f => !f)} open={showForm} />
-
-      <div className="flex items-center justify-between mb-2 px-4 pt-2">
-        <h1 className="text-xl font-extrabold bg-gradient-to-r from-primary to-indigo-700 bg-clip-text text-transparent drop-shadow-lg flex items-center gap-2">
-          📤 Courriers Départ
-        </h1>
-        {/* ⛔️ Bouton plein écran supprimé */}
+      {/* Barre d'outils avec recherche, tri et ajouter */}
+      <div className="flex items-center justify-between gap-4 mb-4 px-4 pt-4">
+        <div className="flex items-center gap-3">
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <select className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="">Trier par</option>
+            <option value="date">Date</option>
+            <option value="destinataire">Destinataire</option>
+            <option value="objet">Objet</option>
+            <option value="statut">Statut</option>
+          </select>
+          <button
+            onClick={() => setShowForm(f => !f)}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors flex items-center gap-2"
+          >
+            <span>➕</span>
+            Ajouter un courrier
+          </button>
+        </div>
       </div>
 
       {/* Formulaire immédiat */}
