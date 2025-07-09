@@ -5,19 +5,19 @@ import { useToast } from './ToastContext';
 
 const STATUTS = ['En attente', 'Traité', 'En cours', 'Archivé'];
 
-export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMail }) {
-  const [objet, setObjet] = useState('');
-  const [date, setDate] = useState('');
-  const [canal, setCanal] = useState('Physique');
-  const [expediteur, setExpediteur] = useState('');
-  const [destinataire, setDestinataire] = useState('');
-  const [statut, setStatut] = useState('En attente');
-  const [planif, setPlanif] = useState('');
-  const [delai, setDelai] = useState('');
-  const [reference, setReference] = useState('');
-  const [service, setService] = useState('');
-  const [observations, setObservations] = useState('');
-  const [files, setFiles] = useState([]);
+export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMail, initialValues = null }) {
+  const [objet, setObjet] = useState(initialValues?.objet || '');
+  const [date, setDate] = useState(initialValues?.date || '');
+  const [canal, setCanal] = useState(initialValues?.canal || 'Physique');
+  const [expediteur, setExpediteur] = useState(initialValues?.expediteur || '');
+  const [destinataire, setDestinataire] = useState(initialValues?.destinataire || '');
+  const [statut, setStatut] = useState(initialValues?.statut || 'En attente');
+  const [planif, setPlanif] = useState(initialValues?.planif || '');
+  const [delai, setDelai] = useState(initialValues?.delai || '');
+  const [reference, setReference] = useState(initialValues?.reference || '');
+  const [service, setService] = useState(initialValues?.service || '');
+  const [observations, setObservations] = useState(initialValues?.observations || '');
+  const [files, setFiles] = useState(initialValues?.files || []);
   const [step, setStep] = useState(1);
   const { addToast } = useToast();
 
@@ -42,8 +42,8 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
   };
 
   const handleSubmit = () => {
-    const newMail = {
-      id: Date.now(),
+    const mailData = {
+      id: initialValues?.id || Date.now(),
       objet,
       date,
       canal,
@@ -56,12 +56,12 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
       service,
       observations,
       files,
-      numero,
+      numero: initialValues?.numero || numero,
       type,
     };
 
-    if (onAddMail) onAddMail(newMail);
-    addToast('Courrier enregistré avec succès !', 'success');
+    if (onAddMail) onAddMail(mailData);
+    addToast(initialValues ? 'Courrier modifié avec succès !' : 'Courrier enregistré avec succès !', 'success');
     if (onClose) onClose();
   };
 
@@ -90,7 +90,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={expediteur}
                   onChange={(e) => setExpediteur(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir l'expéditeur"
                 />
               </div>
@@ -101,7 +101,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={destinataire}
                   onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir le destinataire"
                 />
               </div>
@@ -112,7 +112,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={objet}
                   onChange={(e) => setObjet(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir l'objet du courrier"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -132,7 +132,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <select
                   value={canal}
                   onChange={(e) => setCanal(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
                 >
                   <option value="Physique">Physique</option>
                   <option value="Email">Email</option>
@@ -145,7 +145,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <select
                   value={statut}
                   onChange={(e) => setStatut(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white"
                 >
                   {STATUTS.map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -162,7 +162,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={planif}
                   onChange={(e) => setPlanif(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -172,7 +172,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="datetime-local"
                   value={delai}
                   onChange={(e) => setDelai(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir la référence"
                 />
               </div>
@@ -193,7 +193,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white disabled:bg-gray-100"
                   placeholder="Saisir le service concerné"
                 />
               </div>
@@ -203,7 +203,7 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-xl border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white resize-none"
+                  className="w-full px-3 py-2 bg-white/90 text-gray-900 rounded-md border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white resize-none"
                   rows="2"
                   placeholder="Ajouter des observations (optionnel)"
                 />
