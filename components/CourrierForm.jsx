@@ -198,66 +198,73 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
           {step === 2 && (
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expéditeur *
-                </label>
-                <select
-                  value={expediteur}
-                  onChange={(e) => setExpediteur(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                  required
-                >
-                  <option value="">Sélectionner un expéditeur</option>
-                  {EXPEDITEURS.map(exp => (
-                    <option key={exp} value={exp}>{exp}</option>
-                  ))}
-                </select>
+              {/* Première ligne - 2 colonnes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Expéditeur *
+                  </label>
+                  <select
+                    value={expediteur}
+                    onChange={(e) => setExpediteur(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                    required
+                  >
+                    <option value="">Sélectionner un expéditeur</option>
+                    {EXPEDITEURS.map(exp => (
+                      <option key={exp} value={exp}>{exp}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Destinataire *
+                  </label>
+                  <select
+                    value={destinataire}
+                    onChange={(e) => setDestinataire(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                    required
+                  >
+                    <option value="">Sélectionner un destinataire</option>
+                    {DESTINATAIRES.map(dest => (
+                      <option key={dest} value={dest}>{dest}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Destinataire *
-                </label>
-                <select
-                  value={destinataire}
-                  onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                  required
-                >
-                  <option value="">Sélectionner un destinataire</option>
-                  {DESTINATAIRES.map(dest => (
-                    <option key={dest} value={dest}>{dest}</option>
-                  ))}
-                </select>
+              {/* Deuxième ligne - 2 colonnes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Référence courrier
+                  </label>
+                  <input
+                    type="text"
+                    value={reference}
+                    onChange={(e) => setReference(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                    placeholder="Référence interne"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Délai de réponse
+                  </label>
+                  <input
+                    type="text"
+                    value={delai}
+                    onChange={(e) => setDelai(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                    placeholder="Ex: 30 jours, 2 semaines..."
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Référence courrier
-                </label>
-                <input
-                  type="text"
-                  value={reference}
-                  onChange={(e) => setReference(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                  placeholder="Référence interne"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Délai de réponse
-                </label>
-                <input
-                  type="text"
-                  value={delai}
-                  onChange={(e) => setDelai(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                  placeholder="Ex: 30 jours, 2 semaines..."
-                />
-              </div>
-
+              {/* Statut - ligne séparée */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Statut
@@ -273,6 +280,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 </select>
               </div>
 
+              {/* Observation - ligne séparée */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Observation
@@ -280,12 +288,13 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  rows={3}
+                  rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent resize-none"
                   placeholder="Commentaires ou observations..."
                 />
               </div>
 
+              {/* Pièces jointes - à la fin */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Pièces jointes
