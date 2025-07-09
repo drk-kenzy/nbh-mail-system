@@ -10,7 +10,7 @@ const PARTENAIRES_MOCK = [
 ];
 
 const TYPES = ['Client', 'Fournisseur', 'Consultant', 'Partenaire'];
-const STATUTS = ['Actif', 'Inactif', 'Suspendu'];
+const STATUTS = ['Actif', 'Inactif', 'Suspendu', 'En attente'];
 
 export default function Partenaires() {
   const [partenaires, setPartenaires] = useState(PARTENAIRES_MOCK);
@@ -43,6 +43,25 @@ export default function Partenaires() {
     console.log('Inviter membre avec email:', email);
     // Simulation d'un appel API
     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Ajouter l'invitation dans le tableau
+    const newInvitation = {
+      id: Date.now(),
+      nom: email.split('@')[0], // Utilise la partie avant @ comme nom temporaire
+      type: 'Invité',
+      email: email,
+      statut: 'En attente',
+      secteur: '',
+      contact: email,
+      tel: '',
+      ville: '',
+      pays: '',
+      notes: 'Invitation envoyée',
+      courriers: 0,
+      dernierContact: new Date().toISOString().split('T')[0]
+    };
+    
+    setPartenaires(ps => [...ps, newInvitation]);
     alert(`Invitation envoyée à ${email}`);
   };
 
@@ -139,6 +158,8 @@ export default function Partenaires() {
                           ? 'bg-green-100 text-green-800' 
                           : p.statut === 'Inactif'
                           ? 'bg-gray-100 text-gray-800'
+                          : p.statut === 'En attente'
+                          ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {p.statut}
