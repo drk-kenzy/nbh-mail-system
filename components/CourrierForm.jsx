@@ -90,18 +90,18 @@ export default function ModalCourrierComplet({ type = 'ARRIVE', onClose, onAddMa
                   type="text"
                   value={expediteur}
                   onChange={(e) => setExpediteur(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-1 focus:ring-primary"
                   placeholder="Saisir l'expéditeur"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-sm text-black">Destinataire</label>
+                <label className="block font-semibold mb-1 text-sm text-gray-900">Destinataire</label>
                 <input
                   type="text"
                   value={destinataire}
                   onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-1 focus:ring-primary"
                   placeholder="Saisir le destinataire"
                 />
               </div>

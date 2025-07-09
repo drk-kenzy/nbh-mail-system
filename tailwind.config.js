@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: false, // active le mode sombre via la classe 'dark'
   content: [
     "./pages/**/*.{js,jsx}",
     "./components/**/*.{js,jsx}",
@@ -20,11 +19,11 @@ module.exports = {
         success: '#22c55e',
         warning: '#fbbf24',
         danger: '#ef4444',
-        surface: '#18181b',
-        muted: '#374151',
-        secondary: "#90CAF9",
-        light: "#1E1E1E",
-        neutral: "#9CA3AF"
+        surface: '#FCFCFC', // fond très clair
+        muted: '#6B7280',
+        secondary: "#3B82F6",
+        light: "#F7F8FA",
+        neutral: "#374151"
       },
       fontFamily: {
         sans: [

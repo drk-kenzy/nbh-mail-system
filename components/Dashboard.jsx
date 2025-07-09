@@ -6,7 +6,7 @@ import { FiArrowDownCircle, FiArrowUpCircle, FiArchive, FiEdit2, FiClock, FiUser
 function StatCard({ icon: Icon, label, value, color, onClick }) {
   return (
     <div
-      className={`flex items-center gap-3 bg-[#232347] rounded-xl p-4 shadow-lg min-w-[160px] cursor-pointer hover:scale-105 hover:shadow-primary/30 transition-all duration-200 group`}
+      className={`flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-card min-w-[160px] cursor-pointer hover:scale-105 hover:shadow-card-hover transition-all duration-200 group`}
       onClick={onClick}
       tabIndex={0}
       role="button"
@@ -15,24 +15,24 @@ function StatCard({ icon: Icon, label, value, color, onClick }) {
       <Icon className={`w-8 h-8 ${color} group-hover:scale-110 transition`} />
       <div>
         <div className={`text-2xl font-bold ${color}`}>{value}</div>
-        <div className="text-gray-300 text-sm font-semibold">{label}</div>
+        <div className="text-gray-600 text-sm font-semibold">{label}</div>
       </div>
     </div>
   );
 }
 
 function ActivityItem({ mail }) {
-  const typeIcon = mail.type === 'ARRIVE' ? <FiArrowDownCircle className="text-primary" /> : mail.type === 'DEPART' ? <FiArrowUpCircle className="text-green-400" /> : <FiEdit2 className="text-yellow-400" />;
-  const statutColor = mail.statut === 'Urgent' ? 'text-red-500' : mail.statut === 'Brouillon' ? 'text-yellow-400' : 'text-green-400';
+  const typeIcon = mail.type === 'ARRIVE' ? <FiArrowDownCircle className="text-primary" /> : mail.type === 'DEPART' ? <FiArrowUpCircle className="text-green-500" /> : <FiEdit2 className="text-amber-500" />;
+  const statutColor = mail.statut === 'Urgent' ? 'text-red-500' : mail.statut === 'Brouillon' ? 'text-amber-500' : 'text-green-500';
   return (
-    <div className="flex items-center gap-3 bg-[#232347] rounded-lg p-3 mb-2 shadow">
+    <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 mb-2 shadow-card">
       {typeIcon}
       <div className="flex-1">
-        <div className="font-bold text-white text-sm">{mail.objet}</div>
-        <div className="text-xs text-gray-400">{mail.type === 'ARRIVE' ? `De: ${mail.expediteur}` : `À: ${mail.destinataire}`}</div>
+        <div className="font-bold text-gray-900 text-sm">{mail.objet}</div>
+        <div className="text-xs text-gray-600">{mail.type === 'ARRIVE' ? `De: ${mail.expediteur}` : `À: ${mail.destinataire}`}</div>
       </div>
       <div className={`text-xs font-bold ${statutColor}`}>{mail.statut}</div>
-      <div className="text-xs text-gray-400 ml-2">{mail.date}</div>
+      <div className="text-xs text-gray-500 ml-2">{mail.date}</div>
     </div>
   );
 }
@@ -83,30 +83,30 @@ export default function Dashboard() {
         <StatCard icon={FiArchive} label="Archives" value={archives} color="text-indigo-400" onClick={() => router.push('/dashboard/archives')} />
       </div>
       {/* Activité récente */}
-      <div className="bg-[#181818] rounded-xl shadow-lg p-6 mb-8">
-        <div className="text-lg font-bold mb-4 flex items-center gap-2"><FiInbox className="text-primary" /> Activité récente</div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-card p-6 mb-8">
+        <div className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900"><FiInbox className="text-primary" /> Activité récente</div>
         {recent.length === 0 ? (
-          <div className="text-gray-400">Aucune activité récente.</div>
+          <div className="text-gray-500">Aucune activité récente.</div>
         ) : (
           recent.map(mail => <ActivityItem key={mail.id} mail={mail} />)
         )}
       </div>
       {/* Tâches en attente */}
-      <div className="bg-[#181818] rounded-xl shadow-lg p-6 mb-8">
-        <div className="text-lg font-bold mb-4 flex items-center gap-2"><FiAlertCircle className="text-red-400" /> Tâches en attente</div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-card p-6 mb-8">
+        <div className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900"><FiAlertCircle className="text-red-500" /> Tâches en attente</div>
         <ul className="space-y-2">
-          <li className="flex items-center gap-2 text-sm"><FiZap className="text-yellow-400" /> <span className="font-semibold">Courriers urgents :</span> {urgents}</li>
-          <li className="flex items-center gap-2 text-sm"><FiEdit2 className="text-yellow-400" /> <span className="font-semibold">Validation brouillons :</span> {brouillons}</li>
-          <li className="flex items-center gap-2 text-sm"><FiArchive className="text-indigo-400" /> <span className="font-semibold">Archivage automatique :</span> {archives}</li>
+          <li className="flex items-center gap-2 text-sm text-gray-700"><FiZap className="text-amber-500" /> <span className="font-semibold">Courriers urgents :</span> {urgents}</li>
+          <li className="flex items-center gap-2 text-sm text-gray-700"><FiEdit2 className="text-amber-500" /> <span className="font-semibold">Validation brouillons :</span> {brouillons}</li>
+          <li className="flex items-center gap-2 text-sm text-gray-700"><FiArchive className="text-blue-500" /> <span className="font-semibold">Archivage automatique :</span> {archives}</li>
         </ul>
       </div>
       {/* Statistiques rapides */}
-      <div className="bg-[#181818] rounded-xl shadow-lg p-6">
-        <div className="text-lg font-bold mb-4 flex items-center gap-2"><FiCheckCircle className="text-green-400" /> Statistiques rapides</div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-card p-6">
+        <div className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900"><FiCheckCircle className="text-green-500" /> Statistiques rapides</div>
         <ul className="flex flex-wrap gap-8 text-sm">
-          <li className="flex items-center gap-2"><FiUsers className="text-primary" /> <span className="font-semibold">Partenaires actifs :</span> {partenaires}</li>
-          <li className="flex items-center gap-2"><FiClock className="text-indigo-400" /> <span className="font-semibold">Temps moyen de traitement :</span> {traitement}</li>
-          <li className="flex items-center gap-2"><FiCheckCircle className="text-green-400" /> <span className="font-semibold">Taux de traitement :</span> {taux}</li>
+          <li className="flex items-center gap-2 text-gray-700"><FiUsers className="text-primary" /> <span className="font-semibold">Partenaires actifs :</span> {partenaires}</li>
+          <li className="flex items-center gap-2 text-gray-700"><FiClock className="text-blue-500" /> <span className="font-semibold">Temps moyen de traitement :</span> {traitement}</li>
+          <li className="flex items-center gap-2 text-gray-700"><FiCheckCircle className="text-green-500" /> <span className="font-semibold">Taux de traitement :</span> {taux}</li>
         </ul>
       </div>
     </div>

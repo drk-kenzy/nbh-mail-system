@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,27 +9,15 @@ body {
   color: #18181b !important;
 }
 
-/* Thème clair */
+/* Thème clair uniquement */
 :root {
   --bg-main: #F7F8FA;
-  --bg-surface: #15514f;
+  --bg-surface: #FCFCFC;
   --text-main: #18181b;
-  --text-secondary: #334155;
+  --text-secondary: #374151;
   --border-main: #e5e7eb;
   --primary: #15514f;
 }
-
-/* SUPPRIME le thème sombre ! (inutile si tu ne veux plus de dark mode) */
-/*
-.dark {
-  --bg-main: #181818;
-  --bg-surface: #232c38;
-  --text-main: #fff;
-  --text-secondary: #a3a3a3;
-  --border-main: #232c38;
-  --primary: #15514f;
-}
-*/
 
 .bg-main { background-color: var(--bg-main) !important; }
 .bg-surface { background-color: var(--bg-surface) !important; }
@@ -38,4 +27,27 @@ body {
 .text-primary { color: var(--primary) !important; }
 .bg-primary { background-color: var(--primary) !important; }
 
-/* ... (le reste de tes utilitaires, animations, etc. ne change pas) ... */
+/* Styles pour les cartes avec effet d'ombre */
+.shadow-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.shadow-card-hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Animation pour l'échelle */
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

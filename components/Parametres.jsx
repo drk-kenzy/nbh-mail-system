@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
 import { Cog6ToothIcon, ArrowPathIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, UserIcon, BellIcon, LockClosedIcon, ComputerDesktopIcon, UsersIcon, DatabaseIcon, EyeIcon, PencilSquareIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-const THEMES = ['auto', 'clair', 'sombre'];
 const FONTS = ['base', 'large', 'x-large'];
 const DENSITIES = ['normal', 'compact', 'spacious'];
 
@@ -27,7 +26,7 @@ export default function Parametres() {
   const [notifs, setNotifs] = useState(() => JSON.parse(localStorage.getItem('param-notifs')) || { email: true, sms: false, push: true, rappels: true, rapports: false });
   const [securite, setSecurite] = useState(() => JSON.parse(localStorage.getItem('param-securite')) || { deuxFA: false, session: 30, historique: true, chiffrement: true });
   const [mdp, setMdp] = useState('');
-  const [systeme, setSysteme] = useState(() => JSON.parse(localStorage.getItem('param-systeme')) || { langue: LANGUES[0], fuseau: FUSEAUX[0], formatDate: FORMATS_DATE[0], pagination: PAGINATIONS[0], archivage: true, sauvegarde: true, theme: 'auto', fontSize: 'base', density: 'normal', order: [0,1,2,3,4,5] });
+  const [systeme, setSysteme] = useState(() => JSON.parse(localStorage.getItem('param-systeme')) || { langue: LANGUES[0], fuseau: FUSEAUX[0], formatDate: FORMATS_DATE[0], pagination: PAGINATIONS[0], archivage: true, sauvegarde: true, fontSize: 'base', density: 'normal', order: [0,1,2,3,4,5] });
   const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('param-users')) || MOCK_USERS);
   const [newUser, setNewUser] = useState({ nom: '', email: '', role: ROLES[1], statut: 'Actif' });
   const [importFile, setImportFile] = useState(null);
