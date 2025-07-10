@@ -164,8 +164,8 @@ export default function MailTable({
                 pagedMails.map((mail) => {
                   const objetText = safeString(mail.objet || mail.subject);
                   const isExpanded = expandedObjects.has(mail.id);
-                  const shouldTruncate = objetText.length > 45;
-                  
+                  const shouldTruncate = objetText.length > 15;
+
                   return (
                     <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
                       <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{safeString(mail.numero)}</td>
@@ -179,7 +179,7 @@ export default function MailTable({
                             {shouldTruncate ? (
                               <div className="flex items-center gap-1 w-full">
                                 <span className={`${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
-                                  {isExpanded ? objetText : truncateText(objetText, 45)}
+                                  {isExpanded ? objetText : truncateText(objetText, 15)}
                                 </span>
                                 <button
                                   onClick={() => toggleObjectExpansion(mail.id)}
@@ -261,8 +261,8 @@ export default function MailTable({
           pagedMails.map((mail) => {
             const objetText = safeString(mail.objet || mail.subject);
             const isExpanded = expandedObjects.has(mail.id);
-            const shouldTruncate = objetText.length > 35; // Limite pour mobile
-            
+            const shouldTruncate = objetText.length > 15; // Limite pour mobile
+
             return (
               <div key={mail.id} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-800/50">
                 <div className="flex justify-between items-start mb-2">
@@ -272,7 +272,7 @@ export default function MailTable({
                       {shouldTruncate ? (
                         <div className="flex items-center gap-1 w-full min-w-0">
                           <span className={`font-medium ${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
-                            {isExpanded ? objetText : truncateText(objetText, 35)}
+                            {isExpanded ? objetText : truncateText(objetText, 15)}
                           </span>
                           <button
                             onClick={() => toggleObjectExpansion(mail.id)}
