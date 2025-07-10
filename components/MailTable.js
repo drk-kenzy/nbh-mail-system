@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FiSearch, FiMail, FiEye, FiEdit2, FiTrash2, FiInbox, FiCircle } from 'react-icons/fi';
+import { FiSearch, FiMail, FiEye, FiEdit2, FiTrash2, FiInbox, FiCircle, FiMoreHorizontal } from 'react-icons/fi';
 
 const STATUS_COLORS = {
   'en cours': 'bg-yellow-500/20 text-yellow-400',
@@ -42,6 +42,7 @@ export default function MailTable({
 }) {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [expandedObjects, setExpandedObjects] = useState(new Set());
 
   const filteredMails = useMemo(() => {
     if (!search) return mails;
@@ -96,103 +97,147 @@ export default function MailTable({
     });
   };
 
+  const toggleObjectExpansion = (mailId) => {
+    setExpandedObjects(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(mailId)) {
+        newSet.delete(mailId);
+      } else {
+        newSet.add(mailId);
+      }
+      return newSet;
+    });
+  };
+
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength);
+  };
+
   return (
     <div className="w-full h-full flex flex-col space-y-4">
 
       {/* Tableau principal - Version Desktop */}
-      <div className="hidden md:block flex-1 border border-gray-700 rounded-lg overflow-hidden">
+      <div className="hidden md:block flex-1 border-2 border-gray-700 rounded-lg overflow-hidden shadow-lg">
         <div className="h-full overflow-auto">
-          <table className="w-full">
+          <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-[#FCFCFC]">
               <tr>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-300 text-gray-800">N° d'enregistrement</th>
+                <th className="px-4 py-3 text-left w-[12%] border-b-2 border-r border-gray-300 text-gray-800 font-semibold">N° d'enregistrement</th>
                 <th 
-                  className="px-4 py-3 text-left w-[12%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
+                  className="px-4 py-3 text-left w-[12%] border-b-2 border-r border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800 font-semibold"
                   onClick={() => handleSort('date')}
                 >
                   Date d'arrivée {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left w-[18%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
+                  className="px-4 py-3 text-left w-[18%] border-b-2 border-r border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800 font-semibold"
                   onClick={() => handleSort('expediteur')}
                 >
                   Expéditeur {sortBy === 'expediteur' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left w-[18%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
+                  className="px-4 py-3 text-left w-[18%] border-b-2 border-r border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800 font-semibold"
                   onClick={() => handleSort('destinataire')}
                 >
                   Destinataire {sortBy === 'destinataire' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="px-4 py-3 text-left flex-1 min-w-[200px] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
+                  className="px-4 py-3 text-left flex-1 min-w-[200px] border-b-2 border-r border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800 font-semibold"
                   onClick={() => handleSort('objet')}
                 >
                   Objet {sortBy === 'objet' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="px-4 py-3 text-left w-[12%] border-b border-gray-300 text-gray-800">Canal</th>
+                <th className="px-4 py-3 text-left w-[12%] border-b-2 border-r border-gray-300 text-gray-800 font-semibold">Canal</th>
                 <th 
-                  className="px-4 py-3 text-left w-[12%] border-b border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800"
+                  className="px-4 py-3 text-left w-[12%] border-b-2 border-r border-gray-300 cursor-pointer hover:text-primary transition-colors text-gray-800 font-semibold"
                   onClick={() => handleSort('statut')}
                 >
                   Statut {sortBy === 'statut' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="px-4 py-3 text-left w-[16%] border-b border-gray-300 text-gray-800">Actions</th>
+                <th className="px-4 py-3 text-left w-[16%] border-b-2 border-gray-300 text-gray-800 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pagedMails.length > 0 ? (
-                pagedMails.map((mail) => (
-                  <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
-                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.numero)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{formatDate(mail.date)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.expediteur || mail.sender)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px]">{safeString(mail.destinataire || mail.recipient)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{safeString(mail.objet || mail.subject)}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{safeString(mail.canal || mail.channel)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(mail.statut || mail.status)}`}>
-                        <FiCircle className="mr-1.5 h-2 w-2" />
-                        {safeString(mail.statut || mail.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-center gap-1">
-                        <button 
-                          onClick={() => onView?.(mail)}
-                          className="p-1.5 hover:bg-gray-700/50 rounded transition"
-                          title="Voir"
-                        >
-                          <FiEye className="w-4 h-4 text-blue-400" />
-                        </button>
-                        <button
-                          onClick={() => onEdit?.(mail)}
-                          className="p-1.5 hover:bg-gray-700/50 rounded transition"
-                          title="Éditer"
-                        >
-                          <FiEdit2 className="w-4 h-4 text-yellow-400" />
-                        </button>
-                        {onRemove && (
-                          <button
-                            onClick={() => onRemove(mail.id)}
+                pagedMails.map((mail) => {
+                  const objetText = safeString(mail.objet || mail.subject);
+                  const isExpanded = expandedObjects.has(mail.id);
+                  const shouldTruncate = objetText.length > 50;
+                  
+                  return (
+                    <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{safeString(mail.numero)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{formatDate(mail.date)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.expediteur || mail.sender)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.destinataire || mail.recipient)}</td>
+                      <td className="px-4 py-3 border-r border-gray-600">
+                        <div className="flex items-center gap-2">
+                          <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
+                          <div className="flex items-center gap-1 flex-1">
+                            <span className={shouldTruncate && !isExpanded ? '' : 'break-words'}>
+                              {shouldTruncate && !isExpanded 
+                                ? truncateText(objetText) 
+                                : objetText
+                              }
+                            </span>
+                            {shouldTruncate && (
+                              <button
+                                onClick={() => toggleObjectExpansion(mail.id)}
+                                className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 ml-1"
+                                title={isExpanded ? "Réduire" : "Voir plus"}
+                              >
+                                {isExpanded ? (
+                                  <span className="text-xs font-bold">[-]</span>
+                                ) : (
+                                  <span className="text-xs font-bold">[...]</span>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{safeString(mail.canal || mail.channel)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(mail.statut || mail.status)}`}>
+                          <FiCircle className="mr-1.5 h-2 w-2" />
+                          {safeString(mail.statut || mail.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center gap-1">
+                          <button 
+                            onClick={() => onView?.(mail)}
                             className="p-1.5 hover:bg-gray-700/50 rounded transition"
-                            title="Supprimer"
+                            title="Voir"
                           >
-                            <FiTrash2 className="w-4 h-4 text-red-400" />
+                            <FiEye className="w-4 h-4 text-blue-400" />
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <button
+                            onClick={() => onEdit?.(mail)}
+                            className="p-1.5 hover:bg-gray-700/50 rounded transition"
+                            title="Éditer"
+                          >
+                            <FiEdit2 className="w-4 h-4 text-yellow-400" />
+                          </button>
+                          {onRemove && (
+                            <button
+                              onClick={() => onRemove(mail.id)}
+                              className="p-1.5 hover:bg-gray-700/50 rounded transition"
+                              title="Supprimer"
+                            >
+                              <FiTrash2 className="w-4 h-4 text-red-400" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan={8} className="text-center py-16">
+                  <td colSpan={8} className="text-center py-16 border-r border-gray-600">
                     <div className="flex flex-col items-center justify-center gap-4 text-gray-400">
                       <FiInbox className="w-12 h-12 text-primary animate-pulse" />
                       <p className="text-lg font-medium">Aucun courrier trouvé</p>
@@ -214,17 +259,42 @@ export default function MailTable({
       {/* Version Mobile */}
       <div className="md:hidden space-y-3">
         {pagedMails.length > 0 ? (
-          pagedMails.map((mail) => (
-            <div key={mail.id} className="border border-gray-700 p-4 rounded-lg bg-gray-800/50">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2">
-                  <FiMail className="text-primary w-4 h-4" />
-                  <span className="font-medium truncate">{safeString(mail.objet || mail.subject)}</span>
+          pagedMails.map((mail) => {
+            const objetText = safeString(mail.objet || mail.subject);
+            const isExpanded = expandedObjects.has(mail.id);
+            const shouldTruncate = objetText.length > 30; // Plus court sur mobile
+            
+            return (
+              <div key={mail.id} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-800/50">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
+                    <div className="flex items-center gap-1 flex-1">
+                      <span className={`font-medium ${shouldTruncate && !isExpanded ? '' : 'break-words'}`}>
+                        {shouldTruncate && !isExpanded 
+                          ? truncateText(objetText, 30) 
+                          : objetText
+                        }
+                      </span>
+                      {shouldTruncate && (
+                        <button
+                          onClick={() => toggleObjectExpansion(mail.id)}
+                          className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 ml-1"
+                          title={isExpanded ? "Réduire" : "Voir plus"}
+                        >
+                          {isExpanded ? (
+                            <span className="text-xs font-bold">[-]</span>
+                          ) : (
+                            <span className="text-xs font-bold">[...]</span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${getStatusClass(mail.statut || mail.status)}`}>
+                    {safeString(mail.statut || mail.status)}
+                  </span>
                 </div>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${getStatusClass(mail.statut || mail.status)}`}>
-                  {safeString(mail.statut || mail.status)}
-                </span>
-              </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm mt-3">
                 <div>
@@ -251,7 +321,8 @@ export default function MailTable({
                 )}
               </div>
             </div>
-          ))
+            );
+          })
         ) : (
           <div className="text-center py-8 text-gray-400">
             <FiInbox className="w-12 h-12 mx-auto text-primary mb-4" />
