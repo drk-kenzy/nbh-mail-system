@@ -173,28 +173,25 @@ export default function MailTable({
                       <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.expediteur || mail.sender)}</td>
                       <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.destinataire || mail.recipient)}</td>
                       <td className="px-4 py-3 border-r border-gray-600">
-                        <div className="flex items-center gap-2">
-                          <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
-                          <div className="flex items-center gap-1 flex-1 min-w-0">
-                            {shouldTruncate ? (
-                              <div className="flex items-center gap-1 w-full">
-                                <span className={`${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
-                                  {isExpanded ? objetText : truncateText(objetText, 15)}
-                                </span>
-                                <button
-                                  onClick={() => toggleObjectExpansion(mail.id)}
-                                  className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
-                                  title={isExpanded ? "Réduire" : "Voir plus"}
-                                >
-                                  {isExpanded ? '[-]' : '[...]'}
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="whitespace-nowrap overflow-hidden">
-                                {objetText}
+                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                          {shouldTruncate ? (
+                            <div className="flex items-center gap-1 w-full">
+                              <span className={`${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
+                                {isExpanded ? objetText : truncateText(objetText, 15)}
                               </span>
-                            )}
-                          </div>
+                              <button
+                                onClick={() => toggleObjectExpansion(mail.id)}
+                                className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
+                                title={isExpanded ? "Réduire" : "Voir plus"}
+                              >
+                                {isExpanded ? '[-]' : '[...]'}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="whitespace-nowrap overflow-hidden">
+                              {objetText}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{safeString(mail.canal || mail.channel)}</td>
@@ -266,28 +263,25 @@ export default function MailTable({
             return (
               <div key={mail.id} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-800/50">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
-                    <div className="flex items-center gap-1 flex-1 min-w-0">
-                      {shouldTruncate ? (
-                        <div className="flex items-center gap-1 w-full min-w-0">
-                          <span className={`font-medium ${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
-                            {isExpanded ? objetText : truncateText(objetText, 15)}
-                          </span>
-                          <button
-                            onClick={() => toggleObjectExpansion(mail.id)}
-                            className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
-                            title={isExpanded ? "Réduire" : "Voir plus"}
-                          >
-                            {isExpanded ? '[-]' : '[...]'}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="font-medium whitespace-nowrap overflow-hidden">
-                          {objetText}
+                  <div className="flex items-center gap-1 flex-1 min-w-0">
+                    {shouldTruncate ? (
+                      <div className="flex items-center gap-1 w-full min-w-0">
+                        <span className={`font-medium ${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
+                          {isExpanded ? objetText : truncateText(objetText, 15)}
                         </span>
-                      )}
-                    </div>
+                        <button
+                          onClick={() => toggleObjectExpansion(mail.id)}
+                          className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
+                          title={isExpanded ? "Réduire" : "Voir plus"}
+                        >
+                          {isExpanded ? '[-]' : '[...]'}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="font-medium whitespace-nowrap overflow-hidden">
+                        {objetText}
+                      </span>
+                    )}
                   </div>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${getStatusClass(mail.statut || mail.status)}`}>
                     {safeString(mail.statut || mail.status)}
