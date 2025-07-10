@@ -112,7 +112,7 @@ export default function MailTable({
   const truncateText = (text, maxLength = 50) => {
     if (!text) return '';
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength);
+    return text.substring(0, maxLength) + '...';
   };
 
   return (
@@ -164,7 +164,7 @@ export default function MailTable({
                 pagedMails.map((mail) => {
                   const objetText = safeString(mail.objet || mail.subject);
                   const isExpanded = expandedObjects.has(mail.id);
-                  const shouldTruncate = objetText.length > 50;
+                  const shouldTruncate = objetText.length > 45;
                   
                   return (
                     <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
@@ -175,25 +175,24 @@ export default function MailTable({
                       <td className="px-4 py-3 border-r border-gray-600">
                         <div className="flex items-center gap-2">
                           <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
-                          <div className="flex items-center gap-1 flex-1">
-                            <span className={shouldTruncate && !isExpanded ? '' : 'break-words'}>
-                              {shouldTruncate && !isExpanded 
-                                ? truncateText(objetText) 
-                                : objetText
-                              }
-                            </span>
-                            {shouldTruncate && (
-                              <button
-                                onClick={() => toggleObjectExpansion(mail.id)}
-                                className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 ml-1"
-                                title={isExpanded ? "Réduire" : "Voir plus"}
-                              >
-                                {isExpanded ? (
-                                  <span className="text-xs font-bold">[-]</span>
-                                ) : (
-                                  <span className="text-xs font-bold">[...]</span>
-                                )}
-                              </button>
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            {shouldTruncate ? (
+                              <div className="flex items-center gap-1 w-full">
+                                <span className={`${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
+                                  {isExpanded ? objetText : truncateText(objetText, 45)}
+                                </span>
+                                <button
+                                  onClick={() => toggleObjectExpansion(mail.id)}
+                                  className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
+                                  title={isExpanded ? "Réduire" : "Voir plus"}
+                                >
+                                  {isExpanded ? '[-]' : '[...]'}
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="whitespace-nowrap overflow-hidden">
+                                {objetText}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -262,32 +261,31 @@ export default function MailTable({
           pagedMails.map((mail) => {
             const objetText = safeString(mail.objet || mail.subject);
             const isExpanded = expandedObjects.has(mail.id);
-            const shouldTruncate = objetText.length > 30; // Plus court sur mobile
+            const shouldTruncate = objetText.length > 35; // Limite pour mobile
             
             return (
               <div key={mail.id} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-800/50">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     <FiMail className="text-primary w-4 h-4 flex-shrink-0" />
-                    <div className="flex items-center gap-1 flex-1">
-                      <span className={`font-medium ${shouldTruncate && !isExpanded ? '' : 'break-words'}`}>
-                        {shouldTruncate && !isExpanded 
-                          ? truncateText(objetText, 30) 
-                          : objetText
-                        }
-                      </span>
-                      {shouldTruncate && (
-                        <button
-                          onClick={() => toggleObjectExpansion(mail.id)}
-                          className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 ml-1"
-                          title={isExpanded ? "Réduire" : "Voir plus"}
-                        >
-                          {isExpanded ? (
-                            <span className="text-xs font-bold">[-]</span>
-                          ) : (
-                            <span className="text-xs font-bold">[...]</span>
-                          )}
-                        </button>
+                    <div className="flex items-center gap-1 flex-1 min-w-0">
+                      {shouldTruncate ? (
+                        <div className="flex items-center gap-1 w-full min-w-0">
+                          <span className={`font-medium ${isExpanded ? 'break-words' : 'whitespace-nowrap overflow-hidden'}`}>
+                            {isExpanded ? objetText : truncateText(objetText, 35)}
+                          </span>
+                          <button
+                            onClick={() => toggleObjectExpansion(mail.id)}
+                            className="text-primary hover:text-primary-dark transition-colors flex-shrink-0 text-xs font-bold"
+                            title={isExpanded ? "Réduire" : "Voir plus"}
+                          >
+                            {isExpanded ? '[-]' : '[...]'}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="font-medium whitespace-nowrap overflow-hidden">
+                          {objetText}
+                        </span>
                       )}
                     </div>
                   </div>
