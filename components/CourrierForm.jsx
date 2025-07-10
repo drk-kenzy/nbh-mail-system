@@ -153,45 +153,62 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date de signature
-                </label>
-                <input
-                  type="datetime-local"
-                  value={dateSignature}
-                  onChange={(e) => setDateSignature(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date de signature
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={dateSignature}
+                    onChange={(e) => setDateSignature(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Canal de réception
+                  </label>
+                  <select
+                    value={canal}
+                    onChange={(e) => setCanal(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                  >
+                    <option value="Physique">Physique</option>
+                    <option value="E-mail">E-mail</option>
+                    <option value="En ligne">En ligne</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Canal de réception
-                </label>
-                <select
-                  value={canal}
-                  onChange={(e) => setCanal(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                >
-                  <option value="Physique">Physique</option>
-                  <option value="E-mail">E-mail</option>
-                  <option value="En ligne">En ligne</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Objet du courrier *
-                </label>
-                <input
-                  type="text"
-                  value={objet}
-                  onChange={(e) => setObjet(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                  placeholder="Objet du courrier"
-                  required
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Objet du courrier *
+                  </label>
+                  <input
+                    type="text"
+                    value={objet}
+                    onChange={(e) => setObjet(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                    placeholder="Objet du courrier"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Statut
+                  </label>
+                  <select
+                    value={statut}
+                    onChange={(e) => setStatut(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
+                  >
+                    {STATUTS.map(stat => (
+                      <option key={stat} value={stat}>{stat}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           )}
@@ -264,23 +281,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 </div>
               </div>
 
-              {/* Statut - ligne séparée */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Statut
-                </label>
-                <select
-                  value={statut}
-                  onChange={(e) => setStatut(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                >
-                  {STATUTS.map(stat => (
-                    <option key={stat} value={stat}>{stat}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Observation - ligne séparée */}
+              {/* Observation - ligne complète */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Observation
