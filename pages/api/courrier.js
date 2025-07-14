@@ -141,7 +141,7 @@ function generateAutoNumber(type) {
   const existingNumbers = courriers
     .filter(c => c.type === type)
     .map(c => c.numero)
-    .filter(n => n && n.startsWith(prefix))
+    .filter(n => n && n.startsWith(prefix + '-'))
     .map(n => parseInt(n.split('-')[1]))
     .filter(n => !isNaN(n));
 

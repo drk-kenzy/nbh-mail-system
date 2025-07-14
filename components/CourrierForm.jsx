@@ -48,6 +48,19 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
   const [reference, setReference] = useState('');
   const [observations, setObservations] = useState('');
   const [files, setFiles] = useState([]);
+  const [courriers, setCourriers] = useState([]); // Added state for existing courriers
+
+    // Récupérer les partenaires actifs depuis la base de données
+    const getActivePartners = async () => {
+      try {
+        const response = await fetch('/api/partenaires');
+        const partenaires = await response.json();
+        return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des partenaires:', error);
+        return [];
+      }
+    };
 
   // Génération automatique du numéro
   useEffect(() => {
@@ -118,11 +131,15 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
   };
 
   const generateAutoNumber = () => {
-    // This would ideally get the next number from the server/database
-    // For now, using a simple incrementing approach
-    const timestamp = Date.now();
-    const counter = Math.floor(timestamp % 100000) + 1;
-    return `ARR-${String(counter).padStart(5, '0')}`;
+    // Get next number from existing courriers
+    const existingNumbers = courriers
+      .map(c => c.numero)
+      .filter(n => n && n.startsWith('ARR-'))
+      .map(n => parseInt(n.split('-')[1]))
+      .filter(n => !isNaN(n));
+
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    return `ARR-${String(nextNumber).padStart(5, '0')}`;
   };
 
   return (

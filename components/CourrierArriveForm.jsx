@@ -110,6 +110,18 @@ export default function CourrierArrive() {
     );
   });
 
+  // Récupérer les partenaires actifs depuis la base de données
+const getActivePartners = async () => {
+  try {
+    const response = await fetch('/api/partenaires');
+    const partenaires = await response.json();
+    return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des partenaires:', error);
+    return [];
+  }
+};
+
   return (
     <div ref={containerRef} className="relative w-full h-[100dvh] flex flex-col bg-main text-main">
       {/* Titre avec logo */}

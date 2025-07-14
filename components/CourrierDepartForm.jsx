@@ -3,15 +3,16 @@ import useTranslation from '../hooks/useTranslation';
 import FileUpload from './FileUpload';
 import { useToast } from './ToastContext';
 
-// Partners will be passed as props or fetched from context
-const getActivePartners = () => {
-  // This should ideally come from a context or be passed as props
-  return [
-    "Ministère de l'Intérieur",
-    "Préfecture de Paris", 
-    "Ville de Lyon",
-    "Association X",
-  ];
+// Récupérer les partenaires actifs depuis la base de données
+const getActivePartners = async () => {
+  try {
+    const response = await fetch('/api/partenaires');
+    const partenaires = await response.json();
+    return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des partenaires:', error);
+    return [];
+  }
 };
 const EMETTEURS = [
   "Service RH",
