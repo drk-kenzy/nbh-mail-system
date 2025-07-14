@@ -2,7 +2,8 @@
 import fs from 'fs';
 import path from 'path';
 import formidable from 'formidable';
-import { Courrier } from '../../models';
+import db from '../../models';
+const { Courrier } = db;
 
 const uploadDir = path.join(process.cwd(), "public", "courrier_uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });

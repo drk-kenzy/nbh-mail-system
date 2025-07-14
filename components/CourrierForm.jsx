@@ -128,34 +128,57 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     setStep(2);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!expediteur || !destinataire) {
       addToast('Merci de remplir tous les champs obligatoires de la deuxième étape.', 'error');
       return;
     }
 
-    const mailData = {
-      id: initialValues?.id || Date.now(),
-      numero: initialValues?.numero || numero,
-      dateReception,
-      dateSignature,
-      objet,
-      canal,
-      expediteur,
-      destinataire,
-      reference,
-      delai,
-      statut,
-      observations,
-      files,
-      type,
-      // Pour compatibilité avec l'ancien format
-      date: dateReception
-    };
+    try {
+      const formData = new FormData();
+      formData.append('numero', numero);
+      formData.append('dateReception', dateReception);
+      formData.append('dateSignature', dateSignature);
+      formData.append('objet', objet);
+      formData.append('canal', canal);
+      formData.append('expediteur', expediteur);
+      formData.append('destinataire', destinataire);
+      formData.append('reference', reference);
+      formData.append('delai', delai);
+      formData.append('statut', statut);
+      formData.append('observations', observations);
+      formData.append('type', type);
 
-    if (onAddMail) onAddMail(mailData);
-    addToast(initialValues ? 'Courrier modifié avec succès !' : 'Courrier enregistré avec succès !', 'success');
-    if (onClose) onClose();
+      // Ajouter les fichiers
+      files.forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append('files', file);
+        }
+      });
+
+      const method = initialValues ? 'PUT' : 'POST';
+      if (initialValues) {
+        formData.append('id', initialValues.id);
+      }
+
+      const response = await fetch('/api/courrier', {
+        method,
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'enregistrement');
+      }
+
+      const savedCourrier = await response.json();
+      
+      if (onAddMail) onAddMail(savedCourrier);
+      addToast(initialValues ? 'Courrier modifié avec succès !' : 'Courrier enregistré avec succès !', 'success');
+      if (onClose) onClose();
+    } catch (error) {
+      console.error('Erreur:', error);
+      addToast('Erreur lors de l\'enregistrement du courrier', 'error');
+    }
   };
 
   return (
