@@ -121,7 +121,7 @@ export default function CourrierArrive() {
       </div>
 
       {/* Barre d'outils */}
-      <div className="flex items-center gap-4 mb-4 px-4">
+      <div className="flex items-center gap-4 mb-4 px-2">
         <input
           type="text"
           placeholder="Rechercher par objet, expéditeur..."

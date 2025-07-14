@@ -19,7 +19,7 @@ export default function Partenaires() {
   const [showForm, setShowForm] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [form, setForm] = useState({
-    nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: ''
+    nom: '', type: TYPES[0], email: '', tel: '', statut: STATUTS[0]
   });
 
   const filtered = partenaires.filter(p =>
@@ -217,24 +217,6 @@ L’équipe NBH LePremier
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
-                      <input
-                        type="text"
-                        value={form.secteur}
-                        onChange={(e) => setForm({ ...form, secteur: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
-                      <input
-                        type="text"
-                        value={form.contact}
-                        onChange={(e) => setForm({ ...form, contact: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-                      />
-                    </div>
-                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
                       <input
                         type="text"
@@ -243,53 +225,26 @@ L’équipe NBH LePremier
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-                      <input
-                        type="text"
-                        value={form.ville}
-                        onChange={(e) => setForm({ ...form, ville: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Pays</label>
-                      <input
-                        type="text"
-                        value={form.pays}
-                        onChange={(e) => setForm({ ...form, pays: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
-                    />
                   </div>
                   <div className="flex gap-4 pt-4">
-                    <button
-                      type="submit"
-                      className="flex-1 bg-[#15514f] hover:bg-[#0f3e3c] text-white py-2 px-4 rounded-lg font-semibold transition-colors"
-                    >
-                      {editId ? 'Modifier' : 'Ajouter'}
-                    </button>
                     <button
                       type="button"
                       onClick={() => {
                         setShowForm(false);
                         setEditId(null);
                         setForm({
-                          nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: ''
+                          nom: '', type: TYPES[0], email: '', tel: '', statut: STATUTS[0]
                         });
                       }}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                      className="flex-1 bg-[#e6e6e6] hover:bg-[#d0d0d0] text-gray-800 py-3 px-6 rounded-lg font-semibold transition-colors min-h-[48px]"
                     >
                       Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#15514f] hover:bg-[#0f3e3c] text-white py-3 px-6 rounded-lg font-semibold transition-colors min-h-[48px]"
+                    >
+                      {editId ? 'Modifier' : 'Ajouter'}
                     </button>
                   </div>
                 </form>

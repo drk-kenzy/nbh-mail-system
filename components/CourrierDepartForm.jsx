@@ -3,9 +3,9 @@ import useTranslation from '../hooks/useTranslation';
 import FileUpload from './FileUpload';
 import { useToast } from './ToastContext';
 
-const PARTENAIRES = [
+const PARTENAIRES_ACTIFS = [
   "Ministère de l'Intérieur",
-  "Préfecture de Paris",
+  "Préfecture de Paris", 
   "Ville de Lyon",
   "Association X",
 ];
@@ -45,8 +45,14 @@ const MOCK_COURRIERS = [
 export default function CourrierDepartForm() {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const generateAutoNumber = () => {
+    const timestamp = Date.now();
+    const counter = Math.floor(timestamp % 100000);
+    return `DEP-${String(counter).padStart(5, '0')}`;
+  };
+
   const [form, setForm] = useState({
-    numero: 'DEP-' + Date.now().toString().slice(-6),
+    numero: generateAutoNumber(),
     date: '',
     destinataire: '',
     objet: '',
@@ -55,6 +61,7 @@ export default function CourrierDepartForm() {
     fichiers: [],
     emetteur: '',
     observations: '',
+    delaiReponse: '',
   });
   const [courriers, setCourriers] = useState(MOCK_COURRIERS);
   const [search, setSearch] = useState('');
@@ -84,7 +91,7 @@ export default function CourrierDepartForm() {
     showToast(t('successOutMail'), 'success');
     setForm({
       ...form,
-      numero: 'DEP-' + (Date.now() + 1).toString().slice(-6),
+      numero: generateAutoNumber(),
       objet: '',
       fichiers: [],
       observations: '',
@@ -110,7 +117,7 @@ export default function CourrierDepartForm() {
             <label className="block text-sm mb-1 text-main font-medium">{t('recipientPartner')}</label>
             <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
-              {PARTENAIRES.map(p => <option key={p}>{p}</option>)}
+              {PARTENAIRES_ACTIFS.map(p => <option key={p}>{p}</option>)}
             </select>
           </div>
           <div>
@@ -148,14 +155,18 @@ export default function CourrierDepartForm() {
               {EMETTEURS.map(e => <option key={e}>{e}</option>)}
             </select>
           </div>
+          <div>
+            <label className="block text-sm mb-1 text-main font-medium">Délai de réponse</label>
+            <input type="date" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.delaiReponse} onChange={e => setForm({ ...form, delaiReponse: e.target.value })} />
+          </div>
           <div className="md:col-span-2">
             <label className="block text-sm mb-1 text-main font-medium">{t('observations')}</label>
             <textarea className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 min-h-[60px] border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white resize-none placeholder-gray-600" value={form.observations} onChange={e => setForm({ ...form, observations: e.target.value })} placeholder="Ajoutez vos observations ici..." />
           </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <button type="submit" className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-2 rounded-lg transition shadow-md">{t('save')}</button>
-          <button type="button" className="w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 rounded-lg transition shadow-md" onClick={() => setForm({ ...form, objet: '', fichiers: [], observations: '' })}>{t('reset')}</button>
+        <div className="flex gap-4 mt-4">
+          <button type="button" className="flex-1 bg-[#e6e6e6] hover:bg-[#d0d0d0] text-gray-800 font-semibold py-3 px-6 rounded-lg transition shadow-md min-h-[48px]" onClick={() => setForm({ ...form, objet: '', fichiers: [], observations: '' })}>{t('reset')}</button>
+          <button type="submit" className="flex-1 bg-[#15514f] hover:bg-[#0f3e3c] text-white font-semibold py-3 px-6 rounded-lg transition shadow-md min-h-[48px]">{t('save')}</button>
         </div>
         {message && (
           <div className={`mt-2 text-center text-sm ${message.includes('succès') ? 'text-green-400' : 'text-red-400'} animate-fade-in`}>{message}</div>

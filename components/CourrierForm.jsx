@@ -321,7 +321,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
             </div>
           )}
         </div>
-        
+
         {/* Boutons de navigation - toujours visibles en bas */}
         <div className="flex justify-between px-4 sm:px-5 py-3 border-t bg-gray-50">
           {step === 1 ? (
