@@ -92,7 +92,7 @@ export default async function handler(req, res) {
         res.status(201).json(courrierResponse);
       } catch (error) {
         console.error('Erreur création courrier:', error);
-        res.status(500).json({ error: "Erreur lors de la création du courrier" });
+        res.status(500).json({ error: "Erreur lors de la création du courrier: " + error.message });
       }
     });
     return;
@@ -205,21 +205,12 @@ async function generateAutoNumber(type) {
     
     const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
     
-    const existingCourriers = await Courrier.findAll({
-      where: { type },
-      attributes: ['numero'],
-      order: [['id', 'ASC']]
+    // Compter le nombre total de courriers du même type
+    const count = await Courrier.count({
+      where: { type }
     });
     
-    const existingNumbers = existingCourriers
-      .map(c => c.numero)
-      .filter(n => n && n.startsWith(prefix))
-      .map(n => n.replace(prefix, ''))
-      .filter(n => n.match(/^\d{5}$/))
-      .map(n => parseInt(n))
-      .filter(n => !isNaN(n));
-
-    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    const nextNumber = count + 1;
     
     return prefix + String(nextNumber).padStart(5, '0');
   } catch (error) {

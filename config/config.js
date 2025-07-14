@@ -1,25 +1,28 @@
-require('dotenv').config(); // ← Charge les variables .env
 
 module.exports = {
   development: {
-    username: process.env.DB_USER || "root",
-    password: process.env.DB_PASS || "",
-    database: process.env.DB_NAME || "nbhmail",
-    host: process.env.DB_HOST || "localhost",
-    dialect: "mysql"
+    dialect: 'sqlite',
+    storage: './database.sqlite',
+    logging: false,
+    define: {
+      timestamps: true,
+      underscored: false,
+      freezeTableName: true
+    }
   },
   test: {
-    username: process.env.DB_USER || "root",
-    password: process.env.DB_PASS || "",
-    database: process.env.DB_NAME_TEST || "nbhmail_test",
-    host: process.env.DB_HOST || "localhost",
-    dialect: "mysql"
+    dialect: 'sqlite',
+    storage: ':memory:',
+    logging: false
   },
   production: {
-    username: process.env.DB_USER || "root",
-    password: process.env.DB_PASS || "",
-    database: process.env.DB_NAME_PROD || "nbhmail_prod",
-    host: process.env.DB_HOST || "localhost",
-    dialect: "mysql"
+    dialect: 'sqlite',
+    storage: './database.sqlite',
+    logging: false,
+    define: {
+      timestamps: true,
+      underscored: false,
+      freezeTableName: true
+    }
   }
 };
