@@ -152,18 +152,6 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     if (onClose) onClose();
   };
 
-  const generateAutoNumber = () => {
-    // Get next number from existing courriers
-    const existingNumbers = courriers
-      .map(c => c.numero)
-      .filter(n => n && n.startsWith('ARR-'))
-      .map(n => parseInt(n.split('-')[1]))
-      .filter(n => !isNaN(n));
-
-    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-    return `ARR-${String(nextNumber).padStart(5, '0')}`;
-  };
-
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
       <div className="bg-gray-50 rounded-xl shadow-lg w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
