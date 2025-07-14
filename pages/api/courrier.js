@@ -203,6 +203,8 @@ async function generateAutoNumber(type) {
     // Synchroniser la base de données d'abord
     await db.sequelize.sync();
     
+    const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+    
     const existingCourriers = await Courrier.findAll({
       where: { type },
       attributes: ['numero'],
@@ -211,16 +213,19 @@ async function generateAutoNumber(type) {
     
     const existingNumbers = existingCourriers
       .map(c => c.numero)
-      .filter(n => n && n.match(/^\d{5}$/))
+      .filter(n => n && n.startsWith(prefix))
+      .map(n => n.replace(prefix, ''))
+      .filter(n => n.match(/^\d{5}$/))
       .map(n => parseInt(n))
       .filter(n => !isNaN(n));
 
     const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
     
-    return String(nextNumber).padStart(5, '0');
+    return prefix + String(nextNumber).padStart(5, '0');
   } catch (error) {
     console.error('Erreur génération numéro:', error);
-    return '00001';
+    const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+    return prefix + '00001';
   }
 }
 

@@ -53,21 +53,25 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       
       if (response.ok) {
         const existingCourriers = await response.json();
+        const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
         
         const existingNumbers = existingCourriers
           .map(c => c.numero)
-          .filter(n => n && n.match(/^\d{5}$/))
+          .filter(n => n && n.startsWith(prefix))
+          .map(n => n.replace(prefix, ''))
+          .filter(n => n.match(/^\d{5}$/))
           .map(n => parseInt(n))
           .filter(n => !isNaN(n));
 
         const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-        setNumero(String(nextNumber).padStart(5, '0'));
+        setNumero(prefix + String(nextNumber).padStart(5, '0'));
       } else {
         throw new Error('Erreur réseau');
       }
     } catch (error) {
       console.error('Erreur génération numéro:', error);
-      setNumero('00001');
+      const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+      setNumero(prefix + '00001');
     }
   };
 
