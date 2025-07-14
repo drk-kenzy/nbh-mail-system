@@ -17,10 +17,27 @@ export default function Partenaires() {
   const [partenaires, setPartenaires] = useState(MOCK_PARTENAIRES);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
+  const [editingId, setEditingId] = useState(null);
 
   const handleDelete = (id) => {
     setPartenaires(partenaires.filter(p => p.id !== id));
     showToast(t('partnerDeleted'), 'success');
+  };
+
+  const handleEdit = (partenaire) => {
+    setEditingId(partenaire.id);
+  };
+
+  const handleUpdate = (updatedPartenaire) => {
+    setPartenaires(partenaires.map(p => 
+      p.id === editingId ? { ...updatedPartenaire, id: editingId } : p
+    ));
+    setEditingId(null);
+    showToast(t('partnerUpdated'), 'success');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
   };
 
   const filtered = partenaires.filter(p =>
@@ -32,10 +49,15 @@ export default function Partenaires() {
     <Layout>
       <div className="max-w-3xl mx-auto bg-gray-900 dark:bg-surface rounded-xl shadow-lg p-6 space-y-6 animate-fade-in">
         <h2 className="text-2xl font-semibold mb-2">{t('partnersManagement')}</h2>
-        <PartenaireForm onAdd={p => {
-          setPartenaires([...partenaires, { ...p, id: Date.now() }]);
-          showToast(t('partnerAdded'), 'success');
-        }} />
+        <PartenaireForm 
+          editingPartenaire={editingId ? partenaires.find(p => p.id === editingId) : null}
+          onAdd={p => {
+            setPartenaires([...partenaires, { ...p, id: Date.now() }]);
+            showToast(t('partnerAdded'), 'success');
+          }}
+          onUpdate={handleUpdate}
+          onCancel={handleCancelEdit}
+        />
         <div className="flex flex-col md:flex-row gap-2 md:items-center mt-4">
           <input
             type="text"
@@ -77,13 +99,22 @@ export default function Partenaires() {
                   <td className="px-3 py-2">{t(p.type === 'Public' ? 'public' : 'private')}</td>
                   <td className="px-3 py-2">{p.contact}</td>
                   <td className="px-3 py-2">
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-red-400 hover:text-red-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-400"
-                      aria-label={t('deletePartner') + ' ' + p.nom}
-                    >
-                      {t('delete')}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(p)}
+                        className="text-blue-400 hover:text-blue-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        aria-label={t('editPartner') + ' ' + p.nom}
+                      >
+                        {t('edit')}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="text-red-400 hover:text-red-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-400"
+                        aria-label={t('deletePartner') + ' ' + p.nom}
+                      >
+                        {t('delete')}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

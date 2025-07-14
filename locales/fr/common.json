@@ -57,6 +57,17 @@
   "noPartnerFound": "Aucun partenaire trouvé.",
   "search": "Rechercher...",
   "settingsSaved": "Paramètres enregistrés !",
-  "emailNotifications": "Notifications e-mail",
+  "emailNotifications": "Notification",
+  "edit": "Modifier",
+  "editPartner": "Modifier le partenaire",
+  "partnerUpdated": "Partenaire modifié avec succès !",
+  "update": "Mettre à jour",
+  "cancel": "Annuler",
+  "addPartner": "Ajouter un partenaire",
+  "partnerName": "Nom du partenaire",
+  "fillRequiredFields": "Veuillez remplir tous les champs requis",
+  "successPartner": "Partenaire ajouté avec succès",
+  "save": "Enregistrer",
+  "reset": "Réinitialiser"s e-mail",
   "language": "Langue"
 }

@@ -58,5 +58,16 @@
   "search": "Search...",
   "settingsSaved": "Settings saved!",
   "emailNotifications": "Email notifications",
-  "language": "Language"
+  "language": "Language",
+  "edit": "Edit",
+  "editPartner": "Edit partner",
+  "partnerUpdated": "Partner updated successfully!",
+  "update": "Update",
+  "cancel": "Cancel",
+  "addPartner": "Add partner",
+  "partnerName": "Partner name",
+  "fillRequiredFields": "Please fill all required fields",
+  "successPartner": "Partner added successfully",
+  "save": "Save",
+  "reset": "Reset"
 }
