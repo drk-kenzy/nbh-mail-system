@@ -1,40 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
 import FileUploader from './FileUploader';
-
-const EXPEDITEURS = [
-  "Ministère de l'Intérieur",
-  "Préfecture de Paris",
-  "Ville de Lyon",
-  "Association X",
-  "Conseil Régional",
-  "Mairie de Bordeaux"
-];
-
-const DESTINATAIRES = [
-  "Service RH",
-  "Direction Générale",
-  "Service Technique",
-  "Service Juridique",
-  "Service Communication",
-  "M. Dupont",
-  "Mme Martin"
-];
-
-const SERVICES = [
-  "Service RH",
-  "Direction Générale", 
-  "Service Technique",
-  "Service Juridique",
-  "Service Communication"
-];
 
 const STATUTS = ['En attente', 'En cours', 'Traité', 'Archivé'];
 
 export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, initialValues }) {
   const { addToast } = useToast();
 
-  // États du formulaire
   const [step, setStep] = useState(1);
   const [numero, setNumero] = useState('');
   const [dateReception, setDateReception] = useState('');
@@ -48,16 +21,17 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
   const [reference, setReference] = useState('');
   const [observations, setObservations] = useState('');
   const [files, setFiles] = useState([]);
-  const [courriers, setCourriers] = useState([]);
   const [activePartners, setActivePartners] = useState([]);
 
-  // Récupérer les partenaires actifs depuis la base de données
+  // Récupérer les partenaires actifs
   useEffect(() => {
     const getActivePartners = async () => {
       try {
         const response = await fetch('/api/partenaires');
-        const partenaires = await response.json();
-        setActivePartners(partenaires.filter(p => p.statut === 'Actif').map(p => p.nom));
+        if (response.ok) {
+          const partenaires = await response.json();
+          setActivePartners(partenaires.filter(p => p.statut === 'Actif').map(p => p.nom));
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des partenaires:', error);
         setActivePartners([]);
@@ -71,27 +45,27 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     if (!initialValues?.numero) {
       generateAutoNumber();
     }
-  }, [type, initialValues, courriers]);
+  }, [type, initialValues]);
 
   const generateAutoNumber = async () => {
     try {
       const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
       const response = await fetch(`/api/courrier?type=${type}`);
       
-      if (!response.ok) {
+      if (response.ok) {
+        const existingCourriers = await response.json();
+        
+        const existingNumbers = existingCourriers
+          .map(c => c.numero)
+          .filter(n => n && n.startsWith(prefix + '-'))
+          .map(n => parseInt(n.split('-')[1]))
+          .filter(n => !isNaN(n));
+
+        const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+        setNumero(`${prefix}-${String(nextNumber).padStart(5, '0')}`);
+      } else {
         throw new Error('Erreur réseau');
       }
-      
-      const existingCourriers = await response.json();
-      
-      const existingNumbers = existingCourriers
-        .map(c => c.numero)
-        .filter(n => n && n.startsWith(prefix + '-'))
-        .map(n => parseInt(n.split('-')[1]))
-        .filter(n => !isNaN(n));
-
-      const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-      setNumero(`${prefix}-${String(nextNumber).padStart(5, '0')}`);
     } catch (error) {
       console.error('Erreur génération numéro:', error);
       const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
@@ -149,8 +123,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       formData.append('observations', observations);
       formData.append('type', type);
 
-      // Ajouter les fichiers
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         if (file instanceof File) {
           formData.append('files', file);
         }
@@ -279,7 +252,6 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
           {step === 2 && (
             <div className="space-y-3">
-              {/* Première ligne - 2 colonnes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -316,7 +288,6 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 </div>
               </div>
 
-              {/* Deuxième ligne - 2 colonnes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -344,7 +315,6 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 </div>
               </div>
 
-              {/* Observation - ligne complète */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Observation
@@ -358,7 +328,6 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                 />
               </div>
 
-              {/* Pièces jointes - à la fin */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Pièces jointes
@@ -385,21 +354,20 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
           )}
         </div>
 
-        {/* Boutons de navigation - toujours visibles en bas */}
         <div className="flex justify-between px-4 sm:px-5 py-3 border-t bg-gray-50">
           {step === 1 ? (
             <>
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="w-full mr-2 px-4 py-3 text-gray-600 bg-[#e6e6e6] rounded-md hover:bg-gray-200 transition-colors"
               >
                 Annuler
               </button>
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="px-4 py-2 bg-[#15514f] text-white rounded-md hover:bg-[#0f3e3c] transition-colors"
+                className="w-full ml-2 px-4 py-3 bg-[#15514f] text-white rounded-md hover:bg-[#0f3e3c] transition-colors"
               >
                 Suivant
               </button>
@@ -409,14 +377,14 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="w-full mr-2 px-4 py-3 text-gray-600 bg-[#e6e6e6] rounded-md hover:bg-gray-200 transition-colors"
               >
                 Précédent
               </button>
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-4 py-2 bg-[#15514f] text-white rounded-md hover:bg-[#0f3e3c] transition-colors"
+                className="w-full ml-2 px-4 py-3 bg-[#15514f] text-white rounded-md hover:bg-[#0f3e3c] transition-colors"
               >
                 {initialValues ? 'Modifier' : 'Enregistrer'}
               </button>

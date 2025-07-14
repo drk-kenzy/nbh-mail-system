@@ -11,7 +11,6 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
-      // Récupérer tous les courriers depuis la base de données
       const { type } = req.query;
       const whereClause = type ? { type } : {};
       const courriers = await Courrier.findAll({ 
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
         order: [["createdAt", "DESC"]] 
       });
       
-      // Convertir les files JSON string en array
       const courriersWithFiles = courriers.map(c => ({
         ...c.toJSON(),
         files: c.files ? JSON.parse(c.files) : []
@@ -48,7 +46,6 @@ export default async function handler(req, res) {
       }
       
       try {
-        // Gérer les fichiers
         let fichiers = [];
         if (files.files) {
           if (Array.isArray(files.files)) {
@@ -64,17 +61,13 @@ export default async function handler(req, res) {
           }
         }
 
-        // Récupérer les données du formulaire
         const getFieldValue = (field) => {
           return Array.isArray(field) ? field[0] : field;
         };
 
         const type = getFieldValue(fields.type) || 'ARRIVE';
-        
-        // Générer le numéro automatiquement
         const numero = await generateAutoNumber(type);
 
-        // Créer le courrier dans la base de données
         const nouveauCourrier = await Courrier.create({
           numero,
           dateReception: getFieldValue(fields.dateReception),
@@ -91,7 +84,6 @@ export default async function handler(req, res) {
           type
         });
 
-        // Retourner le courrier créé avec les files parsées
         const courrierResponse = {
           ...nouveauCourrier.toJSON(),
           files: fichiers
@@ -107,7 +99,6 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "PUT") {
-    // Mise à jour d'un courrier existant
     const form = formidable({ 
       multiples: true, 
       uploadDir, 
@@ -131,7 +122,6 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "ID manquant" });
         }
 
-        // Gérer les fichiers
         let fichiers = [];
         if (files.files) {
           if (Array.isArray(files.files)) {
@@ -147,7 +137,6 @@ export default async function handler(req, res) {
           }
         }
 
-        // Mettre à jour le courrier
         const [updatedRows] = await Courrier.update({
           dateReception: getFieldValue(fields.dateReception),
           dateSignature: getFieldValue(fields.dateSignature),
@@ -168,7 +157,6 @@ export default async function handler(req, res) {
           return res.status(404).json({ error: "Courrier non trouvé" });
         }
 
-        // Récupérer le courrier mis à jour
         const courrierMisAJour = await Courrier.findByPk(id);
         const courrierResponse = {
           ...courrierMisAJour.toJSON(),
@@ -210,31 +198,27 @@ export default async function handler(req, res) {
   res.status(405).json({ error: "Méthode non autorisée" });
 }
 
-// Fonction pour générer automatiquement le numéro d'enregistrement
 async function generateAutoNumber(type) {
   try {
     const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
     
-    // Récupérer tous les courriers du même type depuis la base de données
     const existingCourriers = await Courrier.findAll({
       where: { type },
-      attributes: ['numero']
+      attributes: ['numero'],
+      order: [['createdAt', 'DESC']]
     });
     
-    // Extraire les numéros existants
     const existingNumbers = existingCourriers
       .map(c => c.numero)
       .filter(n => n && n.startsWith(prefix + '-'))
       .map(n => parseInt(n.split('-')[1]))
       .filter(n => !isNaN(n));
 
-    // Déterminer le prochain numéro
     const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
     
     return `${prefix}-${String(nextNumber).padStart(5, '0')}`;
   } catch (error) {
     console.error('Erreur génération numéro:', error);
-    // Fallback en cas d'erreur
     const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
     return `${prefix}-00001`;
   }
