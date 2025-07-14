@@ -1,11 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CourrierForm from './CourrierForm.jsx';
 import MailTable from './MailTable';
 import { useToast } from './ToastContext';
-import AddCourierButton from './AddCourierButton';
 
 function MailDetailModal({ mail, onClose }) {
   if (!mail) return null;
+  
+  const renderFiles = (files) => {
+    if (!files) return null;
+    try {
+      const parsedFiles = typeof files === 'string' ? JSON.parse(files) : files;
+      return (
+        <ul className="list-disc ml-5">
+          {parsedFiles.map((f, i) => (
+            <li key={i}>
+              <a 
+                href={f.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                {f.name || f.url.split('/').pop()}
+              </a>
+            </li>
+          ))}
+        </ul>
+      );
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn">
       <div className="w-full max-w-md mx-auto max-h-[90vh] bg-[#FCFCFC] rounded-xl shadow-lg p-5 overflow-y-auto border border-primary relative">
@@ -18,12 +43,10 @@ function MailDetailModal({ mail, onClose }) {
           <div><span className="font-semibold text-gray-900">Statut :</span> {mail.statut}</div>
           {mail.reference && <div><span className="font-semibold text-gray-900">Référence :</span> {mail.reference}</div>}
           {mail.observations && <div><span className="font-semibold text-gray-900">Observations :</span> {mail.observations}</div>}
-          {mail.fichiers?.length > 0 && (
+          {mail.files && (
             <div>
               <span className="font-semibold text-gray-900">Fichiers :</span>
-              <ul className="list-disc ml-5">
-                {mail.fichiers.map((f, i) => <li key={i}>{f.name || f}</li>)}
-              </ul>
+              {renderFiles(mail.files)}
             </div>
           )}
         </div>
@@ -43,40 +66,72 @@ export default function CourrierArrive() {
   const [modalType, setModalType] = useState(null);
   const [lastAddedId, setLastAddedId] = useState(null);
 
-  // Charger tous les courriers
+    // Charger les courriers depuis l'API
   useEffect(() => {
-    fetch('/api/courrier-arrive')
-      .then(res => res.json())
-      .then(data => setMails(data))
-      .catch(() => addToast("Erreur lors du chargement", "error"));
+    const fetchMails = async () => {
+      try {
+        const response = await fetch('/api/courrier?type=ARRIVE');
+        if (!response.ok) throw new Error('Erreur de chargement');
+        const data = await response.json();
+        setMails(data);
+      } catch (error) {
+        addToast(error.message, 'error');
+      }
+    };
+    fetchMails();
   }, []);
 
+
   // Ajouter un courrier
+  // Ajouter un courrier via l'API
   const handleAddMail = async (mail) => {
     try {
-      const res = await fetch('/api/courrier-arrive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mail)
+      const formData = new FormData();
+      Object.entries(mail).forEach(([key, value]) => {
+        if (key === 'files' && Array.isArray(value)) {
+          value.forEach(file => formData.append('files', file));
+        } else {
+          formData.append(key, value);
+        }
       });
-      const newMail = await res.json();
-      setMails(mails => [newMail, ...mails]);
-      setLastAddedId(newMail.id);
+
+      const response = await fetch('/api/courrier', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erreur lors de la création');
+      }
+
+      const newCourrier = await response.json();
+      setMails(prev => [newCourrier, ...prev]);
+      setLastAddedId(newCourrier.id);
       setShowForm(false);
       addToast('Nouveau courrier ajouté !', 'success');
-    } catch (err) {
-      addToast("Erreur lors de l'ajout", 'error');
+    } catch (error) {
+      addToast(error.message, 'error');
     }
   };
 
   // Supprimer un courrier
+  // Supprimer un courrier via l'API
   const handleRemove = async (id) => {
     try {
-      await fetch(`/api/courrier-arrive?id=${id}`, { method: 'DELETE' });
-      setMails(mails => mails.filter(mail => mail.id !== id));
-      addToast('Courrier supprimé.', 'success');
-    } catch (err) {
-      addToast("Erreur lors de la suppression", 'error');
+      const response = await fetch(`/api/courrier?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erreur lors de la suppression');
+      }
+
+      setMails(prev => prev.filter(mail => mail.id !== id));
+      addToast('Courrier supprimé avec succès', 'success');
+    } catch (error) {
+      addToast(error.message, 'error');
     }
   };
 
@@ -95,10 +150,42 @@ export default function CourrierArrive() {
     setModalType(null);
   };
 
-  const handleUpdateMail = (updatedMail) => {
-    setMails(mails => mails.map(mail => mail.id === updatedMail.id ? updatedMail : mail));
-    addToast('Courrier modifié.', 'success');
-    handleCloseModal();
+  // Modifier un courrier via l'API
+  const handleUpdateMail = async (updatedMail) => {
+    try {
+      const formData = new FormData();
+      Object.entries(updatedMail).forEach(([key, value]) => {
+        if (key === 'files' && Array.isArray(value)) {
+          value.forEach(file => {
+            if (file instanceof File) {
+              formData.append('files', file);
+            } else {
+              // Pour les fichiers existants
+              formData.append('existingFiles', JSON.stringify(value));
+            }
+          });
+        } else {
+          formData.append(key, value);
+        }
+      });
+
+      const response = await fetch(`/api/courrier?id=${updatedMail.id}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erreur lors de la modification');
+      }
+
+      const updated = await response.json();
+      setMails(prev => prev.map(mail => mail.id === updated.id ? updated : mail));
+      addToast('Courrier modifié avec succès !', 'success');
+      handleCloseModal();
+    } catch (error) {
+      addToast(error.message, 'error');
+    }
   };
 
   const filteredMails = mails.filter(mail => {
@@ -120,7 +207,7 @@ export default function CourrierArrive() {
         </h1>
       </div>
 
-      {/* Barre d'outils */}
+      {/* Barre d'outils avec recherche, tri et ajouter */}
       <div className="flex items-center gap-4 mb-4 px-4">
         <input
           type="text"
@@ -145,15 +232,20 @@ export default function CourrierArrive() {
         </button>
       </div>
 
-      {/* Formulaire ajout */}
+      {/* Formulaire réduit */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
           <div className="w-full max-w-md bg-[#FCFCFC] rounded-xl shadow-lg overflow-y-auto border border-primary" style={{ minHeight: '250px', maxHeight: '80vh' }}>
-            <div tabIndex={-1} ref={formRef} aria-label="Formulaire d'ajout de courrier" className="p-3">
-              <CourrierForm
-                type="ARRIVE"
-                onClose={() => setShowForm(false)}
-                onAddMail={handleAddMail}
+            <div
+              tabIndex={-1}
+              ref={formRef}
+              aria-label="Formulaire d'ajout de courrier"
+              className="p-3"
+            >
+              <CourrierForm 
+                type="ARRIVE" 
+                onClose={() => setShowForm(false)} 
+                onAddMail={handleAddMail} 
               />
             </div>
           </div>
@@ -195,4 +287,5 @@ export default function CourrierArrive() {
       </div>
     </div>
   );
-}
+}, useEffect, useRef, useStateuseToast, import CourrierForm from './CourrierForm.jsx';
+import MailTable from './MailTable';

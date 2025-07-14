@@ -1,11 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import CourrierForm from './CourrierForm.jsx';
 import MailTable from './MailTable';
-import { useMailList } from '../hooks/useMailList';
 import { useToast } from './ToastContext';
-import AddCourierButton from './AddCourierButton';
-// 👇 SUPPRIMÉ les imports des icônes plein écran
-// import { ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 
 function MailDetailModal({ mail, onClose }) {
   if (!mail) return null;
@@ -21,11 +17,11 @@ function MailDetailModal({ mail, onClose }) {
           <div><span className="font-semibold text-gray-900">Statut :</span> {mail.statut}</div>
           {mail.reference && <div><span className="font-semibold text-gray-900">Référence :</span> {mail.reference}</div>}
           {mail.observations && <div><span className="font-semibold text-gray-900">Observations :</span> {mail.observations}</div>}
-          {mail.files?.length > 0 && (
+          {mail.fichiers?.length > 0 && (
             <div>
               <span className="font-semibold text-gray-900">Fichiers :</span>
               <ul className="list-disc ml-5">
-                {mail.files.map((f, i) => <li key={i}>{f.name || f}</li>)}
+                {mail.fichiers.map((f, i) => <li key={i}>{f.name || f}</li>)}
               </ul>
             </div>
           )}
@@ -39,41 +35,25 @@ export default function CourrierArrive() {
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef(null);
   const [search, setSearch] = useState('');
-  const { mails, addMail, removeMail, updateMail } = useMailList('arrive');
+  const [mails, setMails] = useState([]);
   const { addToast } = useToast();
-  // 👇 SUPPRIMÉ état plein écran inutile
-  // const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
   const [selectedMail, setSelectedMail] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [lastAddedId, setLastAddedId] = useState(null);
 
-  useEffect(() => {
-    if (showForm && formRef.current) formRef.current.focus();
-  }, [showForm]);
-
-  // 👇 SUPPRIMÉ le useEffect fullscreen
-  /*
-  useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, []);
-  */
-
-  // 👇 SUPPRIMÉ la fonction handleFullscreen
-  /*
-  const handleFullscreen = () => {
-    if (!isFullscreen && containerRef.current) {
-      containerRef.current.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
+  // Ajouter un courrier
+  const handleAddMail = (mail) => {
+    const newMail = { ...mail, id: Date.now() };
+    setMails(mails => [newMail, ...mails]);
+    setLastAddedId(newMail.id);
+    setShowForm(false);
+    addToast('Nouveau courrier ajouté !', 'success');
   };
-  */
 
+  // Supprimer un courrier
   const handleRemove = (id) => {
-    removeMail(id);
+    setMails(mails => mails.filter(mail => mail.id !== id));
     addToast('Courrier supprimé.', 'success');
   };
 
@@ -93,23 +73,16 @@ export default function CourrierArrive() {
   };
 
   const handleUpdateMail = (updatedMail) => {
-    updateMail(updatedMail);
+    setMails(mails => mails.map(mail => mail.id === updatedMail.id ? updatedMail : mail));
     addToast('Courrier modifié.', 'success');
     handleCloseModal();
-  };
-
-  const handleAddMail = (mail) => {
-    addMail(mail);
-    setLastAddedId(mail.id);
-    setShowForm(false);
-    addToast('Nouveau courrier ajouté !', 'success');
   };
 
   const filteredMails = mails.filter(mail => {
     const q = search.toLowerCase();
     return (
-      (mail.objet || mail.subject || '').toLowerCase().includes(q) ||
-      (mail.expediteur || mail.sender || '').toLowerCase().includes(q) ||
+      (mail.objet || '').toLowerCase().includes(q) ||
+      (mail.expediteur || '').toLowerCase().includes(q) ||
       (mail.destinataire || '').toLowerCase().includes(q)
     );
   });
@@ -120,7 +93,7 @@ export default function CourrierArrive() {
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-2xl font-bold text-[#15514f] flex items-center gap-3">
           <span className="text-3xl">📥</span>
-          Courrier Arrivé
+          Courrier Arrivée
         </h1>
       </div>
 

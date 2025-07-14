@@ -1,11 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import CourrierForm from './CourrierForm.jsx';
 import MailTable from './MailTable';
-import { useMailList } from '../hooks/useMailList';
 import { useToast } from './ToastContext';
 import AddCourierButton from './AddCourierButton';
-// ⛔️ Import plein écran supprimé
-// import { ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 
 function MailDetailModal({ mail, onClose }) {
   if (!mail) return null;
@@ -17,16 +14,15 @@ function MailDetailModal({ mail, onClose }) {
         <div className="space-y-2 text-sm text-gray-800">
           <div><span className="font-semibold text-gray-900">Objet :</span> {mail.objet}</div>
           <div><span className="font-semibold text-gray-900">Destinataire :</span> {mail.destinataire}</div>
-          <div><span className="font-semibold text-gray-900">Service :</span> {mail.service}</div>
           <div><span className="font-semibold text-gray-900">Date :</span> {mail.date}</div>
           <div><span className="font-semibold text-gray-900">Statut :</span> {mail.statut}</div>
           {mail.reference && <div><span className="font-semibold text-gray-900">Référence :</span> {mail.reference}</div>}
           {mail.observations && <div><span className="font-semibold text-gray-900">Observations :</span> {mail.observations}</div>}
-          {mail.files?.length > 0 && (
+          {mail.fichiers?.length > 0 && (
             <div>
               <span className="font-semibold text-gray-900">Fichiers :</span>
               <ul className="list-disc ml-5">
-                {mail.files.map((f, i) => <li key={i}>{f.name || f}</li>)}
+                {mail.fichiers.map((f, i) => <li key={i}>{f.name || f}</li>)}
               </ul>
             </div>
           )}
@@ -40,18 +36,49 @@ export default function CourrierDepart() {
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef(null);
   const [search, setSearch] = useState('');
-  const { mails, addMail, removeMail, updateMail } = useMailList('depart');
+  const [mails, setMails] = useState([]);
   const { addToast } = useToast();
   const containerRef = useRef(null);
-  // ⛔️ Etat plein écran supprimé
-  // const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedMail, setSelectedMail] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [lastAddedId, setLastAddedId] = useState(null);
 
-  // ⛔️ useEffect plein écran supprimé
+  // Charger tous les courriers départs
+  useEffect(() => {
+    fetch('/api/courrier-depart')
+      .then(res => res.json())
+      .then(data => setMails(data))
+      .catch(() => addToast("Erreur lors du chargement", "error"));
+  }, []);
 
-  // ⛔️ Fonction handleFullscreen supprimée
+  // Ajouter un courrier
+  const handleAddMail = async (mail) => {
+    try {
+      const res = await fetch('/api/courrier-depart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mail)
+      });
+      const newMail = await res.json();
+      setMails(mails => [newMail, ...mails]);
+      setLastAddedId(newMail.id);
+      setShowForm(false);
+      addToast('Nouveau courrier ajouté !', 'success');
+    } catch (err) {
+      addToast("Erreur lors de l'ajout", 'error');
+    }
+  };
+
+  // Supprimer un courrier
+  const handleRemove = async (id) => {
+    try {
+      await fetch(`/api/courrier-depart?id=${id}`, { method: 'DELETE' });
+      setMails(mails => mails.filter(mail => mail.id !== id));
+      addToast('Courrier supprimé.', 'success');
+    } catch (err) {
+      addToast("Erreur lors de la suppression", 'error');
+    }
+  };
 
   const handleView = (mail) => {
     setSelectedMail(mail);
@@ -69,29 +96,16 @@ export default function CourrierDepart() {
   };
 
   const handleUpdateMail = (updatedMail) => {
-    updateMail(updatedMail);
+    setMails(mails => mails.map(mail => mail.id === updatedMail.id ? updatedMail : mail));
     addToast('Courrier modifié.', 'success');
     handleCloseModal();
-  };
-
-  const handleAddMail = (mail) => {
-    addMail(mail);
-    setLastAddedId(mail.id);
-    setShowForm(false);
-    addToast('Nouveau courrier ajouté !', 'success');
-  };
-
-  const handleRemove = (id) => {
-    removeMail(id);
-    addToast('Courrier supprimé.', 'success');
   };
 
   const filteredMails = mails.filter(mail => {
     const q = search.toLowerCase();
     return (
       (mail.objet || '').toLowerCase().includes(q) ||
-      (mail.destinataire || '').toLowerCase().includes(q) ||
-      (mail.service || '').toLowerCase().includes(q)
+      (mail.destinataire || '').toLowerCase().includes(q)
     );
   });
 
@@ -105,7 +119,7 @@ export default function CourrierDepart() {
         </h1>
       </div>
 
-      {/* Barre d'outils avec recherche, tri et ajouter */}
+      {/* Barre d'outils */}
       <div className="flex items-center gap-4 mb-4 px-4">
         <input
           type="text"
@@ -130,16 +144,11 @@ export default function CourrierDepart() {
         </button>
       </div>
 
-      {/* Formulaire immédiat */}
+      {/* Formulaire ajout */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
-          <div className="w-full max-w-md bg-[#FCFCFC] rounded-xl shadow-lg overflow-y-auto border border-primary" style={{ minHeight: '250px', maxHeight: '85vh' }}>
-            <div
-              tabIndex={-1}
-              ref={formRef}
-              aria-label="Formulaire d'ajout de courrier"
-              className="p-3"
-            >
+          <div className="w-full max-w-md bg-[#FCFCFC] rounded-xl shadow-lg overflow-y-auto border border-primary" style={{ minHeight: '250px', maxHeight: '80vh' }}>
+            <div tabIndex={-1} ref={formRef} aria-label="Formulaire d'ajout de courrier" className="p-3">
               <CourrierForm
                 type="DEPART"
                 onClose={() => setShowForm(false)}

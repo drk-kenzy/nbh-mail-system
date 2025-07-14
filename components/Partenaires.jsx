@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { PlusIcon, UserGroupIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
-import InviteMemberModal from './InviteMemberModal';
+import InviteMemberModal from '@/components/InviteMemberModal';
 
 const PARTENAIRES_MOCK = [
   { id: 1, nom: 'Direction Générale', type: 'Partenaire', email: 'dg@entreprise.com', statut: 'Actif', secteur: 'Administration', contact: 'Mme Martin', tel: '+33 1 23 45 67 89', ville: 'Paris', pays: 'France', notes: '', courriers: 12, dernierContact: '2025-06-30' },
@@ -17,6 +16,7 @@ export default function Partenaires() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [editId, setEditId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [form, setForm] = useState({
     nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: ''
@@ -38,18 +38,55 @@ export default function Partenaires() {
       setPartenaires(ps => ps.filter(p => p.id !== id));
   };
 
+  // Fonction d'invitation réelle (avec appel API)
   const handleInvite = async (email) => {
-    // Ici vous pouvez ajouter la logique d'invitation
-    console.log('Inviter membre avec email:', email);
-    // Simulation d'un appel API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Ajouter l'invitation dans le tableau
+    // Message d'invitation
+    const subject = "Invitation à devenir partenaire de NBH LePremier";
+    const text = `
+Bonjour,
+
+Vous êtes invité à rejoindre notre réseau de partenaires sur NBH LePremier !
+Rejoignez-nous et profitez de nombreux avantages pour développer votre activité.
+
+Pour accepter l’invitation, cliquez simplement sur le lien suivant :
+https://lepremier.net/partenaires/invitation
+
+Au plaisir de collaborer ensemble,
+L’équipe NBH LePremier
+`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; font-size: 16px;">
+        <p>Bonjour,</p>
+        <p>
+          Vous êtes invité à rejoindre notre réseau de <b>partenaires NBH LePremier</b> !<br/>
+          Rejoignez-nous et profitez de nombreux avantages pour développer votre activité.
+        </p>
+        <p>
+          <a href="https://lepremier.net" style="background:#124D4B;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">
+            Accepter l’invitation
+          </a>
+        </p>
+        <p>Au plaisir de collaborer ensemble,<br/>L’équipe NBH LePremier</p>
+      </div>
+    `;
+
+    const res = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: email, subject, text, html }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Erreur lors de l’envoi de l’invitation");
+    }
+
+    // Facultatif : ajoute le partenaire "invité"
     const newInvitation = {
       id: Date.now(),
-      nom: email.split('@')[0], // Utilise la partie avant @ comme nom temporaire
+      nom: email.split('@')[0],
       type: 'Invité',
-      email: email,
+      email,
       statut: 'En attente',
       secteur: '',
       contact: email,
@@ -60,9 +97,8 @@ export default function Partenaires() {
       courriers: 0,
       dernierContact: new Date().toISOString().split('T')[0]
     };
-    
     setPartenaires(ps => [...ps, newInvitation]);
-    alert(`Invitation envoyée à ${email}`);
+    // Le message de confirmation est géré dans le modal
   };
 
   const handleSubmit = (e) => {
@@ -97,11 +133,8 @@ export default function Partenaires() {
               Nouveau Partenaire
             </button>
           </div>
-
-          {/* Séparateur */}
           <hr className="border-gray-200 mb-6" />
-
-          {/* Zone de recherche et filtre */}
+          {/* Recherche et filtre */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <input
@@ -123,14 +156,12 @@ export default function Partenaires() {
               </select>
             </div>
           </div>
-
           {/* Modal d'invitation */}
           <InviteMemberModal
             isOpen={showInviteModal}
             onClose={() => setShowInviteModal(false)}
             onInvite={handleInvite}
           />
-
           {/* Tableau */}
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -197,7 +228,6 @@ export default function Partenaires() {
               </tbody>
             </table>
           </div>
-
           {/* Message si aucun résultat */}
           {filtered.length === 0 && (
             <div className="text-center py-12">
