@@ -3,17 +3,7 @@ import useTranslation from '../hooks/useTranslation';
 import FileUpload from './FileUpload';
 import { useToast } from './ToastContext';
 
-// Récupérer les partenaires actifs depuis la base de données
-const getActivePartners = async () => {
-  try {
-    const response = await fetch('/api/partenaires');
-    const partenaires = await response.json();
-    return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des partenaires:', error);
-    return [];
-  }
-};
+
 const EMETTEURS = [
   "Service RH",
   "Direction Générale",
@@ -50,20 +40,26 @@ const MOCK_COURRIERS = [
 export default function CourrierDepartForm() {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const generateAutoNumber = () => {
-    // Get next number from existing courriers
-    const existingNumbers = courriers
-      .map(c => c.numero)
-      .filter(n => n && n.startsWith('DEP-'))
-      .map(n => parseInt(n.split('-')[1]))
-      .filter(n => !isNaN(n));
-    
-    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-    return `DEP-${String(nextNumber).padStart(5, '0')}`;
+  const generateAutoNumber = async () => {
+    try {
+      const response = await fetch('/api/courrier?type=DEPART');
+      const existingCourriers = await response.json();
+      
+      const existingNumbers = existingCourriers
+        .map(c => c.numero)
+        .filter(n => n && n.startsWith('DEP-'))
+        .map(n => parseInt(n.split('-')[1]))
+        .filter(n => !isNaN(n));
+
+      const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+      return `DEP-${String(nextNumber).padStart(5, '0')}`;
+    } catch (error) {
+      return 'DEP-00001';
+    }
   };
 
   const [form, setForm] = useState({
-    numero: generateAutoNumber(),
+    numero: 'DEP-00001',
     date: '',
     destinataire: '',
     objet: '',
@@ -74,6 +70,25 @@ export default function CourrierDepartForm() {
     observations: '',
     delaiReponse: '',
   });
+  const [activePartners, setActivePartners] = useState([]);
+
+  // Initialiser le numéro et charger les partenaires
+  useEffect(() => {
+    const initializeForm = async () => {
+      const numero = await generateAutoNumber();
+      setForm(prev => ({ ...prev, numero }));
+      
+      // Charger les partenaires actifs
+      try {
+        const response = await fetch('/api/partenaires');
+        const partenaires = await response.json();
+        setActivePartners(partenaires.filter(p => p.statut === 'Actif').map(p => p.nom));
+      } catch (error) {
+        console.error('Erreur lors de la récupération des partenaires:', error);
+      }
+    };
+    initializeForm();
+  }, []);
   const [courriers, setCourriers] = useState(MOCK_COURRIERS);
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
@@ -100,9 +115,12 @@ export default function CourrierDepartForm() {
     ]);
     setMessage(t('successOutMail'));
     showToast(t('successOutMail'), 'success');
+    
+    // Générer un nouveau numéro
+    const newNumero = await generateAutoNumber();
     setForm({
       ...form,
-      numero: generateAutoNumber(),
+      numero: newNumero,
       objet: '',
       fichiers: [],
       observations: '',
@@ -128,7 +146,7 @@ export default function CourrierDepartForm() {
             <label className="block text-sm mb-1 text-main font-medium">{t('recipientPartner')}</label>
             <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
-              {getActivePartners().map(p => <option key={p}>{p}</option>)}
+              {activePartners.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
           <div>

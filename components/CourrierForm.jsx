@@ -48,28 +48,50 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
   const [reference, setReference] = useState('');
   const [observations, setObservations] = useState('');
   const [files, setFiles] = useState([]);
-  const [courriers, setCourriers] = useState([]); // Added state for existing courriers
+  const [courriers, setCourriers] = useState([]);
+  const [activePartners, setActivePartners] = useState([]);
 
-    // Récupérer les partenaires actifs depuis la base de données
+  // Récupérer les partenaires actifs depuis la base de données
+  useEffect(() => {
     const getActivePartners = async () => {
       try {
         const response = await fetch('/api/partenaires');
         const partenaires = await response.json();
-        return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
+        setActivePartners(partenaires.filter(p => p.statut === 'Actif').map(p => p.nom));
       } catch (error) {
         console.error('Erreur lors de la récupération des partenaires:', error);
-        return [];
+        setActivePartners([]);
       }
     };
+    getActivePartners();
+  }, []);
 
   // Génération automatique du numéro
   useEffect(() => {
     if (!initialValues?.numero) {
-      const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
-      const timestamp = Date.now().toString().slice(-6);
-      setNumero(`${prefix}-${timestamp}`);
+      generateAutoNumber();
     }
-  }, [type, initialValues]);
+  }, [type, initialValues, courriers]);
+
+  const generateAutoNumber = async () => {
+    try {
+      const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+      const response = await fetch(`/api/courrier?type=${type}`);
+      const existingCourriers = await response.json();
+      
+      const existingNumbers = existingCourriers
+        .map(c => c.numero)
+        .filter(n => n && n.startsWith(prefix + '-'))
+        .map(n => parseInt(n.split('-')[1]))
+        .filter(n => !isNaN(n));
+
+      const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+      setNumero(`${prefix}-${String(nextNumber).padStart(5, '0')}`);
+    } catch (error) {
+      const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+      setNumero(`${prefix}-00001`);
+    }
+  };
 
   // Initialisation avec les valeurs existantes
   useEffect(() => {
@@ -253,8 +275,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                     required
                   >
                     <option value="">Sélectionner un expéditeur</option>
-                    {EXPEDITEURS.map(exp => (
-                      <option key={exp} value={exp}>{exp}</option>
+                    {activePartners.map(partner => (
+                      <option key={partner} value={partner}>{partner}</option>
                     ))}
                   </select>
                 </div>
@@ -270,8 +292,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                     required
                   >
                     <option value="">Sélectionner un destinataire</option>
-                    {DESTINATAIRES.map(dest => (
-                      <option key={dest} value={dest}>{dest}</option>
+                    {activePartners.map(partner => (
+                      <option key={partner} value={partner}>{partner}</option>
                     ))}
                   </select>
                 </div>
@@ -297,11 +319,10 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
                     Délai de réponse
                   </label>
                   <input
-                    type="text"
+                    type="date"
                     value={delai}
                     onChange={(e) => setDelai(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#15514f] focus:border-transparent"
-                    placeholder="Ex: 30 jours, 2 semaines..."
                   />
                 </div>
               </div>
