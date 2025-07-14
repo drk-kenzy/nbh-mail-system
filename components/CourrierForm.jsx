@@ -77,6 +77,11 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     try {
       const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
       const response = await fetch(`/api/courrier?type=${type}`);
+      
+      if (!response.ok) {
+        throw new Error('Erreur réseau');
+      }
+      
       const existingCourriers = await response.json();
       
       const existingNumbers = existingCourriers
@@ -88,6 +93,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
       setNumero(`${prefix}-${String(nextNumber).padStart(5, '0')}`);
     } catch (error) {
+      console.error('Erreur génération numéro:', error);
       const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
       setNumero(`${prefix}-00001`);
     }

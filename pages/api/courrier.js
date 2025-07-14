@@ -1,134 +1,207 @@
-import formidable from "formidable";
-import fs from "fs";
-import path from "path";
-import db from "../../models"; // ← d'abord on importe db
-console.log("DB Keys:", Object.keys(db));
-const Courrier = db.Courrier;
-console.log("Model Courrier:", Courrier);
 
+import fs from 'fs';
+import path from 'path';
+import formidable from 'formidable';
+import { Courrier } from '../../models';
 
-export const config = {
-  api: { bodyParser: false }
-};
-
-
-
-// Crée un dossier pour les uploads si besoin
 const uploadDir = path.join(process.cwd(), "public", "courrier_uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// Mock database - in production, this would be a real database
-let courriers = [
-  {
-    id: 1,
-    numero: 'ARR-00001',
-    date: '2025-01-15',
-    expediteur: "Ministère de l'Intérieur",
-    destinataire: 'Service RH',
-    objet: 'Dossier administratif',
-    reference: 'REF-001',
-    canal: 'Physique',
-    fichiers: [],
-    observations: 'Urgent',
-    statut: 'En cours',
-    type: 'ARRIVE'
-  }
-];
-
-let nextId = 2;
-
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    // Récupérer tous les courriers (GET /api/courriers)
-    const courriers = await Courrier.findAll({ order: [["createdAt", "DESC"]] });
-    res.status(200).json(courriers);
+    try {
+      // Récupérer tous les courriers depuis la base de données
+      const { type } = req.query;
+      const whereClause = type ? { type } : {};
+      const courriers = await Courrier.findAll({ 
+        where: whereClause,
+        order: [["createdAt", "DESC"]] 
+      });
+      
+      // Convertir les files JSON string en array
+      const courriersWithFiles = courriers.map(c => ({
+        ...c.toJSON(),
+        files: c.files ? JSON.parse(c.files) : []
+      }));
+      
+      res.status(200).json(courriersWithFiles);
+    } catch (error) {
+      console.error('Erreur GET:', error);
+      res.status(500).json({ error: "Erreur lors de la récupération des courriers" });
+    }
     return;
   }
 
   if (req.method === "POST") {
-    // Créer un courrier (POST /api/courriers)
-    const form = formidable({ multiples: true, uploadDir, keepExtensions: true, maxFileSize: 10 * 1024 * 1024 });
+    const form = formidable({ 
+      multiples: true, 
+      uploadDir, 
+      keepExtensions: true, 
+      maxFileSize: 10 * 1024 * 1024 
+    });
+    
     form.parse(req, async (err, fields, files) => {
-      if (err) return res.status(500).json({ error: "Erreur upload fichier" });
+      if (err) {
+        console.error('Erreur upload:', err);
+        return res.status(500).json({ error: "Erreur upload fichier" });
+      }
+      
       try {
-        // Gérer les fichiers : formatte en tableau d’objets
+        // Gérer les fichiers
         let fichiers = [];
         if (files.files) {
           if (Array.isArray(files.files)) {
-            fichiers = files.files.map(f => ({ name: f.originalFilename, url: "/courrier_uploads/" + path.basename(f.filepath) }));
+            fichiers = files.files.map(f => ({ 
+              name: f.originalFilename, 
+              url: "/courrier_uploads/" + path.basename(f.filepath) 
+            }));
           } else {
-            fichiers = [{ name: files.files.originalFilename, url: "/courrier_uploads/" + path.basename(files.files.filepath) }];
+            fichiers = [{ 
+              name: files.files.originalFilename, 
+              url: "/courrier_uploads/" + path.basename(files.files.filepath) 
+            }];
           }
         }
 
-        // Création en base
-        const newCourrier = await Courrier.create({
-          numero: fields.numero,
-          dateReception: fields.dateReception,
-          dateSignature: fields.dateSignature,
-          objet: fields.objet,
-          canal: fields.canal,
-          expediteur: fields.expediteur,
-          destinataire: fields.destinataire,
-          reference: fields.reference,
-          delai: fields.delai,
-          statut: fields.statut,
-          observations: fields.observations,
+        // Récupérer les données du formulaire
+        const getFieldValue = (field) => {
+          return Array.isArray(field) ? field[0] : field;
+        };
+
+        const type = getFieldValue(fields.type) || 'ARRIVE';
+        
+        // Générer le numéro automatiquement
+        const numero = await generateAutoNumber(type);
+
+        // Créer le courrier dans la base de données
+        const nouveauCourrier = await Courrier.create({
+          numero,
+          dateReception: getFieldValue(fields.dateReception),
+          dateSignature: getFieldValue(fields.dateSignature),
+          objet: getFieldValue(fields.objet),
+          canal: getFieldValue(fields.canal) || 'Physique',
+          expediteur: getFieldValue(fields.expediteur),
+          destinataire: getFieldValue(fields.destinataire),
+          reference: getFieldValue(fields.reference),
+          delai: getFieldValue(fields.delai),
+          statut: getFieldValue(fields.statut) || 'En attente',
+          observations: getFieldValue(fields.observations),
           files: JSON.stringify(fichiers),
-          type: fields.type,
+          type
         });
 
-        res.status(201).json(newCourrier);
-      } catch (e) {
-        res.status(500).json({ error: "Erreur lors de la création" });
+        // Retourner le courrier créé avec les files parsées
+        const courrierResponse = {
+          ...nouveauCourrier.toJSON(),
+          files: fichiers
+        };
+
+        res.status(201).json(courrierResponse);
+      } catch (error) {
+        console.error('Erreur création courrier:', error);
+        res.status(500).json({ error: "Erreur lors de la création du courrier" });
       }
     });
     return;
   }
 
   if (req.method === "PUT") {
-    // Modifier un courrier (PUT /api/courriers?id=123)
-    const { id } = req.query;
-    if (!id) return res.status(400).json({ error: "ID manquant" });
-    const form = formidable({ multiples: true, uploadDir, keepExtensions: true, maxFileSize: 10 * 1024 * 1024 });
+    // Mise à jour d'un courrier existant
+    const form = formidable({ 
+      multiples: true, 
+      uploadDir, 
+      keepExtensions: true, 
+      maxFileSize: 10 * 1024 * 1024 
+    });
+    
     form.parse(req, async (err, fields, files) => {
-      if (err) return res.status(500).json({ error: "Erreur upload fichier" });
+      if (err) {
+        console.error('Erreur upload:', err);
+        return res.status(500).json({ error: "Erreur upload fichier" });
+      }
+      
       try {
+        const getFieldValue = (field) => {
+          return Array.isArray(field) ? field[0] : field;
+        };
+
+        const id = getFieldValue(fields.id);
+        if (!id) {
+          return res.status(400).json({ error: "ID manquant" });
+        }
+
+        // Gérer les fichiers
         let fichiers = [];
         if (files.files) {
           if (Array.isArray(files.files)) {
-            fichiers = files.files.map(f => ({ name: f.originalFilename, url: "/courrier_uploads/" + path.basename(f.filepath) }));
+            fichiers = files.files.map(f => ({ 
+              name: f.originalFilename, 
+              url: "/courrier_uploads/" + path.basename(f.filepath) 
+            }));
           } else {
-            fichiers = [{ name: files.files.originalFilename, url: "/courrier_uploads/" + path.basename(files.files.filepath) }];
+            fichiers = [{ 
+              name: files.files.originalFilename, 
+              url: "/courrier_uploads/" + path.basename(files.files.filepath) 
+            }];
           }
-        } else if (fields.existingFiles) {
-          // Pour garder les anciens fichiers si pas d'upload
-          fichiers = JSON.parse(fields.existingFiles);
         }
 
-        const updated = await Courrier.update({
-          ...fields,
-          files: JSON.stringify(fichiers),
-        }, { where: { id } });
+        // Mettre à jour le courrier
+        const [updatedRows] = await Courrier.update({
+          dateReception: getFieldValue(fields.dateReception),
+          dateSignature: getFieldValue(fields.dateSignature),
+          objet: getFieldValue(fields.objet),
+          canal: getFieldValue(fields.canal),
+          expediteur: getFieldValue(fields.expediteur),
+          destinataire: getFieldValue(fields.destinataire),
+          reference: getFieldValue(fields.reference),
+          delai: getFieldValue(fields.delai),
+          statut: getFieldValue(fields.statut),
+          observations: getFieldValue(fields.observations),
+          files: JSON.stringify(fichiers)
+        }, {
+          where: { id }
+        });
 
-        const courrier = await Courrier.findByPk(id);
-        res.status(200).json(courrier);
-      } catch (e) {
-        res.status(500).json({ error: "Erreur modification" });
+        if (updatedRows === 0) {
+          return res.status(404).json({ error: "Courrier non trouvé" });
+        }
+
+        // Récupérer le courrier mis à jour
+        const courrierMisAJour = await Courrier.findByPk(id);
+        const courrierResponse = {
+          ...courrierMisAJour.toJSON(),
+          files: fichiers
+        };
+
+        res.status(200).json(courrierResponse);
+      } catch (error) {
+        console.error('Erreur mise à jour courrier:', error);
+        res.status(500).json({ error: "Erreur lors de la mise à jour du courrier" });
       }
     });
     return;
   }
 
   if (req.method === "DELETE") {
-    // Supprimer (DELETE /api/courriers?id=123)
-    const { id } = req.query;
-    if (!id) return res.status(400).json({ error: "ID manquant" });
     try {
-      await Courrier.destroy({ where: { id } });
-      res.status(204).end();
-    } catch {
-      res.status(500).json({ error: "Erreur suppression" });
+      const { id } = req.query;
+      if (!id) {
+        return res.status(400).json({ error: "ID manquant" });
+      }
+
+      const deletedRows = await Courrier.destroy({
+        where: { id }
+      });
+
+      if (deletedRows === 0) {
+        return res.status(404).json({ error: "Courrier non trouvé" });
+      }
+
+      res.status(200).json({ message: "Courrier supprimé avec succès" });
+    } catch (error) {
+      console.error('Erreur suppression courrier:', error);
+      res.status(500).json({ error: "Erreur lors de la suppression du courrier" });
     }
     return;
   }
@@ -136,15 +209,38 @@ export default async function handler(req, res) {
   res.status(405).json({ error: "Méthode non autorisée" });
 }
 
-function generateAutoNumber(type) {
-  const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
-  const existingNumbers = courriers
-    .filter(c => c.type === type)
-    .map(c => c.numero)
-    .filter(n => n && n.startsWith(prefix + '-'))
-    .map(n => parseInt(n.split('-')[1]))
-    .filter(n => !isNaN(n));
+// Fonction pour générer automatiquement le numéro d'enregistrement
+async function generateAutoNumber(type) {
+  try {
+    const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+    
+    // Récupérer tous les courriers du même type depuis la base de données
+    const existingCourriers = await Courrier.findAll({
+      where: { type },
+      attributes: ['numero']
+    });
+    
+    // Extraire les numéros existants
+    const existingNumbers = existingCourriers
+      .map(c => c.numero)
+      .filter(n => n && n.startsWith(prefix + '-'))
+      .map(n => parseInt(n.split('-')[1]))
+      .filter(n => !isNaN(n));
 
-  const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-  return `${prefix}-${String(nextNumber).padStart(5, '0')}`;
+    // Déterminer le prochain numéro
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    
+    return `${prefix}-${String(nextNumber).padStart(5, '0')}`;
+  } catch (error) {
+    console.error('Erreur génération numéro:', error);
+    // Fallback en cas d'erreur
+    const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+    return `${prefix}-00001`;
+  }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
