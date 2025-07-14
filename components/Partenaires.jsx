@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlusIcon, UserGroupIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, UserGroupIcon, TrashIcon, CheckCircleIcon, PencilIcon } from '@heroicons/react/24/solid';
 import InviteMemberModal from '@/components/InviteMemberModal';
 
 const PARTENAIRES_MOCK = [
@@ -162,6 +162,140 @@ L’équipe NBH LePremier
             onClose={() => setShowInviteModal(false)}
             onInvite={handleInvite}
           />
+          
+          {/* Formulaire d'édition */}
+          {showForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <h2 className="text-2xl font-bold text-[#15514f] mb-6">
+                  {editId ? 'Modifier le partenaire' : 'Nouveau partenaire'}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                      <input
+                        type="text"
+                        value={form.nom}
+                        onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                      <input
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                      <select
+                        value={form.type}
+                        onChange={(e) => setForm({ ...form, type: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      >
+                        {TYPES.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                      <select
+                        value={form.statut}
+                        onChange={(e) => setForm({ ...form, statut: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      >
+                        {STATUTS.map(statut => (
+                          <option key={statut} value={statut}>{statut}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
+                      <input
+                        type="text"
+                        value={form.secteur}
+                        onChange={(e) => setForm({ ...form, secteur: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                      <input
+                        type="text"
+                        value={form.contact}
+                        onChange={(e) => setForm({ ...form, contact: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                      <input
+                        type="text"
+                        value={form.tel}
+                        onChange={(e) => setForm({ ...form, tel: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+                      <input
+                        type="text"
+                        value={form.ville}
+                        onChange={(e) => setForm({ ...form, ville: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Pays</label>
+                      <input
+                        type="text"
+                        value={form.pays}
+                        onChange={(e) => setForm({ ...form, pays: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#15514f]"
+                    />
+                  </div>
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#15514f] hover:bg-[#0f3e3c] text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                    >
+                      {editId ? 'Modifier' : 'Ajouter'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForm(false);
+                        setEditId(null);
+                        setForm({
+                          nom: '', type: TYPES[0], secteur: '', contact: '', email: '', tel: '', adresse: '', ville: '', codePostal: '', pays: '', statut: STATUTS[0], notes: '', courriers: 0, dernierContact: ''
+                        });
+                      }}
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
           {/* Tableau */}
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -212,7 +346,7 @@ L’équipe NBH LePremier
                           className="p-2 text-gray-500 hover:text-[#15514f] hover:bg-gray-100 rounded-lg transition-colors"
                           title="Modifier"
                         >
-                          <CheckCircleIcon className="w-5 h-5" />
+                          <PencilIcon className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(p.id)}
