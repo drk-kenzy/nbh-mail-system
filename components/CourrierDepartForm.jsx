@@ -3,12 +3,16 @@ import useTranslation from '../hooks/useTranslation';
 import FileUpload from './FileUpload';
 import { useToast } from './ToastContext';
 
-const PARTENAIRES_ACTIFS = [
-  "Ministère de l'Intérieur",
-  "Préfecture de Paris", 
-  "Ville de Lyon",
-  "Association X",
-];
+// Partners will be passed as props or fetched from context
+const getActivePartners = () => {
+  // This should ideally come from a context or be passed as props
+  return [
+    "Ministère de l'Intérieur",
+    "Préfecture de Paris", 
+    "Ville de Lyon",
+    "Association X",
+  ];
+};
 const EMETTEURS = [
   "Service RH",
   "Direction Générale",
@@ -46,9 +50,15 @@ export default function CourrierDepartForm() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const generateAutoNumber = () => {
-    const timestamp = Date.now();
-    const counter = Math.floor(timestamp % 100000);
-    return `DEP-${String(counter).padStart(5, '0')}`;
+    // Get next number from existing courriers
+    const existingNumbers = courriers
+      .map(c => c.numero)
+      .filter(n => n && n.startsWith('DEP-'))
+      .map(n => parseInt(n.split('-')[1]))
+      .filter(n => !isNaN(n));
+    
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    return `DEP-${String(nextNumber).padStart(5, '0')}`;
   };
 
   const [form, setForm] = useState({
@@ -117,7 +127,7 @@ export default function CourrierDepartForm() {
             <label className="block text-sm mb-1 text-main font-medium">{t('recipientPartner')}</label>
             <select className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.destinataire} onChange={e => setForm({ ...form, destinataire: e.target.value })} required aria-required="true">
               <option value="">{t('select')}</option>
-              {PARTENAIRES_ACTIFS.map(p => <option key={p}>{p}</option>)}
+              {getActivePartners().map(p => <option key={p}>{p}</option>)}
             </select>
           </div>
           <div>
@@ -156,7 +166,7 @@ export default function CourrierDepartForm() {
             </select>
           </div>
           <div>
-            <label className="block text-sm mb-1 text-main font-medium">Délai de réponse</label>
+            <label className="block text-sm mb-1 text-main font-medium">Date limite de réponse</label>
             <input type="date" className="w-full bg-white/90 text-gray-900 rounded-lg px-3 py-2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white" value={form.delaiReponse} onChange={e => setForm({ ...form, delaiReponse: e.target.value })} />
           </div>
           <div className="md:col-span-2">
@@ -173,14 +183,17 @@ export default function CourrierDepartForm() {
         )}
       </form>
       <div className="bg-surface border border-primary/20 rounded-xl shadow-lg p-6 mt-8">
-        <input
-          type="text"
-          placeholder={t('searchBySubject')}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="bg-white/90 text-gray-900 rounded-lg px-3 py-2 w-full md:w-1/2 mb-4 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white placeholder-gray-600"
-          aria-label={t('searchBySubject')}
-        />
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder={t('searchBySubject')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="bg-white/90 text-gray-900 rounded-lg px-3 py-2 w-full md:w-1/2 border border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:bg-white placeholder-gray-600"
+            aria-label={t('searchBySubject')}
+            style={{ marginLeft: '0' }}
+          />
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm text-left">
             <thead>

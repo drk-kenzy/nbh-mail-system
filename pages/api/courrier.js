@@ -17,6 +17,26 @@ export const config = {
 const uploadDir = path.join(process.cwd(), "public", "courrier_uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
+// Mock database - in production, this would be a real database
+let courriers = [
+  {
+    id: 1,
+    numero: 'ARR-00001',
+    date: '2025-01-15',
+    expediteur: "Ministère de l'Intérieur",
+    destinataire: 'Service RH',
+    objet: 'Dossier administratif',
+    reference: 'REF-001',
+    canal: 'Physique',
+    fichiers: [],
+    observations: 'Urgent',
+    statut: 'En cours',
+    type: 'ARRIVE'
+  }
+];
+
+let nextId = 2;
+
 export default async function handler(req, res) {
   if (req.method === "GET") {
     // Récupérer tous les courriers (GET /api/courriers)
@@ -114,4 +134,17 @@ export default async function handler(req, res) {
   }
 
   res.status(405).json({ error: "Méthode non autorisée" });
+}
+
+function generateAutoNumber(type) {
+  const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+  const existingNumbers = courriers
+    .filter(c => c.type === type)
+    .map(c => c.numero)
+    .filter(n => n && n.startsWith(prefix))
+    .map(n => parseInt(n.split('-')[1]))
+    .filter(n => !isNaN(n));
+
+  const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+  return `${prefix}-${String(nextNumber).padStart(5, '0')}`;
 }

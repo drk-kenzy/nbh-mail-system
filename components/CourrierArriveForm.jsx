@@ -128,6 +128,7 @@ export default function CourrierArrive() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 px-4 py-3 bg-[#FCFCFC] border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#15514f] shadow-sm"
+          style={{ marginLeft: '0' }}
         />
         <select className="px-4 py-3 bg-[#FCFCFC] border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#15514f] shadow-sm min-w-[140px]">
           <option value="">Trier par</option>

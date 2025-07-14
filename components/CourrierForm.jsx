@@ -117,6 +117,14 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     if (onClose) onClose();
   };
 
+  const generateAutoNumber = () => {
+    // This would ideally get the next number from the server/database
+    // For now, using a simple incrementing approach
+    const timestamp = Date.now();
+    const counter = Math.floor(timestamp % 100000) + 1;
+    return `ARR-${String(counter).padStart(5, '0')}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
       <div className="bg-gray-50 rounded-xl shadow-lg w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">

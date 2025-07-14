@@ -5,7 +5,7 @@ import { useToast } from './ToastContext';
 export default function PartenaireForm({ onAdd, editingPartenaire, onUpdate, onCancel }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ nom: '', type: 'Interne', contact: '' });
+  const [form, setForm] = useState({ nom: '', type: 'Public', email: '' });
   const [message, setMessage] = useState('');
 
   // Mettre à jour le formulaire quand on édite un partenaire
@@ -13,11 +13,11 @@ export default function PartenaireForm({ onAdd, editingPartenaire, onUpdate, onC
     if (editingPartenaire) {
       setForm({
         nom: editingPartenaire.nom || '',
-        type: editingPartenaire.type || 'Interne',
-        contact: editingPartenaire.contact || ''
+        type: editingPartenaire.type || 'Public',
+        email: editingPartenaire.email || editingPartenaire.contact || ''
       });
     } else {
-      setForm({ nom: '', type: 'Interne', contact: '' });
+      setForm({ nom: '', type: 'Public', email: '' });
     }
   }, [editingPartenaire]);
 
@@ -40,7 +40,7 @@ export default function PartenaireForm({ onAdd, editingPartenaire, onUpdate, onC
       showToast(t('successPartner'), 'success');
     }
     
-    setForm({ nom: '', type: 'Interne', contact: '' });
+    setForm({ nom: '', type: 'Public', email: '' });
   };
 
   return (
@@ -48,7 +48,7 @@ export default function PartenaireForm({ onAdd, editingPartenaire, onUpdate, onC
       <h2 className="text-2xl font-semibold mb-2">
         {editingPartenaire ? t('editPartner') : t('addPartner')}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm mb-1">{t('partnerName')}</label>
           <input type="text" className="w-full bg-muted/30 text-gray-300 rounded px-3 py-2" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} required aria-required="true" />
@@ -60,21 +60,20 @@ export default function PartenaireForm({ onAdd, editingPartenaire, onUpdate, onC
             <option value="Privé">Privé</option>
           </select>
         </div>
-        <div>
-          <label className="block text-sm mb-1">{t('contact')}</label>
-          <input type="email" className="w-full bg-muted/30 text-gray-300 rounded px-3 py-2" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} />
+        <div className="md:col-span-2">
+          <label className="block text-sm mb-1">Email</label>
+          <input type="email" className="w-full bg-muted/30 text-gray-300 rounded px-3 py-2" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
         </div>
       </div>
-      <div className="flex gap-2 mt-4">
-        <button type="submit" className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-2 rounded transition">
+      <div className="flex gap-4 mt-4">
+        <button type="button" className="flex-1 bg-[#e6e6e6] hover:bg-[#d0d0d0] text-gray-800 font-semibold py-3 px-6 rounded-lg transition shadow-md min-h-[48px]" onClick={editingPartenaire ? onCancel : () => setForm({ nom: '', type: 'Public', email: '' })}>
+          {editingPartenaire ? t('cancel') : t('reset')}
+        </button>
+        <button type="submit" className="flex-1 bg-[#15514f] hover:bg-[#0f3e3c] text-white font-semibold py-3 px-6 rounded-lg transition shadow-md min-h-[48px]">
           {editingPartenaire ? t('update') : t('save')}
         </button>
-        {editingPartenaire ? (
-          <button type="button" className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded transition" onClick={onCancel}>
-            {t('cancel')}
-          </button>
         ) : (
-          <button type="button" className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded transition" onClick={() => setForm({ nom: '', type: 'Public', contact: '' })}>
+          <button type="button" className="w-full bg-[#e6e6e6] hover:bg-[#d0d0d0] text-gray-800 font-semibold py-3 px-6 rounded-lg transition shadow-md min-h-[48px]" onClick={() => setForm({ nom: '', type: 'Public', email: '' })}>
             {t('reset')}
           </button>
         )}
