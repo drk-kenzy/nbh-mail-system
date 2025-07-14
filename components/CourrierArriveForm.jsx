@@ -44,7 +44,7 @@ export default function CourrierArriveForm() {
 
   const handleDeleteCourrier = async (id) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) return;
-    
+
     try {
       const response = await fetch(`/api/courrier?id=${id}`, { method: 'DELETE' });
       if (response.ok) {
@@ -279,22 +279,183 @@ const getActivePartners = async () => {
               onAddMail={handleUpdateMail}
               initialValues={selectedMail}
             />
-          </div>
-        </div>
-      )}
+          ```jsx
+import { useState, useEffect } from 'react';
+import Input from './Input';
+import FileInput from './FileInput';
+import Textarea from './Textarea';
+import Select from './Select';
+import { useToast } from './ToastContext';
 
-      {/* Tableau */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-4">
-        <MailTable
-          mails={filteredMails}
-          onRemove={handleRemove}
-          search={search}
-          setSearch={setSearch}
-          onView={handleView}
-          onEdit={handleEdit}
-          lastAddedId={lastAddedId}
-        />
+const today = new Date().toISOString().split('T')[0];
+
+function formatDate(dateString) {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error("Erreur lors de la conversion de la date :", error);
+    return '';
+  }
+}
+
+export default function CourrierForm({ type, initialValues, onClose, onAddMail }) {
+  const [numero, setNumero] = useState('');
+  const [date, setDate] = useState(formatDate(initialValues?.date) || today);
+  const [expediteur, setExpediteur] = useState(initialValues?.expediteur || '');
+  const [destinataire, setDestinataire] = useState(initialValues?.destinataire || '');
+  const [objet, setObjet] = useState(initialValues?.objet || '');
+  const [reference, setReference] = useState(initialValues?.reference || '');
+  const [statut, setStatut] = useState(initialValues?.statut || 'En attente');
+  const [observations, setObservations] = useState(initialValues?.observations || '');
+  const [fichiers, setFichiers] = useState(initialValues?.fichiers || []);
+  const [allPartners, setAllPartners] = useState([]);
+  const [isUrgent, setIsUrgent] = useState(initialValues?.urgent || false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    generateAutoNumber();
+    fetchPartners();
+  }, []);
+
+  useEffect(() => {
+    setDate(formatDate(initialValues?.date) || today);
+    setExpediteur(initialValues?.expediteur || '');
+    setDestinataire(initialValues?.destinataire || '');
+    setObjet(initialValues?.objet || '');
+    setReference(initialValues?.reference || '');
+    setStatut(initialValues?.statut || 'En attente');
+    setObservations(initialValues?.observations || '');
+    setFichiers(initialValues?.fichiers || []);
+    setIsUrgent(initialValues?.urgent || false);
+  }, [initialValues]);
+
+  const fetchPartners = async () => {
+    try {
+      const response = await fetch('/api/partenaires');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setAllPartners(data);
+    } catch (error) {
+      console.error("Could not fetch partners:", error);
+      addToast("Erreur lors du chargement des partenaires", 'error');
+    }
+  };
+  
+  const generateAutoNumber = async () => {
+    try {
+      const response = await fetch('/api/courrier?type=ARRIVE');
+      if (response.ok) {
+        const courriers = await response.json();
+        const existingNumbers = courriers
+          .map(c => c.numero)
+          .filter(n => n && n.match(/^\d{5}$/))
+          .map(n => parseInt(n))
+          .filter(n => !isNaN(n));
+
+        const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+        setNumero(String(nextNumber).padStart(5, '0'));
+      }
+    } catch (error) {
+      console.error('Erreur génération numéro:', error);
+      setNumero('00001');
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (name === 'date') setDate(value);
+    else if (name === 'expediteur') setExpediteur(value);
+    else if (name === 'destinataire') setDestinataire(value);
+    else if (name === 'objet') setObjet(value);
+    else if (name === 'reference') setReference(value);
+    else if (name === 'statut') setStatut(value);
+    else if (name === 'observations') setObservations(value);
+    else if (type === 'checkbox') setIsUrgent(checked);
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(files);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('numero', numero);
+    formData.append('date', date);
+    formData.append('expediteur', expediteur);
+    formData.append('destinataire', destinataire);
+    formData.append('objet', objet);
+    formData.append('reference', reference);
+    formData.append('statut', statut);
+    formData.append('observations', observations);
+    formData.append('type', type);
+    formData.append('urgent', isUrgent);
+
+    selectedFiles.forEach(file => {
+      formData.append('fichiers', file);
+    });
+
+    try {
+      const apiUrl = initialValues?.id ? `/api/courrier?id=${initialValues.id}` : '/api/courrier';
+      const method = initialValues?.id ? 'PUT' : 'POST';
+      const response = await fetch(apiUrl, {
+        method: method,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const newMail = await response.json();
+      onAddMail(newMail);
+      onClose();
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du courrier :", error);
+      addToast("Erreur lors de l'ajout/modification du courrier", 'error');
+    }
+  };
+
+  const statutOptions = ['En attente', 'Traité', 'Archivé'];
+
+  return (
+    <form onSubmit={handleSubmit} className="p-4 space-y-4">
+      <Input label="Numéro" type="text" name="numero" value={numero} readOnly />
+      <Input label="Date" type="date" name="date" value={date} onChange={handleChange} max={today} />
+      <Input label="Expéditeur" type="text" name="expediteur" value={expediteur} onChange={handleChange} />
+      <Select
+        label="Destinataire"
+        name="destinataire"
+        value={destinataire}
+        onChange={handleChange}
+        options={allPartners.map(p => p.nom)}
+        isSearchable={true}
+      />
+      <Input label="Objet" type="text" name="objet" value={objet} onChange={handleChange} />
+      <Input label="Référence" type="text" name="reference" value={reference} onChange={handleChange} />
+      <Select label="Statut" name="statut" value={statut} onChange={handleChange} options={statutOptions} />
+      <Textarea label="Observations" name="observations" value={observations} onChange={handleChange} />
+      <FileInput label="Fichiers" name="fichiers" onChange={handleFileChange} multiple />
+      <div className="flex items-center">
+        <input type="checkbox" id="urgent" name="urgent" checked={isUrgent} onChange={handleChange} className="mr-2" />
+        <label htmlFor="urgent" className="text-sm text-gray-700">Urgent</label>
       </div>
-    </div>
+      <div className="flex justify-end space-x-2">
+        <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" onClick={onClose}>Annuler</button>
+        <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark">
+          {initialValues?.id ? 'Mettre à jour' : 'Ajouter'}
+        </button>
+      </div>
+    </form>
   );
 }
