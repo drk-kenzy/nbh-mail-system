@@ -57,13 +57,25 @@ export default function MailTable({
 
   const sortedMails = useMemo(() => {
     const sorted = [...filteredMails].sort((a, b) => {
-      const aVal = a[sortBy] || '';
-      const bVal = b[sortBy] || '';
+      const aVal = getFieldValue(a, sortBy);
+      const bVal = getFieldValue(b, sortBy);
 
+      // Tri spécial pour les dates
+      if (sortBy === 'date') {
+        const dateA = new Date(aVal);
+        const dateB = new Date(bVal);
+        if (sortOrder === 'asc') {
+          return dateA - dateB;
+        } else {
+          return dateB - dateA;
+        }
+      }
+
+      // Tri normal pour les autres champs
       if (sortOrder === 'asc') {
-        return aVal.localeCompare(bVal);
+        return String(aVal).localeCompare(String(bVal));
       } else {
-        return bVal.localeCompare(aVal);
+        return String(bVal).localeCompare(String(aVal));
       }
     });
     return sorted;
@@ -85,6 +97,13 @@ export default function MailTable({
       setSortBy(field);
       setSortOrder('asc');
     }
+  };
+
+  const getFieldValue = (mail, field) => {
+    if (field === 'date') {
+      return mail.dateReception || mail.date || '';
+    }
+    return mail[field] || '';
   };
 
   const formatDate = (dateString) => {
@@ -168,7 +187,7 @@ export default function MailTable({
                   return (
                     <tr key={mail.id} className="hover:bg-gray-800/30 border-b border-gray-700">
                       <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{safeString(mail.numero)}</td>
-                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{formatDate(mail.date)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap border-r border-gray-600">{formatDate(mail.dateReception || mail.date)}</td>
                       <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.expediteur || mail.sender)}</td>
                       <td className="px-4 py-3 whitespace-nowrap truncate max-w-[180px] border-r border-gray-600">{safeString(mail.destinataire || mail.recipient)}</td>
                       <td className="px-4 py-3 border-r border-gray-600">
@@ -294,7 +313,7 @@ export default function MailTable({
                   </div>
                   <div>
                     <p className="text-gray-400">Date</p>
-                    <p>{formatDate(mail.date)}</p>
+                    <p>{formatDate(mail.dateReception || mail.date)}</p>
                   </div>
                 </div>
 
