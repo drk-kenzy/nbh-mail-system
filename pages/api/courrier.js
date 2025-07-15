@@ -1,6 +1,6 @@
 
 const db = require('../../models');
-const formidable = require('formidable');
+const { formidable } = require('formidable');
 const fs = require('fs');
 const path = require('path');
 

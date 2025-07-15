@@ -127,7 +127,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
         }
       });
 
-      const apiUrl = initialValues?.id ? `/api/courrier?id=${initialValues.id}` : '/api/courrier';
+      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
+      const apiUrl = initialValues?.id ? `${apiEndpoint}?id=${initialValues.id}` : apiEndpoint;
       const method = initialValues?.id ? 'PUT' : 'POST';
 
       const response = await fetch(apiUrl, {
