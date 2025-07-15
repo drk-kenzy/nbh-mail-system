@@ -1,3 +1,4 @@
+
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -7,13 +8,21 @@ module.exports = (sequelize) => {
       primaryKey: true,
       autoIncrement: true
     },
+    numero: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     type: {
-      type: DataTypes.ENUM('ARRIVE', 'DEPART'),
+      type: DataTypes.STRING,
       allowNull: false
     },
     objet: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    canal: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     expediteur: {
       type: DataTypes.STRING,
@@ -23,32 +32,36 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    reference: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     dateReception: {
       type: DataTypes.DATE,
       allowNull: true
     },
-    dateEnvoi: {
+    dateSignature: {
       type: DataTypes.DATE,
       allowNull: true
     },
+    delai: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     statut: {
-      type: DataTypes.ENUM('EN_ATTENTE', 'TRAITE', 'ARCHIVE'),
-      defaultValue: 'EN_ATTENTE'
+      type: DataTypes.STRING,
+      allowNull: true
     },
-    priorite: {
-      type: DataTypes.ENUM('BASSE', 'NORMALE', 'HAUTE', 'URGENTE'),
-      defaultValue: 'NORMALE'
-    },
-    contenu: {
+    observations: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    pieceJointe: {
-      type: DataTypes.STRING,
+    files: {
+      type: DataTypes.TEXT,
       allowNull: true
     }
   }, {
-    tableName: 'Courrier',
+    tableName: 'Courriers',
     timestamps: true
   });
 

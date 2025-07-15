@@ -5,8 +5,12 @@ export default async function handler(req, res) {
     // Vérifier la connexion à la base de données
     await db.sequelize.authenticate();
     
+    // Debug : afficher les modèles disponibles
+    console.log('Modèles disponibles:', Object.keys(db));
+    
     // Vérifier que le modèle Courrier existe
     if (!db.Courrier) {
+      console.error('Modèle Courrier non trouvé. Modèles disponibles:', Object.keys(db));
       throw new Error('Modèle Courrier non trouvé');
     }
 
