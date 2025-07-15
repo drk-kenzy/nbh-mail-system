@@ -117,93 +117,6 @@ export default function MailTable({
 
   return (
     <div className="w-full h-full flex flex-col space-y-4">
-      {/* Search and filters */}
-      <div className="flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Rechercher..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-3 py-2 border rounded-lg"
-        />
-      </div>
-      
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th 
-                className="border border-gray-300 px-4 py-2 cursor-pointer"
-                onClick={() => handleSort('objet')}
-              >
-                Objet {sortBy === 'objet' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th 
-                className="border border-gray-300 px-4 py-2 cursor-pointer"
-                onClick={() => handleSort('expediteur')}
-              >
-                Expéditeur {sortBy === 'expediteur' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th 
-                className="border border-gray-300 px-4 py-2 cursor-pointer"
-                onClick={() => handleSort('dateReception')}
-              >
-                Date {sortBy === 'dateReception' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pagedMails.map((mail) => (
-              <tr key={mail.id}>
-                <td className="border border-gray-300 px-4 py-2">
-                  {expandedObjects.has(mail.id) 
-                    ? mail.objet 
-                    : truncateText(mail.objet)
-                  }
-                  {mail.objet && mail.objet.length > 50 && (
-                    <button
-                      onClick={() => toggleObjectExpansion(mail.id)}
-                      className="ml-2 text-blue-500 hover:text-blue-700"
-                    >
-                      {expandedObjects.has(mail.id) ? '[−]' : '[...]'}
-                    </button>
-                  )}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{mail.expediteur}</td>
-                <td className="border border-gray-300 px-4 py-2">{formatDate(mail.dateReception)}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <button className="text-blue-500 hover:text-blue-700 mr-2">Voir</button>
-                  <button className="text-red-500 hover:text-red-700">Supprimer</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Pagination */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={() => setPage(Math.max(1, page - 1))}
-          disabled={page === 1}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Précédent
-        </button>
-        <span>Page {page} sur {totalPages}</span>
-        <button
-          onClick={() => setPage(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Suivant
-        </button>
-      </div>
-    </div>
-  );4">
-
       {/* Tableau principal - Version Desktop */}
       <div className="hidden md:block flex-1 border-2 border-gray-700 rounded-lg overflow-hidden shadow-lg">
         <div className="h-full overflow-auto">
@@ -344,7 +257,7 @@ export default function MailTable({
           pagedMails.map((mail) => {
             const objetText = safeString(mail.objet || mail.subject);
             const isExpanded = expandedObjects.has(mail.id);
-            const shouldTruncate = objetText.length > 15; // Limite pour mobile
+            const shouldTruncate = objetText.length > 15;
 
             return (
               <div key={mail.id} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-800/50">
@@ -374,31 +287,31 @@ export default function MailTable({
                   </span>
                 </div>
 
-              <div className="grid grid-cols-2 gap-2 text-sm mt-3">
-                <div>
-                  <p className="text-gray-400">Expéditeur</p>
-                  <p className="truncate">{safeString(mail.expediteur || mail.sender)}</p>
+                <div className="grid grid-cols-2 gap-2 text-sm mt-3">
+                  <div>
+                    <p className="text-gray-400">Expéditeur</p>
+                    <p className="truncate">{safeString(mail.expediteur || mail.sender)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Date</p>
+                    <p>{formatDate(mail.date)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-400">Date</p>
-                  <p>{formatDate(mail.date)}</p>
-                </div>
-              </div>
 
-              <div className="flex justify-end gap-2 mt-3">
-                <button onClick={() => onView?.(mail)} className="p-1.5 text-blue-400">
-                  <FiEye className="w-4 h-4" />
-                </button>
-                <button onClick={() => onEdit?.(mail)} className="p-1.5 text-yellow-400">
-                  <FiEdit2 className="w-4 h-4" />
-                </button>
-                {onRemove && (
-                  <button onClick={() => onRemove(mail.id)} className="p-1.5 text-red-400">
-                    <FiTrash2 className="w-4 h-4" />
+                <div className="flex justify-end gap-2 mt-3">
+                  <button onClick={() => onView?.(mail)} className="p-1.5 text-blue-400">
+                    <FiEye className="w-4 h-4" />
                   </button>
-                )}
+                  <button onClick={() => onEdit?.(mail)} className="p-1.5 text-yellow-400">
+                    <FiEdit2 className="w-4 h-4" />
+                  </button>
+                  {onRemove && (
+                    <button onClick={() => onRemove(mail.id)} className="p-1.5 text-red-400">
+                      <FiTrash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
             );
           })
         ) : (
