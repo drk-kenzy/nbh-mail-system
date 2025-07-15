@@ -44,6 +44,13 @@ export default function MailTable({
   const [sortOrder, setSortOrder] = useState('desc');
   const [expandedObjects, setExpandedObjects] = useState(new Set());
 
+  const getFieldValue = (mail, field) => {
+    if (field === 'date') {
+      return mail.dateReception || mail.date || '';
+    }
+    return mail[field] || '';
+  };
+
   const filteredMails = useMemo(() => {
     if (!search) return mails;
     const searchTerm = search.toLowerCase();
@@ -97,13 +104,6 @@ export default function MailTable({
       setSortBy(field);
       setSortOrder('asc');
     }
-  };
-
-  const getFieldValue = (mail, field) => {
-    if (field === 'date') {
-      return mail.dateReception || mail.date || '';
-    }
-    return mail[field] || '';
   };
 
   const formatDate = (dateString) => {
