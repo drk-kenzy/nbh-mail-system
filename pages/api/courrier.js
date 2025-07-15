@@ -2,7 +2,13 @@ const db = require('../../models');
 
 export default async function handler(req, res) {
   try {
+    // Vérifier la connexion à la base de données
     await db.sequelize.authenticate();
+    
+    // Vérifier que le modèle Courrier existe
+    if (!db.Courrier) {
+      throw new Error('Modèle Courrier non trouvé');
+    }
 
     switch (req.method) {
       case 'GET':

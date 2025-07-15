@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -13,15 +14,22 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
+// Charger uniquement les modèles existants explicitement
+const models = [
+  'Courrier'
+];
+
+models.forEach(modelName => {
+  const modelFile = path.join(__dirname, `${modelName}.js`);
+  if (fs.existsSync(modelFile)) {
+    try {
+      const model = require(modelFile)(sequelize, Sequelize.DataTypes);
+      db[model.name] = model;
+    } catch (error) {
+      console.error(`Erreur lors du chargement du modèle ${modelName}:`, error);
+    }
+  }
+});
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
