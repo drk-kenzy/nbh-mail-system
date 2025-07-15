@@ -23,8 +23,6 @@ export default function CourrierDepartPage() {
     };
     
     window.addEventListener('storage', handleStorageChange);
-    
-    // Écouter les changements via un event personnalisé
     window.addEventListener('courriersUpdated', handleStorageChange);
     
     return () => {
@@ -113,52 +111,54 @@ export default function CourrierDepartPage() {
   };
 
   const filteredMails = displayedMails.filter(mail => {
+    if (!search) return true;
     const searchLower = search.toLowerCase();
     return (
-      (mail.objet || '').toLowerCase().includes(searchLower) ||
-      (mail.expediteur || '').toLowerCase().includes(searchLower) ||
-      (mail.destinataire || '').toLowerCase().includes(searchLower) ||
-      (mail.numero || '').toLowerCase().includes(searchLower)
+      mail.objet?.toLowerCase().includes(searchLower) ||
+      mail.expediteur?.toLowerCase().includes(searchLower) ||
+      mail.numero?.toLowerCase().includes(searchLower)
     );
   });
 
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-600">Chargement des courriers...</div>
-        </div>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Courriers Départ</h1>
-          <AddCourierButton onClick={() => setOpen(true)} open={open} />
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Courrier Départ</h1>
+          <AddCourierButton onClick={() => setOpen(true)} />
         </div>
 
-        {open && (
-          <div className="bg-white rounded-lg shadow-lg p-6 border">
-            <CourrierForm 
-              type="DEPART" 
-              onClose={() => setOpen(false)} 
-              onAddMail={handleAddMail}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Rechercher un courrier..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Chargement des courriers...</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <MailTable 
+              mails={filteredMails} 
+              onRemoveMail={handleRemoveMail}
+              isProgressiveLoad={isProgressiveLoad}
             />
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow">
-          <MailTable
-            mails={filteredMails}
-            onRemove={handleRemoveMail}
-            search={search}
-            setSearch={setSearch}
-            loading={isProgressiveLoad}
-          />
-        </div>
+        <CourrierForm
+          open={open}
+          onClose={() => setOpen(false)}
+          onSubmit={handleAddMail}
+          type="DEPART"
+        />
       </div>
     </MainLayout>
   );

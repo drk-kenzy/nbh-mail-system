@@ -1,21 +1,18 @@
+
 import { useState, useEffect } from "react";
 
 export function useMailList(type = "arrive") {
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMails = async () => {
+  const fetchMails = () => {
     try {
       setLoading(true);
-      const endpoint = type === "arrive" ? "/api/courrier-arrive" : "/api/courrier-depart";
-      const response = await fetch(endpoint);
-      if (response.ok) {
-        const data = await response.json();
-        setMails(data);
-      } else {
-        console.error("Erreur lors du chargement des courriers");
-        setMails([]);
-      }
+      const courriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const filteredCourriers = courriers.filter(courrier => 
+        courrier.type === (type === "arrive" ? "ARRIVE" : "DEPART")
+      );
+      setMails(filteredCourriers);
     } catch (error) {
       console.error("Erreur lors du chargement des courriers:", error);
       setMails([]);
@@ -26,49 +23,91 @@ export function useMailList(type = "arrive") {
 
   useEffect(() => {
     fetchMails();
+    
+    // Écouter les changements dans le localStorage
+    const handleStorageChange = () => {
+      fetchMails();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('courriersUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('courriersUpdated', handleStorageChange);
+    };
   }, [type]);
 
-  const addMail = async (mail) => {
+  const addMail = (mail) => {
     try {
-      const endpoint = type === "arrive" ? "/api/courrier-arrive" : "/api/courrier-depart";
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...mail, type }),
-      });
-
-      if (response.ok) {
-        const newMail = await response.json();
-        setMails((prev) => [newMail, ...prev]);
-        return newMail;
-      } else {
-        throw new Error("Erreur lors de l'ajout du courrier");
-      }
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const newMail = {
+        ...mail,
+        id: Date.now(),
+        type: type === "arrive" ? "ARRIVE" : "DEPART",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedCourriers = [newMail, ...existingCourriers];
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      setMails(prev => [newMail, ...prev]);
+      return newMail;
     } catch (error) {
       console.error("Erreur lors de l'ajout:", error);
       throw error;
     }
   };
 
-  const removeMail = async (id) => {
+  const updateMail = (id, updatedData) => {
     try {
-      const endpoint = type === "arrive" ? "/api/courrier-arrive" : "/api/courrier-depart";
-      const response = await fetch(`${endpoint}?id=${id}`, {
-        method: "DELETE",
-      });
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const updatedCourriers = existingCourriers.map(courrier => 
+        courrier.id === id 
+          ? { ...courrier, ...updatedData, updatedAt: new Date().toISOString() }
+          : courrier
+      );
+      
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      setMails(prev => prev.map(mail => 
+        mail.id === id ? { ...mail, ...updatedData } : mail
+      ));
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour:", error);
+      throw error;
+    }
+  };
 
-      if (response.ok) {
-        setMails((prev) => prev.filter((m) => m.id !== id));
-      } else {
-        throw new Error("Erreur lors de la suppression du courrier");
-      }
+  const deleteMail = (id) => {
+    try {
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const updatedCourriers = existingCourriers.filter(courrier => courrier.id !== id);
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      setMails(prev => prev.filter(mail => mail.id !== id));
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
       throw error;
     }
   };
 
-  return { mails, addMail, removeMail, loading, refreshMails: fetchMails };
+  return {
+    mails,
+    loading,
+    addMail,
+    updateMail,
+    deleteMail,
+    refetch: fetchMails
+  };
 }
