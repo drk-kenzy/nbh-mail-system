@@ -10,38 +10,70 @@ export default function CourrierArrivePage() {
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [displayedMails, setDisplayedMails] = useState([]);
+  const [isProgressiveLoad, setIsProgressiveLoad] = useState(false);
 
-  // Charger les courriers depuis l'API
+  // Charger les courriers depuis localStorage
   useEffect(() => {
-    fetchMails();
+    loadMailsFromStorage();
   }, []);
 
-  const fetchMails = async () => {
+  const loadMailsFromStorage = () => {
     try {
-      const response = await fetch('/api/courrier-arrive');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Courriers chargés:', data); // Debug log
-        setMails(data || []);
+      const storedMails = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const arrivedMails = storedMails.filter(mail => mail.type === 'ARRIVE');
+      
+      setMails(arrivedMails);
+      
+      if (arrivedMails.length > 0) {
+        setIsProgressiveLoad(true);
+        setDisplayedMails([]);
+        
+        // Affichage progressif des courriers
+        arrivedMails.forEach((mail, index) => {
+          setTimeout(() => {
+            setDisplayedMails(prev => [...prev, mail]);
+            
+            // Fin du chargement progressif
+            if (index === arrivedMails.length - 1) {
+              setTimeout(() => {
+                setIsProgressiveLoad(false);
+                setLoading(false);
+              }, 300);
+            }
+          }, index * 200); // Délai de 200ms entre chaque courrier
+        });
       } else {
-        console.error('Erreur lors du chargement des courriers:', response.status);
-        setMails([]);
+        setDisplayedMails([]);
+        setLoading(false);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des courriers:', error);
       setMails([]);
-    } finally {
+      setDisplayedMails([]);
       setLoading(false);
     }
   };
 
   const handleAddMail = (newMail) => {
     setMails(prev => [newMail, ...prev]);
+    setDisplayedMails(prev => [newMail, ...prev]);
     setOpen(false);
   };
 
   const handleRemove = (id) => {
-    setMails(prev => prev.filter(mail => mail.id !== id));
+    try {
+      // Supprimer du localStorage
+      const storedMails = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const updatedMails = storedMails.filter(mail => mail.id !== id);
+      localStorage.setItem('courriers', JSON.stringify(updatedMails));
+      
+      // Mettre à jour l'état
+      setMails(prev => prev.filter(mail => mail.id !== id));
+      setDisplayedMails(prev => prev.filter(mail => mail.id !== id));
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
   };
 
   const handleView = (mail) => {
@@ -57,7 +89,9 @@ export default function CourrierArrivePage() {
       <MainLayout>
         <div className="max-w-7xl mx-auto py-8">
           <h1 className="text-2xl font-bold mb-6">Courriers Arrivés</h1>
-          <div className="text-center text-gray-400 py-4">Chargement des courriers...</div>
+          <div className="text-center text-gray-400 py-4">
+            {isProgressiveLoad ? 'Chargement progressif des courriers...' : 'Chargement des courriers...'}
+          </div>
         </div>
       </MainLayout>
     );
@@ -79,7 +113,7 @@ export default function CourrierArrivePage() {
         
         <div className="mt-8">
           <MailTable
-            mails={mails}
+            mails={displayedMails}
             onRemove={handleRemove}
             search={search}
             setSearch={setSearch}

@@ -99,54 +99,74 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     setStep(2);
   };
 
-  const handleSubmit = async () => {
-    if (!expediteur || !destinataire) {
-      addToast('Merci de remplir tous les champs obligatoires de la deuxième étape.', 'error');
-      return;
-    }
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formValues, setFormValues] = useState({
+    numero: '',
+    dateReception: '',
+    dateSignature: '',
+    objet: '',
+    canal: '',
+    expediteur: '',
+    destinataire: '',
+    reference: '',
+    delai: '',
+    statut: 'En attente',
+    observations: '',
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('numero', initialValues?.numero || numero);
-      formData.append('dateReception', dateReception);
-      formData.append('dateSignature', dateSignature || '');
-      formData.append('objet', objet);
-      formData.append('canal', canal);
-      formData.append('expediteur', expediteur);
-      formData.append('destinataire', destinataire);
-      formData.append('reference', reference);
-      formData.append('delai', delai);
-      formData.append('statut', statut);
-      formData.append('observations', observations);
-      formData.append('type', type);
+      const newMail = {
+        numero: initialValues?.numero || numero,
+        dateReception: dateReception,
+        dateSignature: dateSignature || '',
+        objet: objet,
+        canal: canal,
+        expediteur: expediteur,
+        destinataire: destinataire,
+        reference: reference,
+        delai: delai,
+        statut: statut,
+        observations: observations,
+        type: type,
+        id: Date.now(),
+        fichiers: files.map(file => file.name || file),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-      // Ajouter les fichiers
-      files.forEach(file => {
-        if (file instanceof File) {
-          formData.append('fichiers', file);
-        }
-      });
+      // Sauvegarder dans localStorage
+      const existingMails = JSON.parse(localStorage.getItem('courriers') || '[]');
+      existingMails.unshift(newMail);
+      localStorage.setItem('courriers', JSON.stringify(existingMails));
 
-      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
-      const apiUrl = initialValues?.id ? `${apiEndpoint}?id=${initialValues.id}` : apiEndpoint;
-      const method = initialValues?.id ? 'PUT' : 'POST';
-
-      const response = await fetch(apiUrl, {
-        method: method,
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la sauvegarde');
-      }
-
-      const savedCourrier = await response.json();
-
-      if (onAddMail) onAddMail(savedCourrier);
+      if (onAddMail) onAddMail(newMail);
       addToast(initialValues ? 'Courrier modifié avec succès!' : 'Courrier créé avec succès!', 'success');
-    } catch (error) {
-      console.error('Erreur:', error);
+
+      setNumero('');
+      setDateReception('');
+      setDateSignature('');
+      setObjet('');
+      setCanal('Physique');
+      setExpediteur('');
+      setDestinataire('');
+      setStatut('En attente');
+      setDelai('');
+      setReference('');
+      setObservations('');
+      setFiles([]);
+
+    } catch (err) {
+      setError(err.message);
       addToast('Erreur lors de la sauvegarde', 'error');
+
+    } finally {
+      setLoading(false);
     }
   };
 
