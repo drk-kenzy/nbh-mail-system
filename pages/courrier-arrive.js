@@ -16,6 +16,21 @@ export default function CourrierArrivePage() {
   // Charger les courriers depuis localStorage
   useEffect(() => {
     loadMailsFromStorage();
+    
+    // Écouter les changements dans le localStorage
+    const handleStorageChange = () => {
+      loadMailsFromStorage();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Écouter les changements via un event personnalisé
+    window.addEventListener('courriersUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('courriersUpdated', handleStorageChange);
+    };
   }, []);
 
   const loadMailsFromStorage = () => {

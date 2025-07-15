@@ -145,6 +145,9 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       existingMails.unshift(newMail);
       localStorage.setItem('courriers', JSON.stringify(existingMails));
 
+      // Déclencher un événement pour notifier les autres composants
+      window.dispatchEvent(new Event('courriersUpdated'));
+
       if (onAddMail) onAddMail(newMail);
       addToast(initialValues ? 'Courrier modifié avec succès!' : 'Courrier créé avec succès!', 'success');
 
