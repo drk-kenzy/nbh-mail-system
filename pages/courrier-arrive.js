@@ -4,91 +4,44 @@ import MainLayout from '../components/MainLayout.jsx';
 import AddCourierButton from '../components/AddCourierButton.jsx';
 import CourrierForm from '../components/CourrierForm.jsx';
 import MailTable from '../components/MailTable.js';
+import { useMailList } from '../hooks/useMailList.js';
 
 export default function CourrierArrivePage() {
   const [open, setOpen] = useState(false);
-  const [mails, setMails] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [displayedMails, setDisplayedMails] = useState([]);
   const [isProgressiveLoad, setIsProgressiveLoad] = useState(false);
+  
+  // Utiliser le hook useMailList pour gérer les données
+  const { mails, loading, addMail, deleteMail } = useMailList('arrive');
 
-  // Charger les courriers depuis localStorage
+  // Gérer l'affichage progressif quand les mails changent
   useEffect(() => {
-    loadMailsFromStorage();
-    
-    // Écouter les changements dans le localStorage
-    const handleStorageChange = () => {
-      loadMailsFromStorage();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('courriersUpdated', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('courriersUpdated', handleStorageChange);
-    };
-  }, []);
-
-  const loadMailsFromStorage = () => {
-    try {
-      const courriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const courriersArrives = courriers.filter(courrier => courrier.type === 'ARRIVE');
-      
-      setMails(courriersArrives);
-      setLoading(false);
-      
-      // Démarrer l'affichage progressif
-      if (courriersArrives.length > 0) {
-        setIsProgressiveLoad(true);
-        setDisplayedMails([]);
-        
-        // Afficher les courriers un par un avec un délai
-        courriersArrives.forEach((mail, index) => {
-          setTimeout(() => {
-            setDisplayedMails(prev => [...prev, mail]);
-            
-            // Terminer l'affichage progressif après le dernier élément
-            if (index === courriersArrives.length - 1) {
-              setTimeout(() => setIsProgressiveLoad(false), 200);
-            }
-          }, index * 150);
-        });
-      } else {
-        setDisplayedMails([]);
-        setIsProgressiveLoad(false);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement depuis localStorage:', error);
-      setMails([]);
+    if (mails.length > 0) {
+      setIsProgressiveLoad(true);
       setDisplayedMails([]);
-      setLoading(false);
+      
+      // Afficher les courriers un par un avec un délai
+      mails.forEach((mail, index) => {
+        setTimeout(() => {
+          setDisplayedMails(prev => [...prev, mail]);
+          
+          // Terminer l'affichage progressif après le dernier élément
+          if (index === mails.length - 1) {
+            setTimeout(() => setIsProgressiveLoad(false), 200);
+          }
+        }, index * 150);
+      });
+    } else {
+      setDisplayedMails([]);
       setIsProgressiveLoad(false);
     }
-  };
+  }, [mails]);
 
   const handleAddMail = (newMail) => {
     try {
-      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const mailWithId = {
-        ...newMail,
-        id: Date.now(),
-        type: 'ARRIVE',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      const updatedCourriers = [mailWithId, ...existingCourriers];
-      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
-      
-      // Déclencher l'événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      
+      addMail(newMail);
       setOpen(false);
-      
-      // Recharger les données
-      loadMailsFromStorage();
     } catch (error) {
       console.error('Erreur lors de l\'ajout du courrier:', error);
     }
@@ -96,15 +49,7 @@ export default function CourrierArrivePage() {
 
   const handleRemoveMail = (id) => {
     try {
-      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const updatedCourriers = existingCourriers.filter(courrier => courrier.id !== id);
-      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
-      
-      // Déclencher l'événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      
-      // Recharger les données
-      loadMailsFromStorage();
+      deleteMail(id);
     } catch (error) {
       console.error('Erreur lors de la suppression du courrier:', error);
     }
