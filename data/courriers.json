@@ -1,0 +1,38 @@
+[
+  {
+    "numero": "ARR-00002",
+    "dateReception": "2025-07-15T11:48",
+    "dateSignature": "2025-07-15T11:48",
+    "objet": "lùl;kp",
+    "canal": "Physique",
+    "expediteur": "Ministère de l'Intérieur",
+    "destinataire": "Ville de Lyon",
+    "reference": "^,nlkn",
+    "delai": "2025-07-15",
+    "statut": "En attente",
+    "observations": "",
+    "type": "ARRIVE",
+    "fichiers": "[]",
+    "id": 1752576517601,
+    "createdAt": "2025-07-15T10:48:37.601Z",
+    "updatedAt": "2025-07-15T10:48:37.601Z"
+  },
+  {
+    "numero": "ARR-00001",
+    "dateReception": "2025-07-15T11:47",
+    "dateSignature": "2025-07-15T11:47",
+    "objet": "kjm",
+    "canal": "Physique",
+    "expediteur": "Association X",
+    "destinataire": "Ville de Lyon",
+    "reference": "l,ml,ml",
+    "delai": "2025-07-15",
+    "statut": "En attente",
+    "observations": "uhoiml;",
+    "type": "ARRIVE",
+    "fichiers": "[]",
+    "id": 1752576488250,
+    "createdAt": "2025-07-15T10:48:08.250Z",
+    "updatedAt": "2025-07-15T10:48:08.250Z"
+  }
+]
