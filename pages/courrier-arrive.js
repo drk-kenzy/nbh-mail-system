@@ -35,78 +35,98 @@ export default function CourrierArrivePage() {
 
   const loadMailsFromStorage = () => {
     try {
-      const storedMails = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const arrivedMails = storedMails.filter(mail => mail.type === 'ARRIVE');
+      const courriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const courriersArrives = courriers.filter(courrier => courrier.type === 'ARRIVE');
       
-      setMails(arrivedMails);
+      setMails(courriersArrives);
+      setLoading(false);
       
-      if (arrivedMails.length > 0) {
+      // Démarrer l'affichage progressif
+      if (courriersArrives.length > 0) {
         setIsProgressiveLoad(true);
         setDisplayedMails([]);
         
-        // Affichage progressif des courriers
-        arrivedMails.forEach((mail, index) => {
+        // Afficher les courriers un par un avec un délai
+        courriersArrives.forEach((mail, index) => {
           setTimeout(() => {
             setDisplayedMails(prev => [...prev, mail]);
             
-            // Fin du chargement progressif
-            if (index === arrivedMails.length - 1) {
-              setTimeout(() => {
-                setIsProgressiveLoad(false);
-                setLoading(false);
-              }, 300);
+            // Terminer l'affichage progressif après le dernier élément
+            if (index === courriersArrives.length - 1) {
+              setTimeout(() => setIsProgressiveLoad(false), 200);
             }
-          }, index * 200); // Délai de 200ms entre chaque courrier
+          }, index * 150);
         });
       } else {
         setDisplayedMails([]);
-        setLoading(false);
+        setIsProgressiveLoad(false);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des courriers:', error);
+      console.error('Erreur lors du chargement depuis localStorage:', error);
       setMails([]);
       setDisplayedMails([]);
       setLoading(false);
+      setIsProgressiveLoad(false);
     }
   };
 
   const handleAddMail = (newMail) => {
-    setMails(prev => [newMail, ...prev]);
-    setDisplayedMails(prev => [newMail, ...prev]);
-    setOpen(false);
-  };
-
-  const handleRemove = (id) => {
     try {
-      // Supprimer du localStorage
-      const storedMails = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const updatedMails = storedMails.filter(mail => mail.id !== id);
-      localStorage.setItem('courriers', JSON.stringify(updatedMails));
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const mailWithId = {
+        ...newMail,
+        id: Date.now(),
+        type: 'ARRIVE',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
       
-      // Mettre à jour l'état
-      setMails(prev => prev.filter(mail => mail.id !== id));
-      setDisplayedMails(prev => prev.filter(mail => mail.id !== id));
+      const updatedCourriers = [mailWithId, ...existingCourriers];
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      setOpen(false);
+      
+      // Recharger les données
+      loadMailsFromStorage();
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur lors de l\'ajout du courrier:', error);
     }
   };
 
-  const handleView = (mail) => {
-    console.log('Voir courrier:', mail);
+  const handleRemoveMail = (id) => {
+    try {
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const updatedCourriers = existingCourriers.filter(courrier => courrier.id !== id);
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      // Recharger les données
+      loadMailsFromStorage();
+    } catch (error) {
+      console.error('Erreur lors de la suppression du courrier:', error);
+    }
   };
 
-  const handleEdit = (mail) => {
-    console.log('Éditer courrier:', mail);
-  };
+  const filteredMails = displayedMails.filter(mail => {
+    const searchLower = search.toLowerCase();
+    return (
+      (mail.objet || '').toLowerCase().includes(searchLower) ||
+      (mail.expediteur || '').toLowerCase().includes(searchLower) ||
+      (mail.destinataire || '').toLowerCase().includes(searchLower) ||
+      (mail.numero || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   if (loading) {
     return (
       <MainLayout>
-        <div className="max-w-7xl mx-auto py-8">
-          <h1 className="text-2xl font-bold mb-6">Courriers Arrivés</h1>
-          <div className="text-center text-gray-400 py-4">
-            {isProgressiveLoad ? 'Chargement progressif des courriers...' : 'Chargement des courriers...'}
-          </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-gray-600">Chargement des courriers...</div>
         </div>
       </MainLayout>
     );
@@ -114,26 +134,29 @@ export default function CourrierArrivePage() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Courriers Arrivés</h1>
-        <AddCourierButton onClick={() => setOpen(o => !o)} open={open} />
-        
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">Courriers Arrivés</h1>
+          <AddCourierButton onClick={() => setOpen(true)} open={open} />
+        </div>
+
         {open && (
-          <CourrierForm 
-            type="ARRIVE" 
-            onClose={() => setOpen(false)}
-            onAddMail={handleAddMail}
-          />
+          <div className="bg-white rounded-lg shadow-lg p-6 border">
+            <CourrierForm 
+              type="ARRIVE" 
+              onClose={() => setOpen(false)} 
+              onAddMail={handleAddMail}
+            />
+          </div>
         )}
-        
-        <div className="mt-8">
+
+        <div className="bg-white rounded-lg shadow">
           <MailTable
-            mails={displayedMails}
-            onRemove={handleRemove}
+            mails={filteredMails}
+            onRemove={handleRemoveMail}
             search={search}
             setSearch={setSearch}
-            onView={handleView}
-            onEdit={handleEdit}
+            loading={isProgressiveLoad}
           />
         </div>
       </div>
