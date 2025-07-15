@@ -38,9 +38,11 @@ function ActivityItem({ mail }) {
 }
 
 export default function Dashboard() {
-  const { mails: arrives } = useMailList('arrive');
-  const { mails: departs } = useMailList('depart');
+  const { mails: arrives, loading: loadingArrives } = useMailList('arrive');
+  const { mails: departs, loading: loadingDeparts } = useMailList('depart');
   const router = useRouter();
+
+  const isLoading = loadingArrives || loadingDeparts;
 
   // Fusion activité récente (4 derniers, tous types)
   const recent = useMemo(() => {
@@ -71,6 +73,17 @@ export default function Dashboard() {
     const traités = arrives.filter(m => m.statut === 'Archivé').length + departs.filter(m => m.statut === 'Archivé').length;
     return total ? `${Math.round((traités/total)*100)}%` : '-';
   }, [arrives, departs]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-5xl mx-auto py-6 px-2 md:px-0">
+        <h1 className="text-2xl md:text-3xl font-extrabold mb-6 bg-gradient-to-r from-primary to-indigo-700 bg-clip-text text-transparent drop-shadow-lg tracking-tight">🏠 Tableau de bord</h1>
+        <div className="flex justify-center items-center py-8">
+          <div className="text-white">Chargement des données...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto py-6 px-2 md:px-0">
