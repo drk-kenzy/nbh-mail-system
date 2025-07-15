@@ -46,10 +46,22 @@ export default function CourrierDepart() {
   // Charger tous les courriers départs
   useEffect(() => {
     fetch('/api/courrier-depart')
-      .then(res => res.json())
-      .then(data => setMails(data))
-      .catch(() => addToast("Erreur lors du chargement", "error"));
-  }, []);
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Données reçues:', data);
+        setMails(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Erreur lors du chargement:', error);
+        setMails([]); // S'assurer que mails est un tableau vide en cas d'erreur
+        addToast("Erreur lors du chargement des courriers", "error");
+      });
+  }, [addToast]);
 
   // Ajouter un courrier
   const handleAddMail = async (mail) => {
@@ -101,7 +113,7 @@ export default function CourrierDepart() {
     handleCloseModal();
   };
 
-  const filteredMails = mails.filter(mail => {
+  const filteredMails = (Array.isArray(mails) ? mails : []).filter(mail => {
     const q = search.toLowerCase();
     return (
       (mail.objet || '').toLowerCase().includes(q) ||
