@@ -48,11 +48,25 @@ export default function CourrierArrivePage() {
   };
 
   const handleRemoveMail = (id) => {
-    try {
-      deleteMail(id);
-    } catch (error) {
-      console.error('Erreur lors de la suppression du courrier:', error);
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) {
+      try {
+        deleteMail(id);
+      } catch (error) {
+        console.error('Erreur lors de la suppression du courrier:', error);
+      }
     }
+  };
+
+  const handleViewMail = (mail) => {
+    // Afficher les détails du courrier dans une modal ou une nouvelle page
+    alert(`Détails du courrier:\n\nObjet: ${mail.objet}\nExpéditeur: ${mail.expediteur}\nDate: ${mail.dateReception || mail.date}\nStatut: ${mail.statut}`);
+  };
+
+  const handleEditMail = (mail) => {
+    // Ouvrir le formulaire d'édition avec les données du courrier
+    setOpen(true);
+    // Ici vous pouvez passer les données du courrier au formulaire pour l'édition
+    console.log('Édition du courrier:', mail);
   };
 
   const filteredMails = displayedMails.filter(mail => {
@@ -92,7 +106,9 @@ export default function CourrierArrivePage() {
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <MailTable 
               mails={filteredMails} 
-              onRemoveMail={handleRemoveMail}
+              onRemove={handleRemoveMail}
+              onView={handleViewMail}
+              onEdit={handleEditMail}
               isProgressiveLoad={isProgressiveLoad}
             />
           </div>

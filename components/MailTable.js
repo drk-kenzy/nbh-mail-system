@@ -38,7 +38,8 @@ export default function MailTable({
   setSearch, 
   onView, 
   onEdit, 
-  lastAddedId 
+  lastAddedId,
+  isProgressiveLoad
 }) {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
