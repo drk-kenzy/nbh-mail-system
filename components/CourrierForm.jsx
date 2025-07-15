@@ -46,23 +46,19 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     }
   }, [type, initialValues]);
 
-  const generateAutoNumber = async () => {
+  const generateAutoNumber = () => {
     try {
-      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
-      const response = await fetch(apiEndpoint);
+      // Récupérer les courriers depuis localStorage
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
 
-      if (response.ok) {
-        const existingCourriers = await response.json();
-        const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+      // Filtrer les courriers du même type
+      const courriersDuMemeType = existingCourriers.filter(courrier => courrier.type === type);
+      
+      // Calculer le prochain numéro
+      const nextNumber = courriersDuMemeType.length + 1;
 
-        // Compter le nombre de courriers du même type
-        const count = existingCourriers.length;
-        const nextNumber = count + 1;
-
-        setNumero(prefix + String(nextNumber).padStart(5, '0'));
-      } else {
-        throw new Error('Erreur réseau');
-      }
+      setNumero(prefix + String(nextNumber).padStart(5, '0'));
     } catch (error) {
       console.error('Erreur génération numéro:', error);
       const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
