@@ -18,7 +18,7 @@ export default function CourrierDepartForm() {
 
   const loadCourriers = async () => {
     try {
-      const response = await fetch('/api/courrier?type=DEPART');
+      const response = await fetch('/api/courrier-depart');
       if (response.ok) {
         const data = await response.json();
         setCourriers(data);
@@ -46,7 +46,7 @@ export default function CourrierDepartForm() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) return;
 
     try {
-      const response = await fetch(`/api/courrier?id=${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/courrier-depart?id=${id}`, { method: 'DELETE' });
       if (response.ok) {
         setCourriers(prev => prev.filter(c => c.id !== id));
         addToast('Courrier supprimé avec succès', 'success');

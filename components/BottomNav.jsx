@@ -2,64 +2,72 @@ import { NAV } from './SidebarMenu.jsx';
 
 export default function BottomNav({ currentView, setCurrentView }) {
   return (
-    <nav className="fixed bottom-0 left-[100px] right-0 z-50 border-t border-main flex justify-around items-center py-3 shadow-2xl backdrop-blur-lg" style={{ backgroundColor: '#eaf5f0' }}>
-      {NAV.map(nav => (
-        <button
-          key={nav.key}
-          className={`flex flex-col items-center px-4 py-3 rounded-2xl transition-all duration-500 ease-out text-xs font-semibold relative overflow-hidden group
-            ${currentView === nav.key 
-              ? 'text-white bg-gradient-to-br from-primary to-primary/80 shadow-xl transform scale-110 border border-primary/20' 
-              : 'text-gray-700 hover:text-primary hover:bg-white/60 border border-transparent hover:border-primary/20 hover:shadow-lg'
-            }
-            focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 active:scale-95`}
-          onClick={() => setCurrentView(nav.key)}
-          aria-current={currentView === nav.key ? 'page' : undefined}
-        >
-          {/* Effet de fond animé pour l'état actif */}
-          {currentView === nav.key && (
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 animate-pulse rounded-2xl"></div>
-          )}
-          
-          {/* Effet de survol pour les éléments non actifs */}
-          <div className={`absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${currentView === nav.key ? 'hidden' : ''}`}></div>
-          
-          {/* Icône avec effets */}
-          <span className={`text-2xl mb-1 transition-all duration-300 relative z-10 ${
-            currentView === nav.key 
-              ? 'scale-125 drop-shadow-lg filter brightness-110' 
-              : 'group-hover:scale-110 group-hover:drop-shadow-md'
-          }`}>
-            {nav.icon}
-          </span>
-          
-          {/* Label avec effets */}
-          <span className={`relative z-10 transition-all duration-300 ${
-            currentView === nav.key 
-              ? 'font-bold tracking-wide' 
-              : 'group-hover:font-semibold'
-          }`}>
-            {nav.label}
-            
-            {/* Indicateur de sélection sous le texte */}
+    <nav className="fixed bottom-0 left-[100px] right-0 z-50 backdrop-blur-xl bg-white/20 border-t border-white/30 shadow-2xl" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}>
+      <div className="flex justify-around items-center py-4 px-2">
+        {NAV.map(nav => (
+          <button
+            key={nav.key}
+            className={`relative flex flex-col items-center px-6 py-3 rounded-3xl transition-all duration-400 ease-out text-xs font-medium group min-w-[80px]
+              ${currentView === nav.key 
+                ? 'text-white shadow-2xl transform scale-105' 
+                : 'text-gray-600 hover:text-gray-800 hover:scale-102'
+              }
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95`}
+            onClick={() => setCurrentView(nav.key)}
+            aria-current={currentView === nav.key ? 'page' : undefined}
+          >
+            {/* Fond glassmorphism pour l'élément actif */}
             {currentView === nav.key && (
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                <div className="w-2 h-2 bg-white rounded-full shadow-lg animate-bounce"></div>
-                <div className="w-6 h-0.5 bg-white/60 rounded-full mt-0.5 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-3xl shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent rounded-3xl"></div>
               </div>
             )}
             
-            {/* Indicateur de survol pour les éléments non actifs */}
-            {currentView !== nav.key && (
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 scale-0 group-hover:scale-100"></div>
+            {/* Fond de survol subtil */}
+            <div className={`absolute inset-0 bg-gradient-to-br from-gray-200/50 to-gray-100/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-300 ${currentView === nav.key ? 'hidden' : ''}`}></div>
+            
+            {/* Container pour l'icône avec effet flottant */}
+            <div className={`relative z-10 p-2 rounded-2xl mb-1 transition-all duration-300 ${
+              currentView === nav.key 
+                ? 'bg-white/20 shadow-lg transform -translate-y-1' 
+                : 'group-hover:bg-white/40 group-hover:shadow-md group-hover:-translate-y-0.5'
+            }`}>
+              <span className={`text-2xl transition-all duration-300 block ${
+                currentView === nav.key 
+                  ? 'filter drop-shadow-lg' 
+                  : 'group-hover:filter group-hover:drop-shadow-md'
+              }`}>
+                {nav.icon}
+              </span>
+            </div>
+            
+            {/* Label */}
+            <span className={`relative z-10 transition-all duration-300 text-center ${
+              currentView === nav.key 
+                ? 'font-semibold tracking-wide text-shadow' 
+                : 'group-hover:font-medium'
+            }`}>
+              {nav.label}
+            </span>
+            
+            {/* Indicateur linéaire moderne */}
+            {currentView === nav.key && (
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1">
+                <div className="w-8 h-1 bg-gradient-to-r from-transparent via-white to-transparent rounded-full shadow-lg"></div>
+              </div>
             )}
-          </span>
-          
-          {/* Effet de brillance pour l'élément actif */}
-          {currentView === nav.key && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out rounded-2xl"></div>
-          )}
-        </button>
-      ))}
+            
+            {/* Particules flottantes pour l'élément actif */}
+            {currentView === nav.key && (
+              <>
+                <div className="absolute top-2 left-2 w-1 h-1 bg-white/60 rounded-full animate-ping delay-0"></div>
+                <div className="absolute top-3 right-3 w-1 h-1 bg-white/40 rounded-full animate-ping delay-300"></div>
+                <div className="absolute bottom-2 left-3 w-0.5 h-0.5 bg-white/50 rounded-full animate-ping delay-700"></div>
+              </>
+            )}
+          </button>
+        ))}
+      </div>
     </nav>
   );
 }

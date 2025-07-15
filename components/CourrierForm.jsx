@@ -49,7 +49,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
   const generateAutoNumber = async () => {
     try {
-      const response = await fetch(`/api/courrier?type=${type}`);
+      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
+      const response = await fetch(apiEndpoint);
       
       if (response.ok) {
         const existingCourriers = await response.json();
@@ -131,7 +132,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
         formData.append('id', initialValues.id);
       }
 
-      const response = await fetch('/api/courrier', {
+      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
+      const response = await fetch(apiEndpoint, {
         method,
         body: formData
       });

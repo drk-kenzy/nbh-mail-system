@@ -1,5 +1,4 @@
 
-
 const db = require('../../models');
 const formidable = require('formidable');
 const fs = require('fs');
@@ -50,59 +49,87 @@ export default async function handler(req, res) {
 
       case 'POST':
         try {
-          const form = formidable({
-            uploadDir: path.join(process.cwd(), 'public', 'courrier_uploads'),
-            keepExtensions: true,
-            maxFileSize: 10 * 1024 * 1024, // 10MB
+          // Lire le body brut
+          const chunks = [];
+          req.on('data', chunk => chunks.push(chunk));
+          req.on('end', async () => {
+            try {
+              const buffer = Buffer.concat(chunks);
+              const contentType = req.headers['content-type'] || '';
+              
+              let objet, destinataire, reference, observations, delai, dateSignature;
+              let savedFiles = [];
+              
+              if (contentType.includes('application/json')) {
+                // Traitement JSON
+                const data = JSON.parse(buffer.toString());
+                objet = data.objet;
+                destinataire = data.destinataire;
+                reference = data.reference;
+                observations = data.observations;
+                delai = data.delai;
+                dateSignature = data.dateSignature;
+              } else if (contentType.includes('multipart/form-data')) {
+                // Traitement FormData avec formidable
+                const form = formidable({
+                  uploadDir: path.join(process.cwd(), 'public', 'courrier_uploads'),
+                  keepExtensions: true,
+                  maxFileSize: 10 * 1024 * 1024,
+                });
+
+                const uploadDir = path.join(process.cwd(), 'public', 'courrier_uploads');
+                if (!fs.existsSync(uploadDir)) {
+                  fs.mkdirSync(uploadDir, { recursive: true });
+                }
+
+                const [fields, files] = await form.parse(req);
+                
+                objet = Array.isArray(fields.objet) ? fields.objet[0] : fields.objet;
+                destinataire = Array.isArray(fields.destinataire) ? fields.destinataire[0] : fields.destinataire;
+                reference = Array.isArray(fields.reference) ? fields.reference[0] : fields.reference;
+                observations = Array.isArray(fields.observations) ? fields.observations[0] : fields.observations;
+                delai = Array.isArray(fields.delai) ? fields.delai[0] : fields.delai;
+                dateSignature = Array.isArray(fields.dateSignature) ? fields.dateSignature[0] : fields.dateSignature;
+
+                if (files.files) {
+                  const fileArray = Array.isArray(files.files) ? files.files : [files.files];
+                  savedFiles = fileArray.map(file => ({
+                    name: file.originalFilename,
+                    path: `/courrier_uploads/${path.basename(file.filepath)}`,
+                    size: file.size
+                  }));
+                }
+              }
+
+              const nouveauCourrier = await db.Courrier.create({
+                type: 'DEPART',
+                objet: objet || '',
+                destinataire: destinataire || '',
+                reference: reference || '',
+                observations: observations || '',
+                delai: delai || '',
+                dateSignature: dateSignature ? new Date(dateSignature) : new Date(),
+                dateReception: new Date(),
+                statut: 'En attente',
+                files: savedFiles.length > 0 ? JSON.stringify(savedFiles) : null
+              });
+
+              const formattedCourrier = {
+                ...nouveauCourrier.toJSON(),
+                date: nouveauCourrier.dateSignature ? new Date(nouveauCourrier.dateSignature).toLocaleDateString('fr-FR') : 
+                      new Date(nouveauCourrier.createdAt).toLocaleDateString('fr-FR'),
+                fichiers: savedFiles
+              };
+
+              console.log('Nouveau courrier départ créé:', nouveauCourrier.id);
+              return res.status(201).json(formattedCourrier);
+            } catch (error) {
+              console.error('Erreur lors de la création:', error);
+              return res.status(500).json({ error: 'Erreur lors de la création du courrier' });
+            }
           });
-
-          // Créer le dossier s'il n'existe pas
-          const uploadDir = path.join(process.cwd(), 'public', 'courrier_uploads');
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
-
-          const [fields, files] = await form.parse(req);
           
-          const objet = Array.isArray(fields.objet) ? fields.objet[0] : fields.objet;
-          const destinataire = Array.isArray(fields.destinataire) ? fields.destinataire[0] : fields.destinataire;
-          const reference = Array.isArray(fields.reference) ? fields.reference[0] : fields.reference;
-          const observations = Array.isArray(fields.observations) ? fields.observations[0] : fields.observations;
-          const delai = Array.isArray(fields.delai) ? fields.delai[0] : fields.delai;
-          const dateSignature = Array.isArray(fields.dateSignature) ? fields.dateSignature[0] : fields.dateSignature;
-
-          // Traitement des fichiers
-          let savedFiles = [];
-          if (files.files) {
-            const fileArray = Array.isArray(files.files) ? files.files : [files.files];
-            savedFiles = fileArray.map(file => ({
-              name: file.originalFilename,
-              path: `/courrier_uploads/${path.basename(file.filepath)}`,
-              size: file.size
-            }));
-          }
-
-          const nouveauCourrier = await db.Courrier.create({
-            type: 'DEPART',
-            objet: objet || '',
-            destinataire: destinataire || '',
-            reference: reference || '',
-            observations: observations || '',
-            delai: delai || '',
-            dateSignature: dateSignature ? new Date(dateSignature) : new Date(),
-            statut: 'En attente',
-            files: savedFiles.length > 0 ? JSON.stringify(savedFiles) : null
-          });
-
-          const formattedCourrier = {
-            ...nouveauCourrier.toJSON(),
-            date: nouveauCourrier.dateSignature ? new Date(nouveauCourrier.dateSignature).toLocaleDateString('fr-FR') : 
-                  new Date(nouveauCourrier.createdAt).toLocaleDateString('fr-FR'),
-            fichiers: savedFiles
-          };
-
-          console.log('Nouveau courrier départ créé:', nouveauCourrier.id);
-          return res.status(201).json(formattedCourrier);
+          return; // Important pour éviter le double retour
         } catch (error) {
           console.error('Erreur lors de la création:', error);
           return res.status(500).json({ error: 'Erreur lors de la création du courrier' });
@@ -140,4 +167,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur de connexion à la base de données' });
   }
 }
-
