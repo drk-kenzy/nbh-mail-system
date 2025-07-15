@@ -3,11 +3,11 @@ import { NAV } from './SidebarMenu.jsx';
 export default function BottomNav({ currentView, setCurrentView }) {
   return (
     <nav className="fixed bottom-0 left-[100px] right-0 z-50 backdrop-blur-xl bg-white/20 border-t border-white/30 shadow-2xl" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}>
-      <div className="flex justify-around items-center py-4 px-2">
+      <div className="flex justify-around items-center py-2 px-2">
         {NAV.map(nav => (
           <button
             key={nav.key}
-            className={`relative flex flex-col items-center px-6 py-3 rounded-3xl transition-all duration-400 ease-out text-xs font-medium group min-w-[80px]
+            className={`relative flex flex-col items-center px-3 py-2 rounded-2xl transition-all duration-400 ease-out text-xs font-medium group min-w-[60px]
               ${currentView === nav.key 
                 ? 'text-white shadow-2xl transform scale-105' 
                 : 'text-gray-600 hover:text-gray-800 hover:scale-102'
@@ -27,12 +27,12 @@ export default function BottomNav({ currentView, setCurrentView }) {
             <div className={`absolute inset-0 bg-gradient-to-br from-gray-200/50 to-gray-100/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-300 ${currentView === nav.key ? 'hidden' : ''}`}></div>
             
             {/* Container pour l'icône avec effet flottant */}
-            <div className={`relative z-10 p-2 rounded-2xl mb-1 transition-all duration-300 ${
+            <div className={`relative z-10 p-1 rounded-xl mb-0.5 transition-all duration-300 ${
               currentView === nav.key 
-                ? 'bg-white/20 shadow-lg transform -translate-y-1' 
+                ? 'bg-white/20 shadow-lg transform -translate-y-0.5' 
                 : 'group-hover:bg-white/40 group-hover:shadow-md group-hover:-translate-y-0.5'
             }`}>
-              <span className={`text-2xl transition-all duration-300 block ${
+              <span className={`text-lg transition-all duration-300 block ${
                 currentView === nav.key 
                   ? 'filter drop-shadow-lg' 
                   : 'group-hover:filter group-hover:drop-shadow-md'

@@ -58,6 +58,10 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    fichiers: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     files: {
       type: DataTypes.TEXT,
       allowNull: true
