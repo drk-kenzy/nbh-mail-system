@@ -67,7 +67,7 @@ export default function CourrierDepart() {
   const handleAddMail = async (mail) => {
     try {
       const formData = new FormData();
-      
+
       // Ajouter tous les champs du formulaire
       Object.entries(mail).forEach(([key, value]) => {
         if (key === 'files' && Array.isArray(value)) {
