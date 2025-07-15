@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
 import FileUploader from './FileUploader';
@@ -51,15 +50,15 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     try {
       const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
       const response = await fetch(apiEndpoint);
-      
+
       if (response.ok) {
         const existingCourriers = await response.json();
         const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
-        
+
         // Compter le nombre de courriers du même type
         const count = existingCourriers.length;
         const nextNumber = count + 1;
-        
+
         setNumero(prefix + String(nextNumber).padStart(5, '0'));
       } else {
         throw new Error('Erreur réseau');
@@ -108,9 +107,9 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
     try {
       const formData = new FormData();
-      formData.append('numero', numero);
+      formData.append('numero', initialValues?.numero || numero);
       formData.append('dateReception', dateReception);
-      formData.append('dateSignature', dateSignature);
+      formData.append('dateSignature', dateSignature || '');
       formData.append('objet', objet);
       formData.append('canal', canal);
       formData.append('expediteur', expediteur);
@@ -121,35 +120,32 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       formData.append('observations', observations);
       formData.append('type', type);
 
-      files.forEach((file) => {
+      // Ajouter les fichiers
+      files.forEach(file => {
         if (file instanceof File) {
-          formData.append('files', file);
+          formData.append('fichiers', file);
         }
       });
 
-      const method = initialValues ? 'PUT' : 'POST';
-      if (initialValues) {
-        formData.append('id', initialValues.id);
-      }
+      const apiUrl = initialValues?.id ? `/api/courrier?id=${initialValues.id}` : '/api/courrier';
+      const method = initialValues?.id ? 'PUT' : 'POST';
 
-      const apiEndpoint = type === 'DEPART' ? '/api/courrier-depart' : '/api/courrier-arrive';
-      const response = await fetch(apiEndpoint, {
-        method,
-        body: formData
+      const response = await fetch(apiUrl, {
+        method: method,
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de l\'enregistrement');
+        throw new Error('Erreur lors de la sauvegarde');
       }
 
       const savedCourrier = await response.json();
-      
+
       if (onAddMail) onAddMail(savedCourrier);
-      addToast(initialValues ? 'Courrier modifié avec succès !' : 'Courrier enregistré avec succès !', 'success');
-      if (onClose) onClose();
+      addToast(initialValues ? 'Courrier modifié avec succès!' : 'Courrier créé avec succès!', 'success');
     } catch (error) {
       console.error('Erreur:', error);
-      addToast('Erreur lors de l\'enregistrement du courrier', 'error');
+      addToast('Erreur lors de la sauvegarde', 'error');
     }
   };
 
