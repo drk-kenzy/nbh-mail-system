@@ -6,7 +6,7 @@ async function syncDatabase() {
     await db.sequelize.authenticate();
     console.log('Connexion à la base de données établie avec succès.');
     
-    await db.sequelize.sync({ force: false });
+    await db.sequelize.sync({ force: false, alter: true });
     console.log('Base de données synchronisée avec succès.');
     
     process.exit(0);

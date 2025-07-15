@@ -13,19 +13,7 @@ const nextConfig = {
       },
     ];
   },
-  // Ajout PWA: déclaration du manifest
-  async rewrites() {
-    return [
-      {
-        source: '/manifest.json',
-        destination: '/public/manifest.json',
-      },
-      {
-        source: '/service-worker.js',
-        destination: '/public/service-worker.js',
-      },
-    ];
-  },
+  // Remove incorrect rewrites for static files
 };
 
 /**

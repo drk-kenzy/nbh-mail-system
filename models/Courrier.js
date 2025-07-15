@@ -1,70 +1,54 @@
+const { DataTypes } = require('sequelize');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   const Courrier = sequelize.define('Courrier', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
+    },
+    type: {
+      type: DataTypes.ENUM('ARRIVE', 'DEPART'),
       allowNull: false
-    },
-    numero: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    dateReception: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    dateSignature: {
-      type: DataTypes.DATE,
-      allowNull: true
     },
     objet: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    canal: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: 'Physique'
-    },
     expediteur: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     destinataire: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    reference: {
-      type: DataTypes.STRING,
       allowNull: true
     },
-    delai: {
-      type: DataTypes.STRING,
+    dateReception: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    dateEnvoi: {
+      type: DataTypes.DATE,
       allowNull: true
     },
     statut: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: 'En attente'
+      type: DataTypes.ENUM('EN_ATTENTE', 'TRAITE', 'ARCHIVE'),
+      defaultValue: 'EN_ATTENTE'
     },
-    observations: {
+    priorite: {
+      type: DataTypes.ENUM('BASSE', 'NORMALE', 'HAUTE', 'URGENTE'),
+      defaultValue: 'NORMALE'
+    },
+    contenu: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    files: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    type: {
+    pieceJointe: {
       type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'ARRIVE'
+      allowNull: true
     }
   }, {
-    tableName: 'Courriers',
+    tableName: 'Courrier',
     timestamps: true
   });
 
