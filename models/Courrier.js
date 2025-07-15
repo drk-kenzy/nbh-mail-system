@@ -38,11 +38,13 @@ module.exports = (sequelize) => {
     },
     dateReception: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
+      defaultValue: DataTypes.NOW
     },
     dateSignature: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
+      defaultValue: DataTypes.NOW
     },
     delai: {
       type: DataTypes.STRING,

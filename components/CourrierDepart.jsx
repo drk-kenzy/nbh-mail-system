@@ -66,18 +66,38 @@ export default function CourrierDepart() {
   // Ajouter un courrier
   const handleAddMail = async (mail) => {
     try {
+      const formData = new FormData();
+      
+      // Ajouter tous les champs du formulaire
+      Object.entries(mail).forEach(([key, value]) => {
+        if (key === 'files' && Array.isArray(value)) {
+          value.forEach(file => {
+            if (file instanceof File) {
+              formData.append('files', file);
+            }
+          });
+        } else {
+          formData.append(key, value || '');
+        }
+      });
+
       const res = await fetch('/api/courrier-depart', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mail)
+        body: formData
       });
+
+      if (!res.ok) {
+        throw new Error('Erreur lors de l\'enregistrement');
+      }
+
       const newMail = await res.json();
       setMails(mails => [newMail, ...mails]);
       setLastAddedId(newMail.id);
       setShowForm(false);
-      addToast('Nouveau courrier ajouté !', 'success');
+      addToast('Nouveau courrier ajouté avec succès !', 'success');
     } catch (err) {
-      addToast("Erreur lors de l'ajout", 'error');
+      console.error('Erreur ajout courrier:', err);
+      addToast("Erreur lors de l'enregistrement du courrier", 'error');
     }
   };
 
