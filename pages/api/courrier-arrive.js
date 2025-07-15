@@ -1,9 +1,8 @@
 
-// API endpoint specifically for courrier arrivée
-const db = require('../../models');
-const { formidable } = require('formidable');
-const fs = require('fs');
-const path = require('path');
+import { localStorage } from '../../utils/localStorage.js';
+import { formidable } from 'formidable';
+import fs from 'fs';
+import path from 'path';
 
 export const config = {
   api: {
@@ -17,18 +16,15 @@ export default async function handler(req, res) {
       const { id } = req.query;
       
       if (id) {
-        const courrier = await db.Courrier.findByPk(id);
+        const courriers = localStorage.getCourriers();
+        const courrier = courriers.find(c => c.id == id);
         if (!courrier) {
           return res.status(404).json({ error: 'Courrier non trouvé' });
         }
         return res.status(200).json(courrier);
       }
 
-      const courriers = await db.Courrier.findAll({
-        where: { type: 'ARRIVE' },
-        order: [['createdAt', 'DESC']]
-      });
-      
+      const courriers = localStorage.getCourriers('ARRIVE');
       return res.status(200).json(courriers);
     } catch (error) {
       console.error('Erreur GET:', error);
@@ -41,23 +37,20 @@ export default async function handler(req, res) {
       const form = formidable({
         uploadDir: './public/courrier_uploads',
         keepExtensions: true,
-        maxFileSize: 10 * 1024 * 1024, // 10MB
+        maxFileSize: 10 * 1024 * 1024,
       });
 
-      // Créer le dossier s'il n'existe pas
       if (!fs.existsSync('./public/courrier_uploads')) {
         fs.mkdirSync('./public/courrier_uploads', { recursive: true });
       }
 
       const [fields, files] = await form.parse(req);
 
-      // Convertir les champs en valeurs simples
       const courrierData = {};
       Object.keys(fields).forEach(key => {
         courrierData[key] = Array.isArray(fields[key]) ? fields[key][0] : fields[key];
       });
 
-      // Traiter les fichiers
       let fichiers = [];
       if (files.fichiers) {
         const fileArray = Array.isArray(files.fichiers) ? files.fichiers : [files.fichiers];
@@ -68,7 +61,7 @@ export default async function handler(req, res) {
         }));
       }
 
-      const courrier = await db.Courrier.create({
+      const courrier = localStorage.addCourrier({
         ...courrierData,
         fichiers: JSON.stringify(fichiers),
         type: 'ARRIVE'
@@ -108,16 +101,12 @@ export default async function handler(req, res) {
         }));
       }
 
-      const courrier = await db.Courrier.findByPk(id);
-      if (!courrier) {
-        return res.status(404).json({ error: 'Courrier non trouvé' });
-      }
-
-      await courrier.update({
+      const updateData = {
         ...courrierData,
-        fichiers: fichiers.length > 0 ? JSON.stringify(fichiers) : courrier.fichiers
-      });
+        ...(fichiers.length > 0 && { fichiers: JSON.stringify(fichiers) })
+      };
 
+      const courrier = localStorage.updateCourrier(id, updateData);
       return res.status(200).json(courrier);
     } catch (error) {
       console.error('Erreur PUT:', error);
@@ -128,27 +117,7 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     try {
       const { id } = req.query;
-      
-      const courrier = await db.Courrier.findByPk(id);
-      if (!courrier) {
-        return res.status(404).json({ error: 'Courrier non trouvé' });
-      }
-
-      // Supprimer les fichiers associés
-      if (courrier.fichiers) {
-        try {
-          const files = JSON.parse(courrier.fichiers);
-          files.forEach(file => {
-            if (fs.existsSync(file.path)) {
-              fs.unlinkSync(file.path);
-            }
-          });
-        } catch (e) {
-          console.log('Erreur suppression fichiers:', e);
-        }
-      }
-
-      await courrier.destroy();
+      localStorage.deleteCourrier(id);
       return res.status(200).json({ message: 'Courrier supprimé' });
     } catch (error) {
       console.error('Erreur DELETE:', error);
