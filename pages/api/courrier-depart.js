@@ -24,6 +24,7 @@ export default async function handler(req, res) {
       }
 
       const courriers = localStorage.getCourriers('DEPART');
+      console.log('Courriers DEPART trouvés:', courriers.length); // Debug log
       return res.status(200).json(courriers);
     } catch (error) {
       console.error('Erreur GET:', error);

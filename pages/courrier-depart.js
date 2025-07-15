@@ -19,12 +19,15 @@ export default function CourrierDepartPage() {
       const response = await fetch('/api/courrier-depart');
       if (response.ok) {
         const data = await response.json();
-        setMails(data);
+        console.log('Courriers départ chargés:', data); // Debug log
+        setMails(data || []);
       } else {
-        console.error('Erreur lors du chargement des courriers');
+        console.error('Erreur lors du chargement des courriers:', response.status);
+        setMails([]);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des courriers:', error);
+      setMails([]);
     } finally {
       setLoading(false);
     }

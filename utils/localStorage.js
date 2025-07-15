@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -16,12 +15,20 @@ if (!fs.existsSync(COURRIERS_FILE)) {
 }
 
 export const localStorage = {
-  // Lire tous les courriers
+  // Récupérer tous les courriers ou filtrer par type
   getCourriers: (type = null) => {
     try {
+      if (!fs.existsSync(COURRIERS_FILE)) {
+        fs.writeFileSync(COURRIERS_FILE, JSON.stringify([], null, 2));
+        return [];
+      }
       const data = fs.readFileSync(COURRIERS_FILE, 'utf8');
       const courriers = JSON.parse(data);
-      return type ? courriers.filter(c => c.type === type) : courriers;
+
+      if (type) {
+        return courriers.filter(c => c.type === type);
+      }
+      return courriers;
     } catch (error) {
       console.error('Erreur lecture courriers:', error);
       return [];
@@ -53,7 +60,7 @@ export const localStorage = {
       const courriers = localStorage.getCourriers();
       const index = courriers.findIndex(c => c.id == id);
       if (index === -1) throw new Error('Courrier non trouvé');
-      
+
       courriers[index] = { 
         ...courriers[index], 
         ...updates, 
