@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import CourrierForm from './CourrierForm.jsx';
 import MailTable from './MailTable';
@@ -35,11 +36,19 @@ export default function CourrierDepartForm() {
     setCourriers(prev => [newCourrier, ...prev]);
     setShowForm(false);
     setEditingCourrier(null);
+    addToast('Courrier ajouté avec succès', 'success');
   };
 
   const handleEditCourrier = (courrier) => {
     setEditingCourrier(courrier);
     setShowForm(true);
+  };
+
+  const handleUpdateCourrier = (updatedCourrier) => {
+    setCourriers(prev => prev.map(c => c.id === updatedCourrier.id ? updatedCourrier : c));
+    setShowForm(false);
+    setEditingCourrier(null);
+    addToast('Courrier modifié avec succès', 'success');
   };
 
   const handleDeleteCourrier = async (id) => {
@@ -73,7 +82,7 @@ export default function CourrierDepartForm() {
         <CourrierForm
           type="DEPART"
           initialValues={editingCourrier}
-          onAddMail={handleAddCourrier}
+          onAddMail={editingCourrier ? handleUpdateCourrier : handleAddCourrier}
           onClose={() => {
             setShowForm(false);
             setEditingCourrier(null);

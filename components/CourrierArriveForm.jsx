@@ -18,7 +18,7 @@ export default function CourrierArriveForm() {
 
   const loadCourriers = async () => {
     try {
-      const response = await fetch('/api/courrier?type=ARRIVE');
+      const response = await fetch('/api/courrier-arrive');
       if (response.ok) {
         const data = await response.json();
         setCourriers(data);
@@ -35,6 +35,7 @@ export default function CourrierArriveForm() {
     setCourriers(prev => [newCourrier, ...prev]);
     setShowForm(false);
     setEditingCourrier(null);
+    addToast('Courrier ajouté avec succès', 'success');
   };
 
   const handleEditCourrier = (courrier) => {
@@ -42,11 +43,18 @@ export default function CourrierArriveForm() {
     setShowForm(true);
   };
 
+  const handleUpdateCourrier = (updatedCourrier) => {
+    setCourriers(prev => prev.map(c => c.id === updatedCourrier.id ? updatedCourrier : c));
+    setShowForm(false);
+    setEditingCourrier(null);
+    addToast('Courrier modifié avec succès', 'success');
+  };
+
   const handleDeleteCourrier = async (id) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) return;
 
     try {
-      const response = await fetch(`/api/courrier?id=${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/courrier-arrive?id=${id}`, { method: 'DELETE' });
       if (response.ok) {
         setCourriers(prev => prev.filter(c => c.id !== id));
         addToast('Courrier supprimé avec succès', 'success');
@@ -73,7 +81,7 @@ export default function CourrierArriveForm() {
         <CourrierForm
           type="ARRIVE"
           initialValues={editingCourrier}
-          onAddMail={handleAddCourrier}
+          onAddMail={editingCourrier ? handleUpdateCourrier : handleAddCourrier}
           onClose={() => {
             setShowForm(false);
             setEditingCourrier(null);
@@ -134,11 +142,28 @@ export default function CourrierArrive() {
 
   // Charger tous les courriers
   useEffect(() => {
-    fetch('/api/courrier-arrive')
-      .then(res => res.json())
-      .then(data => setMails(data))
-      .catch(() => addToast("Erreur lors du chargement", "error"));
+    const storedMails = localStorage.getItem('courrierArriveMails');
+    if (storedMails) {
+      setMails(JSON.parse(storedMails));
+    } else {
+      fetchMails();
+    }
   }, []);
+
+  const fetchMails = async () => {
+    try {
+      const res = await fetch('/api/courrier-arrive');
+      const data = await res.json();
+      setMails(data);
+      localStorage.setItem('courrierArriveMails', JSON.stringify(data));
+    } catch (err) {
+      addToast("Erreur lors du chargement", "error");
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem('courrierArriveMails', JSON.stringify(mails));
+  }, [mails]);
 
   // Ajouter un courrier
   const handleAddMail = async (mail) => {
@@ -149,6 +174,7 @@ export default function CourrierArrive() {
         body: JSON.stringify(mail)
       });
       const newMail = await res.json();
+
       setMails(mails => [newMail, ...mails]);
       setLastAddedId(newMail.id);
       setShowForm(false);
@@ -200,16 +226,16 @@ export default function CourrierArrive() {
   });
 
   // Récupérer les partenaires actifs depuis la base de données
-const getActivePartners = async () => {
-  try {
-    const response = await fetch('/api/partenaires');
-    const partenaires = await response.json();
-    return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des partenaires:', error);
-    return [];
-  }
-};
+  const getActivePartners = async () => {
+    try {
+      const response = await fetch('/api/partenaires');
+      const partenaires = await response.json();
+      return partenaires.filter(p => p.statut === 'Actif').map(p => p.nom);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des partenaires:', error);
+      return [];
+    }
+  };
 
   return (
     <div ref={containerRef} className="relative w-full h-[100dvh] flex flex-col bg-main text-main">
@@ -279,7 +305,15 @@ const getActivePartners = async () => {
               onAddMail={handleUpdateMail}
               initialValues={selectedMail}
             />
-          ```jsx
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+```jsx
 import { useState, useEffect } from 'react';
 import Input from './Input';
 import FileInput from './FileInput';

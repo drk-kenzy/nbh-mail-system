@@ -1,8 +1,8 @@
 
-import { localStorage } from '../../utils/localStorage.js';
-import { formidable } from 'formidable';
-import fs from 'fs';
+import { localStorage } from '../../utils/localStorage';
+import formidable from 'formidable';
 import path from 'path';
+import fs from 'fs';
 
 export const config = {
   api: {
@@ -13,23 +13,11 @@ export const config = {
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const { id } = req.query;
-      
-      if (id) {
-        const courriers = localStorage.getCourriers();
-        const courrier = courriers.find(c => c.id == id);
-        if (!courrier) {
-          return res.status(404).json({ error: 'Courrier non trouvé' });
-        }
-        return res.status(200).json(courrier);
-      }
-
       const courriers = localStorage.getCourriers('ARRIVE');
-      console.log('Courriers ARRIVE trouvés:', courriers.length); // Debug log
       return res.status(200).json(courriers);
     } catch (error) {
       console.error('Erreur GET:', error);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur lors de la récupération' });
     }
   }
 
@@ -40,10 +28,6 @@ export default async function handler(req, res) {
         keepExtensions: true,
         maxFileSize: 10 * 1024 * 1024,
       });
-
-      if (!fs.existsSync('./public/courrier_uploads')) {
-        fs.mkdirSync('./public/courrier_uploads', { recursive: true });
-      }
 
       const [fields, files] = await form.parse(req);
 
