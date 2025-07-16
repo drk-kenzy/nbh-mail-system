@@ -70,13 +70,14 @@ export default function CourrierArrivePage() {
       // Sauvegarder dans localStorage
       localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
       
-      // Déclencher l'événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      
-      // Rafraîchir les données
+      // Déclencher plusieurs événements pour assurer la synchronisation
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      }, 100);
+        window.dispatchEvent(new CustomEvent('storage'));
+        window.dispatchEvent(new CustomEvent('courriersModified', { 
+          detail: { id: editingMail.id, data: updatedData } 
+        }));
+      }, 10);
       
       setOpen(false);
       setEditingMail(null);

@@ -39,8 +39,12 @@ export function useMailList(type = "arrive") {
       // Mettre à jour l'état local immédiatement
       setMails(prev => [mailWithId, ...prev]);
 
-      // Déclencher l'événement pour les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      // Déclencher plusieurs événements pour assurer la synchronisation
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('courriersUpdated'));
+        window.dispatchEvent(new CustomEvent('storage'));
+        window.dispatchEvent(new CustomEvent('courriersAdded', { detail: mailWithId }));
+      }, 10);
 
       return mailWithId;
     } catch (error) {
@@ -81,8 +85,12 @@ export function useMailList(type = "arrive") {
       // Mettre à jour l'état local immédiatement
       setMails(prev => prev.filter(mail => mail.id !== parseInt(id)));
 
-      // Déclencher l'événement pour les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      // Déclencher plusieurs événements pour assurer la synchronisation
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('courriersUpdated'));
+        window.dispatchEvent(new CustomEvent('storage'));
+        window.dispatchEvent(new CustomEvent('courriersDeleted', { detail: { id } }));
+      }, 10);
 
       return true;
     } catch (error) {
@@ -97,22 +105,31 @@ export function useMailList(type = "arrive") {
 
     // Écouter les changements dans le localStorage
     const handleStorageChange = () => {
-      console.log('Événement de mise à jour détecté'); // Debug
+      console.log('Événement de mise à jour détecté pour type:', type); // Debug
+      fetchMails();
+    };
+
+    const handleCourriersAdded = (event) => {
+      console.log('Nouveau courrier ajouté:', event.detail);
       fetchMails();
     };
 
     // Écouter plusieurs types d'événements
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('courriersUpdated', handleStorageChange);
+    window.addEventListener('courriersAdded', handleCourriersAdded);
     window.addEventListener('focus', handleStorageChange);
+    window.addEventListener('visibilitychange', handleStorageChange);
 
-    // Vérifier périodiquement les changements (moins fréquent)
-    const interval = setInterval(fetchMails, 10000); // Vérifier toutes les 10 secondes
+    // Vérifier périodiquement les changements
+    const interval = setInterval(fetchMails, 5000); // Vérifier toutes les 5 secondes
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('courriersUpdated', handleStorageChange);
+      window.removeEventListener('courriersAdded', handleCourriersAdded);
       window.removeEventListener('focus', handleStorageChange);
+      window.removeEventListener('visibilitychange', handleStorageChange);
       clearInterval(interval);
     };
   }, [type]);
@@ -120,6 +137,18 @@ export function useMailList(type = "arrive") {
   // Chargement initial au montage du composant
   useEffect(() => {
     fetchMails();
+  }, []);
+
+  // Forcer le rafraîchissement quand la page devient visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchMails();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   return {
