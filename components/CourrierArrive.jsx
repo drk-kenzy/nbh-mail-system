@@ -140,7 +140,7 @@ function MailDetailModal({ mail, onClose }) {
           )}
 
           {/* Fichiers joints */}
-          {mail.fichiers?.length > 0 && (
+          {mail.fichiers && Array.isArray(mail.fichiers) && mail.fichiers.length > 0 && (
             <div className="mb-6">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <label className="block text-sm font-medium text-green-800 mb-3">
