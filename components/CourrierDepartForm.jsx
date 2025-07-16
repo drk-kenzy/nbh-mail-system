@@ -15,6 +15,19 @@ export default function CourrierDepartForm() {
   // Charger les courriers depuis l'API
   useEffect(() => {
     loadCourriers();
+    
+    // Écouter les événements de mise à jour
+    const handleStorageUpdate = () => {
+      loadCourriers();
+    };
+    
+    window.addEventListener('courriersUpdated', handleStorageUpdate);
+    window.addEventListener('storage', handleStorageUpdate);
+    
+    return () => {
+      window.removeEventListener('courriersUpdated', handleStorageUpdate);
+      window.removeEventListener('storage', handleStorageUpdate);
+    };
   }, []);
 
   const loadCourriers = async () => {
@@ -22,7 +35,8 @@ export default function CourrierDepartForm() {
       const response = await fetch('/api/courrier-depart');
       if (response.ok) {
         const data = await response.json();
-        setCourriers(data);
+        setCourriers(data || []);
+        console.log('Courriers départs chargés:', data);
       }
     } catch (error) {
       console.error('Erreur chargement courriers:', error);
@@ -32,11 +46,14 @@ export default function CourrierDepartForm() {
     }
   };
 
-  const handleAddCourrier = (newCourrier) => {
+  const handleAddCourrier = async (newCourrier) => {
     setCourriers(prev => [newCourrier, ...prev]);
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier ajouté avec succès', 'success');
+    
+    // Déclencher l'événement pour synchroniser avec les autres composants
+    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
   };
 
   const handleEditCourrier = (courrier) => {
@@ -44,11 +61,14 @@ export default function CourrierDepartForm() {
     setShowForm(true);
   };
 
-  const handleUpdateCourrier = (updatedCourrier) => {
+  const handleUpdateCourrier = async (updatedCourrier) => {
     setCourriers(prev => prev.map(c => c.id === updatedCourrier.id ? updatedCourrier : c));
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier modifié avec succès', 'success');
+    
+    // Déclencher l'événement pour synchroniser
+    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
   };
 
   const handleDeleteCourrier = async (id) => {
@@ -59,6 +79,9 @@ export default function CourrierDepartForm() {
       if (response.ok) {
         setCourriers(prev => prev.filter(c => c.id !== id));
         addToast('Courrier supprimé avec succès', 'success');
+        
+        // Déclencher l'événement pour synchroniser
+        window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
       }
     } catch (error) {
       addToast('Erreur lors de la suppression', 'error');

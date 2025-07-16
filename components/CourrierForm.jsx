@@ -46,23 +46,24 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     }
   }, [type, initialValues]);
 
-  const generateAutoNumber = () => {
+  const generateAutoNumber = async () => {
     try {
-      // Récupérer les courriers depuis localStorage
-      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+      const apiUrl = type === 'ARRIVE' ? '/api/courrier-arrive' : '/api/courrier-depart';
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const courriers = await response.json();
+        const existingNumbers = courriers
+          .map(c => c.numero)
+          .filter(n => n && n.match(/^\d{5}$/))
+          .map(n => parseInt(n))
+          .filter(n => !isNaN(n));
 
-      // Filtrer les courriers du même type
-      const courriersDuMemeType = existingCourriers.filter(courrier => courrier.type === type);
-
-      // Calculer le prochain numéro
-      const nextNumber = courriersDuMemeType.length + 1;
-
-      setNumero(prefix + String(nextNumber).padStart(5, '0'));
+        const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+        setNumero(String(nextNumber).padStart(5, '0'));
+      }
     } catch (error) {
       console.error('Erreur génération numéro:', error);
-      const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
-      setNumero(prefix + '00001');
+      setNumero('00001');
     }
   };
 
@@ -113,59 +114,44 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+
+    const formData = new FormData();
+    formData.append('numero', numero);
+    formData.append('date', date);
+    formData.append('expediteur', expediteur);
+    formData.append('destinataire', destinataire);
+    formData.append('objet', objet);
+    formData.append('reference', reference);
+    formData.append('statut', statut);
+    formData.append('observations', observations);
+    formData.append('type', type);
+    formData.append('urgent', isUrgent);
+
+    selectedFiles.forEach(file => {
+      formData.append('fichiers', file);
+    });
 
     try {
-      const newMail = {
-        numero: initialValues?.numero || numero,
-        dateReception: dateReception,
-        dateSignature: dateSignature || '',
-        objet: objet,
-        canal: canal,
-        expediteur: expediteur,
-        destinataire: destinataire,
-        reference: reference,
-        delai: delai,
-        statut: statut,
-        observations: observations,
-        type: type,
-        id: Date.now(),
-        fichiers: files.map(file => file.name || file),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Utiliser les bonnes API endpoints selon le type
+      const baseUrl = type === 'ARRIVE' ? '/api/courrier-arrive' : '/api/courrier-depart';
+      const apiUrl = initialValues?.id ? `${baseUrl}?id=${initialValues.id}` : baseUrl;
+      const method = initialValues?.id ? 'PUT' : 'POST';
 
-      // Sauvegarder dans localStorage
-      const existingMails = JSON.parse(localStorage.getItem('courriers') || '[]');
-      existingMails.unshift(newMail);
-      localStorage.setItem('courriers', JSON.stringify(existingMails));
+      const response = await fetch(apiUrl, {
+        method: method,
+        body: formData,
+      });
 
-      // Déclencher un événement pour notifier les autres composants
-      window.dispatchEvent(new Event('courriersUpdated'));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      if (onAddMail) onAddMail(newMail);
-      addToast(initialValues ? 'Courrier modifié avec succès!' : 'Courrier créé avec succès!', 'success');
-
-      setNumero('');
-      setDateReception('');
-      setDateSignature('');
-      setObjet('');
-      setCanal('Physique');
-      setExpediteur('');
-      setDestinataire('');
-      setStatut('En attente');
-      setDelai('');
-      setReference('');
-      setObservations('');
-      setFiles([]);
-
-    } catch (err) {
-      setError(err.message);
-      addToast('Erreur lors de la sauvegarde', 'error');
-
-    } finally {
-      setLoading(false);
+      const newMail = await response.json();
+      onAddMail(newMail);
+      onClose();
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du courrier :", error);
+      addToast("Erreur lors de l'ajout/modification du courrier", 'error');
     }
   };
 

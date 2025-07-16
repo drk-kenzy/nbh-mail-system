@@ -14,6 +14,19 @@ export default function CourrierArriveForm() {
   // Charger les courriers depuis l'API
   useEffect(() => {
     loadCourriers();
+    
+    // Écouter les événements de mise à jour
+    const handleStorageUpdate = () => {
+      loadCourriers();
+    };
+    
+    window.addEventListener('courriersUpdated', handleStorageUpdate);
+    window.addEventListener('storage', handleStorageUpdate);
+    
+    return () => {
+      window.removeEventListener('courriersUpdated', handleStorageUpdate);
+      window.removeEventListener('storage', handleStorageUpdate);
+    };
   }, []);
 
   const loadCourriers = async () => {
@@ -21,7 +34,8 @@ export default function CourrierArriveForm() {
       const response = await fetch('/api/courrier-arrive');
       if (response.ok) {
         const data = await response.json();
-        setCourriers(data);
+        setCourriers(data || []);
+        console.log('Courriers arrivés chargés:', data);
       }
     } catch (error) {
       console.error('Erreur chargement courriers:', error);
@@ -31,11 +45,14 @@ export default function CourrierArriveForm() {
     }
   };
 
-  const handleAddCourrier = (newCourrier) => {
+  const handleAddCourrier = async (newCourrier) => {
     setCourriers(prev => [newCourrier, ...prev]);
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier ajouté avec succès', 'success');
+    
+    // Déclencher l'événement pour synchroniser avec les autres composants
+    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'arrive' } }));
   };
 
   const handleEditCourrier = (courrier) => {
@@ -43,11 +60,14 @@ export default function CourrierArriveForm() {
     setShowForm(true);
   };
 
-  const handleUpdateCourrier = (updatedCourrier) => {
+  const handleUpdateCourrier = async (updatedCourrier) => {
     setCourriers(prev => prev.map(c => c.id === updatedCourrier.id ? updatedCourrier : c));
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier modifié avec succès', 'success');
+    
+    // Déclencher l'événement pour synchroniser
+    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'arrive' } }));
   };
 
   const handleDeleteCourrier = async (id) => {
@@ -58,6 +78,9 @@ export default function CourrierArriveForm() {
       if (response.ok) {
         setCourriers(prev => prev.filter(c => c.id !== id));
         addToast('Courrier supprimé avec succès', 'success');
+        
+        // Déclencher l'événement pour synchroniser
+        window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'arrive' } }));
       }
     } catch (error) {
       addToast('Erreur lors de la suppression', 'error');
