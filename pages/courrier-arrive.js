@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import MainLayout from '../components/MainLayout.jsx';
 import AddCourierButton from '../components/AddCourierButton.jsx';
@@ -12,9 +11,9 @@ export default function CourrierArrivePage() {
   const [search, setSearch] = useState('');
   const [displayedMails, setDisplayedMails] = useState([]);
   const [isProgressiveLoad, setIsProgressiveLoad] = useState(false);
-  
+
   // Utiliser le hook useMailList pour gérer les données
-  const { mails, loading, addMail, deleteMail } = useMailList('arrive');
+  const { mails, loading, addMail, deleteMail, updateMail } = useMailList('arrive');
 
   // Gérer l'affichage immédiat des courriers
   useEffect(() => {
@@ -37,7 +36,7 @@ export default function CourrierArrivePage() {
     };
 
     window.addEventListener('courriersGlobalRefresh', handleGlobalRefresh);
-    
+
     return () => {
       window.removeEventListener('courriersGlobalRefresh', handleGlobalRefresh);
     };
@@ -76,30 +75,9 @@ export default function CourrierArrivePage() {
     setOpen(true);
   };
 
-  const handleUpdateMail = (updatedData) => {
+  const handleUpdateMail = async (updatedData) => {
     try {
-      // Récupérer les courriers existants
-      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      
-      // Mettre à jour le courrier
-      const updatedCourriers = existingCourriers.map(courrier => 
-        courrier.id === editingMail.id 
-          ? { ...courrier, ...updatedData, updatedAt: new Date().toISOString() }
-          : courrier
-      );
-      
-      // Sauvegarder dans localStorage
-      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
-      
-      // Déclencher plusieurs événements pour assurer la synchronisation
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('courriersUpdated'));
-        window.dispatchEvent(new CustomEvent('storage'));
-        window.dispatchEvent(new CustomEvent('courriersModified', { 
-          detail: { id: editingMail.id, data: updatedData } 
-        }));
-      }, 10);
-      
+      await updateMail(editingMail.id, updatedData);
       setOpen(false);
       setEditingMail(null);
     } catch (error) {
@@ -179,7 +157,7 @@ export default function CourrierArrivePage() {
                   ×
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -219,7 +197,7 @@ export default function CourrierArrivePage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   onClick={() => {

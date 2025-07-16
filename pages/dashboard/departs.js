@@ -8,7 +8,10 @@ function handleRemove(id) {
     fetch(`/api/courrier-depart?id=${id}`, { method: 'DELETE' })
       .then(response => {
         if (response.ok) {
-          window.location.reload();
+          // Déclencher la synchronisation au lieu de recharger la page
+          window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+            detail: { type: 'DEPART', action: 'delete', id } 
+          }));
         }
       })
       .catch(error => console.error('Erreur suppression:', error));

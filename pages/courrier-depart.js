@@ -55,29 +55,9 @@ export default function CourrierDepartPage() {
     setOpen(true);
   };
 
-  const handleUpdateMail = (updatedData) => {
+  const handleUpdateMail = async (updatedData) => {
     try {
-      // Récupérer les courriers existants
-      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
-      
-      // Mettre à jour le courrier
-      const updatedCourriers = existingCourriers.map(courrier => 
-        courrier.id === editingMail.id 
-          ? { ...courrier, ...updatedData, updatedAt: new Date().toISOString() }
-          : courrier
-      );
-      
-      // Sauvegarder dans localStorage
-      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
-      
-      // Déclencher l'événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      
-      // Rafraîchir les données
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('courriersUpdated'));
-      }, 100);
-      
+      await updateMail(editingMail.id, updatedData);
       setOpen(false);
       setEditingMail(null);
     } catch (error) {

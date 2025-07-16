@@ -54,15 +54,18 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
         const courriers = await response.json();
         const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
         const prefixPattern = new RegExp(`^${prefix.replace('-', '\\-')}\\d{5}$`);
-        
+
         const existingNumbers = courriers
           .map(c => c.numero)
-          .filter(n => n && prefixPattern.test(n))
-          .map(n => parseInt(n.replace(prefix, '')))
-          .filter(n => !isNaN(n));
+          .filter(num => prefixPattern.test(num))
+          .map(num => parseInt(num.replace(prefix, '')))
+          .filter(num => !isNaN(num));
 
-        const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-        setNumero(prefix + String(nextNumber).padStart(5, '0'));
+        const nextNumber = existingNumbers.length > 0 
+          ? Math.max(...existingNumbers) + 1 
+          : 1;
+
+        setNumero(prefix + nextNumber.toString().padStart(5, '0'));
       }
     } catch (error) {
       console.error('Erreur génération numéro:', error);
@@ -100,7 +103,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     setStep(2);
   };
 
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
