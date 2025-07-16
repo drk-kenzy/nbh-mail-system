@@ -52,8 +52,8 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       const response = await fetch(apiUrl);
       if (response.ok) {
         const courriers = await response.json();
-        const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
-        const prefixPattern = new RegExp(`^${prefix}\\d{5}$`);
+        const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
+        const prefixPattern = new RegExp(`^${prefix.replace('-', '\\-')}\\d{5}$`);
         
         const existingNumbers = courriers
           .map(c => c.numero)
@@ -66,7 +66,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       }
     } catch (error) {
       console.error('Erreur génération numéro:', error);
-      const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+      const prefix = type === 'ARRIVE' ? 'ARR-' : 'DEP-';
       setNumero(prefix + '00001');
     }
   };
