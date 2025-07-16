@@ -5,26 +5,195 @@ import { useToast } from './ToastContext';
 
 function MailDetailModal({ mail, onClose }) {
   if (!mail) return null;
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Non spécifiée';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusClasses = {
+      'nouveau': 'bg-blue-100 text-blue-800 border-blue-200',
+      'en cours': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'traité': 'bg-green-100 text-green-800 border-green-200',
+      'archivé': 'bg-gray-100 text-gray-800 border-gray-200',
+      'rejeté': 'bg-red-100 text-red-800 border-red-200'
+    };
+    
+    const className = statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200';
+    
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${className}`}>
+        {status || 'Non défini'}
+      </span>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-md mx-auto max-h-[90vh] bg-[#FCFCFC] rounded-xl shadow-lg p-5 overflow-y-auto border border-primary relative">
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-600 hover:text-primary text-xl">✕</button>
-        <h2 className="text-lg font-bold mb-4 text-primary">Détail du courrier</h2>
-        <div className="space-y-2 text-sm text-gray-800">
-          <div><span className="font-semibold text-gray-900">Expéditeur :</span> {mail.expediteur}</div>
-          <div><span className="font-semibold text-gray-900">Destinataire :</span> {mail.destinataire}</div>
-          <div><span className="font-semibold text-gray-900">Date :</span> {mail.date}</div>
-          <div><span className="font-semibold text-gray-900">Statut :</span> {mail.statut}</div>
-          {mail.reference && <div><span className="font-semibold text-gray-900">Référence :</span> {mail.reference}</div>}
-          {mail.observations && <div><span className="font-semibold text-gray-900">Observations :</span> {mail.observations}</div>}
-          {mail.fichiers?.length > 0 && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
+      <div className="w-full max-w-2xl mx-auto max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-6 py-4 relative">
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors text-2xl font-light"
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📥</span>
             <div>
-              <span className="font-semibold text-gray-900">Fichiers :</span>
-              <ul className="list-disc ml-5">
-                {mail.fichiers.map((f, i) => <li key={i}>{f.name || f}</li>)}
-              </ul>
+              <h2 className="text-xl font-bold text-white">Détail du courrier arrivé</h2>
+              <p className="text-white/80 text-sm">N° {mail.numero || 'Non attribué'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {/* Statut */}
+          <div className="mb-6 flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-900">Statut du courrier</h3>
+            {getStatusBadge(mail.statut)}
+          </div>
+
+          {/* Informations principales */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Expéditeur */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📤 Expéditeur
+              </label>
+              <p className="text-gray-900 font-medium">{mail.expediteur || 'Non spécifié'}</p>
+            </div>
+
+            {/* Destinataire */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📨 Destinataire
+              </label>
+              <p className="text-gray-900 font-medium">{mail.destinataire || 'Non spécifié'}</p>
+            </div>
+
+            {/* Date de réception */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📅 Date de réception
+              </label>
+              <p className="text-gray-900 font-medium">{formatDate(mail.dateReception || mail.date)}</p>
+            </div>
+
+            {/* Canal */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📡 Canal de réception
+              </label>
+              <p className="text-gray-900 font-medium">{mail.canal || 'Non spécifié'}</p>
+            </div>
+          </div>
+
+          {/* Objet */}
+          {mail.objet && (
+            <div className="mb-6">
+              <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4">
+                <label className="block text-sm font-medium text-blue-800 mb-2">
+                  📝 Objet
+                </label>
+                <p className="text-blue-900 leading-relaxed">{mail.objet}</p>
+              </div>
             </div>
           )}
+
+          {/* Référence */}
+          {mail.reference && (
+            <div className="mb-6">
+              <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                <label className="block text-sm font-medium text-amber-800 mb-2">
+                  🔖 Référence
+                </label>
+                <p className="text-amber-900 font-mono text-sm bg-white px-3 py-2 rounded border">
+                  {mail.reference}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Observations */}
+          {mail.observations && (
+            <div className="mb-6">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-purple-800 mb-2">
+                  💭 Observations
+                </label>
+                <p className="text-purple-900 leading-relaxed whitespace-pre-wrap">
+                  {mail.observations}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Fichiers joints */}
+          {mail.fichiers?.length > 0 && (
+            <div className="mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <label className="block text-sm font-medium text-green-800 mb-3">
+                  📎 Fichiers joints ({mail.fichiers.length})
+                </label>
+                <div className="space-y-2">
+                  {mail.fichiers.map((fichier, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-green-200">
+                      <span className="text-green-600">📄</span>
+                      <span className="text-green-900 font-medium flex-1">
+                        {fichier.name || fichier}
+                      </span>
+                      {fichier.size && (
+                        <span className="text-green-600 text-sm">
+                          ({Math.round(fichier.size / 1024)} KB)
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Métadonnées */}
+          <div className="pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+              <div className="text-center">
+                <span className="block font-medium">Date d'enregistrement</span>
+                <span>{new Date(mail.createdAt || Date.now()).toLocaleDateString('fr-FR')}</span>
+              </div>
+              <div className="text-center">
+                <span className="block font-medium">Dernière modification</span>
+                <span>{new Date(mail.updatedAt || Date.now()).toLocaleDateString('fr-FR')}</span>
+              </div>
+              <div className="text-center">
+                <span className="block font-medium">ID</span>
+                <span className="font-mono">{mail.id}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors font-medium"
+            >
+              Fermer
+            </button>
+          </div>
         </div>
       </div>
     </div>
