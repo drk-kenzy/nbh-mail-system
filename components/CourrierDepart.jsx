@@ -39,7 +39,7 @@ function MailDetailModal({ mail, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
-      <div className="w-full max-w-2xl mx-auto max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
+      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative"></div>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-6 py-4 relative">
           <button 

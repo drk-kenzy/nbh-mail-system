@@ -37,88 +37,88 @@ function MailDetailModal({ mail, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
-      <div className="w-full max-w-2xl mx-auto max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
+      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative"></div>
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-6 py-4 relative">
+        <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-4 py-3 relative">
           <button 
             onClick={onClose} 
-            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors text-2xl font-light"
+            className="absolute top-3 right-3 text-white/80 hover:text-white transition-colors text-xl font-light"
             aria-label="Fermer"
           >
             ✕
           </button>
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">📥</span>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📥</span>
             <div>
-              <h2 className="text-xl font-bold text-white">Détail du courrier arrivé</h2>
-              <p className="text-white/80 text-sm">N° {mail.numero || 'Non attribué'}</p>
+              <h2 className="text-lg font-bold text-white">Détail du courrier</h2>
+              <p className="text-white/80 text-xs">N° {mail.numero || 'Non attribué'}</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]"></div>
           {/* Statut */}
-          <div className="mb-6 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Statut du courrier</h3>
+          <div className="mb-4 flex justify-between items-center">
+            <h3 className="text-base font-semibold text-gray-900">Statut</h3>
             {getStatusBadge(mail.statut)}
           </div>
 
           {/* Informations principales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 gap-3 mb-4"></div>
             {/* Expéditeur */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 📤 Expéditeur
               </label>
-              <p className="text-gray-900 font-medium">{mail.expediteur || 'Non spécifié'}</p>
+              <p className="text-gray-900 font-medium text-sm">{mail.expediteur || 'Non spécifié'}</p>
             </div>
 
             {/* Destinataire */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 📨 Destinataire
               </label>
-              <p className="text-gray-900 font-medium">{mail.destinataire || 'Non spécifié'}</p>
+              <p className="text-gray-900 font-medium text-sm">{mail.destinataire || 'Non spécifié'}</p>
             </div>
 
             {/* Date de réception */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 📅 Date de réception
               </label>
-              <p className="text-gray-900 font-medium">{formatDate(mail.dateReception || mail.date)}</p>
+              <p className="text-gray-900 font-medium text-sm">{formatDate(mail.dateReception || mail.date)}</p>
             </div>
 
             {/* Canal */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 📡 Canal de réception
               </label>
-              <p className="text-gray-900 font-medium">{mail.canal || 'Non spécifié'}</p>
+              <p className="text-gray-900 font-medium text-sm">{mail.canal || 'Non spécifié'}</p>
             </div>
           </div>
 
           {/* Objet */}
           {mail.objet && (
-            <div className="mb-6">
-              <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4">
-                <label className="block text-sm font-medium text-blue-800 mb-2">
+            <div className="mb-3">
+              <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-3">
+                <label className="block text-xs font-medium text-blue-800 mb-1">
                   📝 Objet
                 </label>
-                <p className="text-blue-900 leading-relaxed">{mail.objet}</p>
+                <p className="text-blue-900 text-sm leading-relaxed">{mail.objet}</p>
               </div>
             </div>
           )}
 
           {/* Référence */}
           {mail.reference && (
-            <div className="mb-6">
-              <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                <label className="block text-sm font-medium text-amber-800 mb-2">
+            <div className="mb-3">
+              <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                <label className="block text-xs font-medium text-amber-800 mb-1">
                   🔖 Référence
                 </label>
-                <p className="text-amber-900 font-mono text-sm bg-white px-3 py-2 rounded border">
+                <p className="text-amber-900 font-mono text-xs bg-white px-2 py-1 rounded border">
                   {mail.reference}
                 </p>
               </div>
@@ -127,12 +127,12 @@ function MailDetailModal({ mail, onClose }) {
 
           {/* Observations */}
           {mail.observations && (
-            <div className="mb-6">
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <label className="block text-sm font-medium text-purple-800 mb-2">
+            <div className="mb-3">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                <label className="block text-xs font-medium text-purple-800 mb-1">
                   💭 Observations
                 </label>
-                <p className="text-purple-900 leading-relaxed whitespace-pre-wrap">
+                <p className="text-purple-900 text-sm leading-relaxed whitespace-pre-wrap">
                   {mail.observations}
                 </p>
               </div>
@@ -141,20 +141,20 @@ function MailDetailModal({ mail, onClose }) {
 
           {/* Fichiers joints */}
           {mail.fichiers && Array.isArray(mail.fichiers) && mail.fichiers.length > 0 && (
-            <div className="mb-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <label className="block text-sm font-medium text-green-800 mb-3">
-                  📎 Fichiers joints ({mail.fichiers.length})
+            <div className="mb-3">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <label className="block text-xs font-medium text-green-800 mb-2">
+                  📎 Fichiers ({mail.fichiers.length})
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {mail.fichiers.map((fichier, index) => (
-                    <div key={index} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-green-200">
-                      <span className="text-green-600">📄</span>
-                      <span className="text-green-900 font-medium flex-1">
+                    <div key={index} className="flex items-center gap-2 bg-white rounded p-2 border border-green-200">
+                      <span className="text-green-600 text-sm">📄</span>
+                      <span className="text-green-900 font-medium flex-1 text-xs">
                         {fichier.name || fichier}
                       </span>
                       {fichier.size && (
-                        <span className="text-green-600 text-sm">
+                        <span className="text-green-600 text-xs">
                           ({Math.round(fichier.size / 1024)} KB)
                         </span>
                       )}
@@ -166,30 +166,25 @@ function MailDetailModal({ mail, onClose }) {
           )}
 
           {/* Métadonnées */}
-          <div className="pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+          <div className="pt-3 border-t border-gray-200">
+            <div className="grid grid-cols-1 gap-2 text-xs text-gray-600">
               <div className="text-center">
-                <span className="block font-medium">Date d'enregistrement</span>
+                <span className="block font-medium">Enregistré le</span>
                 <span>{new Date(mail.createdAt || Date.now()).toLocaleDateString('fr-FR')}</span>
               </div>
               <div className="text-center">
-                <span className="block font-medium">Dernière modification</span>
-                <span>{new Date(mail.updatedAt || Date.now()).toLocaleDateString('fr-FR')}</span>
-              </div>
-              <div className="text-center">
-                <span className="block font-medium">ID</span>
-                <span className="font-mono">{mail.id}</span>
+                <span className="block font-medium">ID: {mail.id}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200"></div>
           <div className="flex justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors font-medium"
+              className="px-4 py-2 bg-[#15514f] text-white rounded-lg hover:bg-[#0f3e3c] transition-colors font-medium text-sm"
             >
               Fermer
             </button>
