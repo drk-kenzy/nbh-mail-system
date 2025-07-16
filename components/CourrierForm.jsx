@@ -52,18 +52,22 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       const response = await fetch(apiUrl);
       if (response.ok) {
         const courriers = await response.json();
+        const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+        const prefixPattern = new RegExp(`^${prefix}\\d{5}$`);
+        
         const existingNumbers = courriers
           .map(c => c.numero)
-          .filter(n => n && n.match(/^\d{5}$/))
-          .map(n => parseInt(n))
+          .filter(n => n && prefixPattern.test(n))
+          .map(n => parseInt(n.replace(prefix, '')))
           .filter(n => !isNaN(n));
 
         const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-        setNumero(String(nextNumber).padStart(5, '0'));
+        setNumero(prefix + String(nextNumber).padStart(5, '0'));
       }
     } catch (error) {
       console.error('Erreur génération numéro:', error);
-      setNumero('00001');
+      const prefix = type === 'ARRIVE' ? 'ARR' : 'DEP';
+      setNumero(prefix + '00001');
     }
   };
 
@@ -96,38 +100,26 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
     setStep(2);
   };
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formValues, setFormValues] = useState({
-    numero: '',
-    dateReception: '',
-    dateSignature: '',
-    objet: '',
-    canal: '',
-    expediteur: '',
-    destinataire: '',
-    reference: '',
-    delai: '',
-    statut: 'En attente',
-    observations: '',
-  });
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append('numero', numero);
-    formData.append('date', date);
+    formData.append('dateReception', dateReception);
+    formData.append('dateSignature', dateSignature);
     formData.append('expediteur', expediteur);
     formData.append('destinataire', destinataire);
     formData.append('objet', objet);
+    formData.append('canal', canal);
     formData.append('reference', reference);
+    formData.append('delai', delai);
     formData.append('statut', statut);
     formData.append('observations', observations);
     formData.append('type', type);
-    formData.append('urgent', isUrgent);
 
-    selectedFiles.forEach(file => {
+    files.forEach(file => {
       formData.append('fichiers', file);
     });
 
@@ -149,6 +141,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
       const newMail = await response.json();
       onAddMail(newMail);
       onClose();
+      addToast(initialValues ? 'Courrier modifié avec succès' : 'Courrier ajouté avec succès', 'success');
     } catch (error) {
       console.error("Erreur lors de l'envoi du courrier :", error);
       addToast("Erreur lors de l'ajout/modification du courrier", 'error');
