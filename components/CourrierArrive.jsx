@@ -65,7 +65,7 @@ function MailDetailModal({ mail, onClose }) {
           </div>
 
           {/* Informations principales */}
-          <div className="grid grid-cols-1 gap-3 mb-4"></div>
+          <div className="grid grid-cols-1 gap-3 mb-4">
             {/* Expéditeur */}
             <div className="bg-gray-50 rounded-lg p-3">
               <label className="block text-xs font-medium text-gray-700 mb-1">
