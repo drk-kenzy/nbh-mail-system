@@ -54,7 +54,7 @@ export default function CourrierForm({ type = 'ARRIVE', onClose, onAddMail, init
 
       // Filtrer les courriers du même type
       const courriersDuMemeType = existingCourriers.filter(courrier => courrier.type === type);
-      
+
       // Calculer le prochain numéro
       const nextNumber = courriersDuMemeType.length + 1;
 

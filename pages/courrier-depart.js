@@ -57,16 +57,43 @@ export default function CourrierDepartPage() {
     }
   };
 
+  const [selectedMail, setSelectedMail] = useState(null);
+  const [editingMail, setEditingMail] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+
   const handleViewMail = (mail) => {
-    // Afficher les détails du courrier dans une modal ou une nouvelle page
-    alert(`Détails du courrier:\n\nObjet: ${mail.objet}\nDestinataire: ${mail.destinataire}\nDate: ${mail.dateReception || mail.date}\nStatut: ${mail.statut}`);
+    setSelectedMail(mail);
+    setViewModalOpen(true);
   };
 
   const handleEditMail = (mail) => {
-    // Ouvrir le formulaire d'édition avec les données du courrier
+    setEditingMail(mail);
     setOpen(true);
-    // Ici vous pouvez passer les données du courrier au formulaire pour l'édition
-    console.log('Édition du courrier:', mail);
+  };
+
+  const handleUpdateMail = (updatedData) => {
+    try {
+      // Récupérer les courriers existants
+      const existingCourriers = JSON.parse(localStorage.getItem('courriers') || '[]');
+      
+      // Mettre à jour le courrier
+      const updatedCourriers = existingCourriers.map(courrier => 
+        courrier.id === editingMail.id 
+          ? { ...courrier, ...updatedData, updatedAt: new Date().toISOString() }
+          : courrier
+      );
+      
+      // Sauvegarder dans localStorage
+      localStorage.setItem('courriers', JSON.stringify(updatedCourriers));
+      
+      // Déclencher l'événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      
+      setOpen(false);
+      setEditingMail(null);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du courrier:', error);
+    }
   };
 
   const filteredMails = displayedMails.filter(mail => {
@@ -116,10 +143,96 @@ export default function CourrierDepartPage() {
 
         <CourrierForm
           open={open}
-          onClose={() => setOpen(false)}
-          onSubmit={handleAddMail}
+          onClose={() => {
+            setOpen(false);
+            setEditingMail(null);
+          }}
+          onSubmit={editingMail ? handleUpdateMail : handleAddMail}
           type="DEPART"
+          initialValues={editingMail}
         />
+
+        {/* Modal de visualisation */}
+        {viewModalOpen && selectedMail && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Détails du Courrier</h2>
+                <button
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setSelectedMail(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">N° d'enregistrement</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedMail.numero || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Date d'envoi</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedMail.dateReception || selectedMail.date ? 
+                        new Date(selectedMail.dateReception || selectedMail.date).toLocaleDateString('fr-FR') : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Expéditeur</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedMail.expediteur || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Destinataire</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedMail.destinataire || 'N/A'}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Objet</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedMail.objet || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Canal</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedMail.canal || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Statut</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {selectedMail.statut || 'N/A'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setSelectedMail(null);
+                    handleEditMail(selectedMail);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Modifier
+                </button>
+                <button
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setSelectedMail(null);
+                  }}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
