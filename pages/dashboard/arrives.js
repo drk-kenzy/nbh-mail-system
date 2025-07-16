@@ -5,15 +5,24 @@ import { useMailList } from '../../hooks/useMailList';
 import MailTable from '../../components/MailTable';
 
 function handleRemove(id) {
-  console.log('Supprimer courrier:', id);
+  if (window.confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) {
+    fetch(`/api/courrier-arrive?id=${id}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          window.location.reload();
+        }
+      })
+      .catch(error => console.error('Erreur suppression:', error));
+  }
 }
 
 function handleView(mail) {
-  console.log('Voir courrier:', mail);
+  alert(`Détails du courrier:\n\nObjet: ${mail.objet}\nExpéditeur: ${mail.expediteur}\nDate: ${mail.dateReception || mail.date}\nStatut: ${mail.statut}`);
 }
 
 function handleEdit(mail) {
-  console.log('Éditer courrier:', mail);
+  // Rediriger vers la page d'édition
+  window.location.href = `/courrier-arrive?edit=${mail.id}`;
 }
 
 export default function Arrives() {
