@@ -37,7 +37,7 @@ function MailDetailModal({ mail, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
-      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative"></div>
+      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-4 py-3 relative">
           <button 
@@ -57,7 +57,7 @@ function MailDetailModal({ mail, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]"></div>
+        <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
           {/* Statut */}
           <div className="mb-4 flex justify-between items-center">
             <h3 className="text-base font-semibold text-gray-900">Statut</h3>
@@ -180,7 +180,7 @@ function MailDetailModal({ mail, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200"></div>
+        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
           <div className="flex justify-end">
             <button
               onClick={onClose}
