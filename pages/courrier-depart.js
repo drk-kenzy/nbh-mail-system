@@ -15,27 +15,11 @@ export default function CourrierDepartPage() {
   // Utiliser le hook useMailList pour gérer les données
   const { mails, loading, addMail, deleteMail } = useMailList('depart');
 
-  // Gérer l'affichage progressif quand les mails changent
+  // Gérer l'affichage immédiat des courriers
   useEffect(() => {
-    if (mails.length > 0) {
-      setIsProgressiveLoad(true);
-      setDisplayedMails([]);
-      
-      // Afficher les courriers un par un avec un délai
-      mails.forEach((mail, index) => {
-        setTimeout(() => {
-          setDisplayedMails(prev => [...prev, mail]);
-          
-          // Terminer l'affichage progressif après le dernier élément
-          if (index === mails.length - 1) {
-            setTimeout(() => setIsProgressiveLoad(false), 200);
-          }
-        }, index * 150);
-      });
-    } else {
-      setDisplayedMails([]);
-      setIsProgressiveLoad(false);
-    }
+    // Afficher immédiatement tous les courriers sans animation
+    setDisplayedMails(mails);
+    setIsProgressiveLoad(false);
   }, [mails]);
 
   const handleAddMail = (newMail) => {

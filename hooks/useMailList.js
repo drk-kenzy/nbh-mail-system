@@ -12,6 +12,7 @@ export function useMailList(type = "arrive") {
         courrier.type === (type === "arrive" ? "ARRIVE" : "DEPART")
       );
       console.log(`Chargement ${type}:`, filteredCourriers); // Debug
+      console.log('Tous les courriers:', courriers); // Debug supplémentaire
       setMails(filteredCourriers);
     } catch (error) {
       console.error("Erreur lors du chargement des courriers:", error);
@@ -91,6 +92,7 @@ export function useMailList(type = "arrive") {
   };
 
   useEffect(() => {
+    // Chargement initial immédiat
     fetchMails();
 
     // Écouter les changements dans le localStorage
@@ -102,10 +104,10 @@ export function useMailList(type = "arrive") {
     // Écouter plusieurs types d'événements
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('courriersUpdated', handleStorageChange);
-    window.addEventListener('focus', handleStorageChange); // Rafraîchir quand la page reprend le focus
+    window.addEventListener('focus', handleStorageChange);
 
-    // Vérifier périodiquement les changements
-    const interval = setInterval(fetchMails, 5000); // Vérifier toutes les 5 secondes
+    // Vérifier périodiquement les changements (moins fréquent)
+    const interval = setInterval(fetchMails, 10000); // Vérifier toutes les 10 secondes
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -114,6 +116,11 @@ export function useMailList(type = "arrive") {
       clearInterval(interval);
     };
   }, [type]);
+
+  // Chargement initial au montage du composant
+  useEffect(() => {
+    fetchMails();
+  }, []);
 
   return {
     mails,
