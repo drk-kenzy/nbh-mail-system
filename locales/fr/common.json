@@ -68,6 +68,7 @@
   "fillRequiredFields": "Veuillez remplir tous les champs requis",
   "successPartner": "Partenaire ajouté avec succès",
   "save": "Enregistrer",
-  "reset": "Réinitialiser"s e-mail",
+  "reset": "Réinitialiser",
+  "emailNotifications": "Notifications e-mail",
   "language": "Langue"
 }

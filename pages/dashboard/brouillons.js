@@ -44,3 +44,70 @@ export default function BrouillonsPage() {
     </div>
   );
 }
+import { useState, useEffect } from 'react';
+import Layout from '../../components/Layout';
+import MailTable from '../../components/MailTable';
+import useTranslation from '../../hooks/useTranslation';
+
+function handleRemove(id) {
+  if (window.confirm('Êtes-vous sûr de vouloir supprimer ce brouillon ?')) {
+    // Supprimer des brouillons localStorage
+    const brouillons = JSON.parse(localStorage.getItem('brouillons') || '[]');
+    const updatedBrouillons = brouillons.filter(b => b.id !== id);
+    localStorage.setItem('brouillons', JSON.stringify(updatedBrouillons));
+    window.location.reload();
+  }
+}
+
+function handleView(mail) {
+  alert(`Détails du brouillon:\n\nObjet: ${mail.objet}\nType: ${mail.type}\nDate: ${mail.date}\nStatut: Brouillon`);
+}
+
+function handleEdit(mail) {
+  // Rediriger vers la page d'édition appropriée selon le type
+  const page = mail.type === 'arrive' ? 'courrier-arrive' : 'courrier-depart';
+  window.location.href = `/${page}?edit=${mail.id}&draft=true`;
+}
+
+export default function Brouillons() {
+  const { t } = useTranslation();
+  const [brouillons, setBrouillons] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Charger les brouillons depuis localStorage
+    const savedBrouillons = JSON.parse(localStorage.getItem('brouillons') || '[]');
+    setBrouillons(savedBrouillons);
+    setLoading(false);
+  }, []);
+
+  return (
+    <Layout>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Brouillons
+          </h1>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {brouillons.length} brouillon(s)
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">Chargement...</p>
+          </div>
+        ) : (
+          <MailTable
+            mails={brouillons}
+            onRemove={handleRemove}
+            onView={handleView}
+            onEdit={handleEdit}
+            emptyMessage="Aucun brouillon trouvé."
+          />
+        )}
+      </div>
+    </Layout>
+  );
+}
