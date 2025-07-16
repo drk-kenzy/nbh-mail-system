@@ -89,6 +89,11 @@ export default function CourrierDepartPage() {
       // Déclencher l'événement pour notifier les autres composants
       window.dispatchEvent(new CustomEvent('courriersUpdated'));
       
+      // Rafraîchir les données
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('courriersUpdated'));
+      }, 100);
+      
       setOpen(false);
       setEditingMail(null);
     } catch (error) {
