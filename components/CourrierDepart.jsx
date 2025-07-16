@@ -6,7 +6,7 @@ import AddCourierButton from './AddCourierButton';
 
 function MailDetailModal({ mail, onClose }) {
   if (!mail) return null;
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return 'Non spécifiée';
     const date = new Date(dateString);
@@ -27,9 +27,9 @@ function MailDetailModal({ mail, onClose }) {
       'archivé': 'bg-gray-100 text-gray-800 border-gray-200',
       'brouillon': 'bg-orange-100 text-orange-800 border-orange-200'
     };
-    
+
     const className = statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200';
-    
+
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${className}`}>
         {status || 'Non défini'}
@@ -39,7 +39,7 @@ function MailDetailModal({ mail, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
-      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative"></div>
+      <div className="w-full max-w-lg mx-auto max-h-[85vh] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 relative">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#15514f] to-[#0f3e3c] px-6 py-4 relative">
           <button 
