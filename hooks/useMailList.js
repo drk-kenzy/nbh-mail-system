@@ -39,12 +39,16 @@ export function useMailList(type = "arrive") {
       // Mettre à jour l'état local immédiatement
       setMails(prev => [mailWithId, ...prev]);
 
-      // Déclencher plusieurs événements pour assurer la synchronisation
+      // Déclencher immédiatement plusieurs événements pour assurer la synchronisation
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type, action: 'add' } }));
+      window.dispatchEvent(new CustomEvent('storage', { detail: { key: 'courriers' } }));
+      window.dispatchEvent(new CustomEvent('courriersAdded', { detail: mailWithId }));
+      
+      // Déclencher aussi après un court délai pour s'assurer que tous les composants reçoivent l'événement
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('courriersUpdated'));
-        window.dispatchEvent(new CustomEvent('storage'));
-        window.dispatchEvent(new CustomEvent('courriersAdded', { detail: mailWithId }));
-      }, 10);
+        window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type, action: 'add' } }));
+        window.dispatchEvent(new CustomEvent('storage', { detail: { key: 'courriers' } }));
+      }, 50);
 
       return mailWithId;
     } catch (error) {
@@ -104,29 +108,40 @@ export function useMailList(type = "arrive") {
     fetchMails();
 
     // Écouter les changements dans le localStorage
-    const handleStorageChange = () => {
-      console.log('Événement de mise à jour détecté pour type:', type); // Debug
+    const handleStorageChange = (event) => {
+      console.log('Événement storage détecté pour type:', type, event); // Debug
+      fetchMails();
+    };
+
+    const handleCourriersUpdated = (event) => {
+      console.log('Événement courriersUpdated détecté pour type:', type, event?.detail); // Debug
       fetchMails();
     };
 
     const handleCourriersAdded = (event) => {
-      console.log('Nouveau courrier ajouté:', event.detail);
-      fetchMails();
+      console.log('Nouveau courrier ajouté:', event.detail, 'pour type:', type);
+      // Vérifier si le courrier ajouté correspond au type actuel
+      if (event.detail && event.detail.type === (type === "arrive" ? "ARRIVE" : "DEPART")) {
+        fetchMails();
+      }
     };
 
     // Écouter plusieurs types d'événements
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('courriersUpdated', handleStorageChange);
+    window.addEventListener('courriersUpdated', handleCourriersUpdated);
     window.addEventListener('courriersAdded', handleCourriersAdded);
     window.addEventListener('focus', handleStorageChange);
     window.addEventListener('visibilitychange', handleStorageChange);
 
-    // Vérifier périodiquement les changements
-    const interval = setInterval(fetchMails, 5000); // Vérifier toutes les 5 secondes
+    // Vérifier périodiquement les changements (plus fréquent pour assurer la synchronisation)
+    const interval = setInterval(() => {
+      console.log('Vérification périodique pour type:', type); // Debug
+      fetchMails();
+    }, 3000); // Vérifier toutes les 3 secondes
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('courriersUpdated', handleStorageChange);
+      window.removeEventListener('courriersUpdated', handleCourriersUpdated);
       window.removeEventListener('courriersAdded', handleCourriersAdded);
       window.removeEventListener('focus', handleStorageChange);
       window.removeEventListener('visibilitychange', handleStorageChange);

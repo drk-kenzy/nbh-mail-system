@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { FiArrowUpCircle } from 'react-icons/fi';
 import { useMailList } from '../../hooks/useMailList';
@@ -77,3 +76,18 @@ export default function Departs() {
     </div>
   );
 }
+// Ajouter à localStorage
+    localStorage.setItem('courriers', JSON.stringify([newCourrier, ...existingCourriers]));
+
+    // Mettre à jour l'état local
+    setCourriers(prev => [newCourrier, ...prev]);
+
+    // Déclencher plusieurs événements pour assurer la synchronisation avec toutes les pages
+    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart', action: 'add' } }));
+    window.dispatchEvent(new CustomEvent('storage', { detail: { key: 'courriers' } }));
+    window.dispatchEvent(new CustomEvent('courriersAdded', { detail: newCourrier }));
+
+    // Déclencher aussi après un court délai pour s'assurer que tous les composants reçoivent l'événement
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart', action: 'add' } }));
+    }, 50);

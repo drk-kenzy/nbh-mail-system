@@ -5,6 +5,7 @@ import AddCourierButton from '../components/AddCourierButton.jsx';
 import CourrierForm from '../components/CourrierForm.jsx';
 import MailTable from '../components/MailTable.js';
 import { useMailList } from '../hooks/useMailList.js';
+import { ensureMailSync } from '../utils/mailSyncUtils.js';
 
 export default function CourrierArrivePage() {
   const [open, setOpen] = useState(false);
@@ -21,6 +22,26 @@ export default function CourrierArrivePage() {
     setDisplayedMails(mails);
     setIsProgressiveLoad(false);
   }, [mails]);
+
+  // Forcer la synchronisation au chargement de la page
+  useEffect(() => {
+    // Assurer la synchronisation au chargement
+    ensureMailSync();
+  }, []);
+
+  // Ajouter un listener supplémentaire pour forcer le rafraîchissement
+  useEffect(() => {
+    const handleGlobalRefresh = () => {
+      console.log('Rafraîchissement global déclenché pour courrier arrivé');
+      // Le hook useMailList va automatiquement se mettre à jour
+    };
+
+    window.addEventListener('courriersGlobalRefresh', handleGlobalRefresh);
+    
+    return () => {
+      window.removeEventListener('courriersGlobalRefresh', handleGlobalRefresh);
+    };
+  }, []);
 
   const handleAddMail = (newMail) => {
     try {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { FiArrowDownCircle } from 'react-icons/fi';
 import { useMailList } from '../../hooks/useMailList';
