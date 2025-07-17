@@ -1,59 +1,23 @@
-
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import CourrierForm from './CourrierForm.jsx';
 import MailTable from './MailTable';
 import { useToast } from './ToastContext';
 import AddCourierButton from './AddCourierButton';
+import { useMailList } from '../hooks/useMailList';
 
 export default function CourrierDepartForm() {
-  const [courriers, setCourriers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingCourrier, setEditingCourrier] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  // Charger les courriers depuis l'API
-  useEffect(() => {
-    loadCourriers();
-    
-    // Écouter les événements de mise à jour
-    const handleStorageUpdate = () => {
-      loadCourriers();
-    };
-    
-    window.addEventListener('courriersUpdated', handleStorageUpdate);
-    window.addEventListener('storage', handleStorageUpdate);
-    
-    return () => {
-      window.removeEventListener('courriersUpdated', handleStorageUpdate);
-      window.removeEventListener('storage', handleStorageUpdate);
-    };
-  }, []);
+  // Utiliser le hook useMailList pour la gestion complète
+  const { mails, loading, addMail, updateMail, deleteMail } = useMailList('depart');
 
-  const loadCourriers = async () => {
-    try {
-      const response = await fetch('/api/courrier-depart');
-      if (response.ok) {
-        const data = await response.json();
-        setCourriers(data || []);
-        console.log('Courriers départs chargés:', data);
-      }
-    } catch (error) {
-      console.error('Erreur chargement courriers:', error);
-      addToast('Erreur lors du chargement des courriers', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddCourrier = async (newCourrier) => {
-    setCourriers(prev => [newCourrier, ...prev]);
+  const handleAddCourrier = (newCourrier) => {
+    addMail(newCourrier);
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier ajouté avec succès', 'success');
-    
-    // Déclencher l'événement pour synchroniser avec les autres composants
-    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
   };
 
   const handleEditCourrier = (courrier) => {
@@ -61,31 +25,18 @@ export default function CourrierDepartForm() {
     setShowForm(true);
   };
 
-  const handleUpdateCourrier = async (updatedCourrier) => {
-    setCourriers(prev => prev.map(c => c.id === updatedCourrier.id ? updatedCourrier : c));
+  const handleUpdateCourrier = (updatedCourrier) => {
+    updateMail(updatedCourrier.id, updatedCourrier);
     setShowForm(false);
     setEditingCourrier(null);
     addToast('Courrier modifié avec succès', 'success');
-    
-    // Déclencher l'événement pour synchroniser
-    window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
   };
 
-  const handleDeleteCourrier = async (id) => {
+  const handleDeleteCourrier = (id) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?')) return;
 
-    try {
-      const response = await fetch(`/api/courrier-depart?id=${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        setCourriers(prev => prev.filter(c => c.id !== id));
-        addToast('Courrier supprimé avec succès', 'success');
-        
-        // Déclencher l'événement pour synchroniser
-        window.dispatchEvent(new CustomEvent('courriersUpdated', { detail: { type: 'depart' } }));
-      }
-    } catch (error) {
-      addToast('Erreur lors de la suppression', 'error');
-    }
+    deleteMail(id);
+    addToast('Courrier supprimé avec succès', 'success');
   };
 
   return (
@@ -115,7 +66,7 @@ export default function CourrierDepartForm() {
 
       <div className="bg-white rounded-lg shadow">
         <MailTable
-          mails={courriers}
+          mails={mails}
           onEdit={handleEditCourrier}
           onDelete={handleDeleteCourrier}
           loading={loading}
