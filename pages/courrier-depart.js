@@ -13,7 +13,7 @@ export default function CourrierDepartPage() {
   const [isProgressiveLoad, setIsProgressiveLoad] = useState(false);
 
   // Utiliser le hook useMailList pour gérer les données
-  const { mails, loading, addMail, deleteMail, updateStatus } = useMailList('depart');
+  const { mails, loading, addMail, deleteMail, updateMail, updateStatus } = useMailList('depart');
 
   // Gérer l'affichage immédiat des courriers
   useEffect(() => {
