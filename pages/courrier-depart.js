@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import MainLayout from '../components/MainLayout.jsx';
 import AddCourierButton from '../components/AddCourierButton.jsx';
@@ -11,9 +10,9 @@ export default function CourrierDepartPage() {
   const [search, setSearch] = useState('');
   const [displayedMails, setDisplayedMails] = useState([]);
   const [isProgressiveLoad, setIsProgressiveLoad] = useState(false);
-  
+
   // Utiliser le hook useMailList pour gérer les données
-  const { mails, loading, addMail, deleteMail } = useMailList('depart');
+  const { mails, loading, addMail, deleteMail, updateStatus } = useMailList('depart');
 
   // Gérer l'affichage immédiat des courriers
   useEffect(() => {
@@ -65,6 +64,15 @@ export default function CourrierDepartPage() {
     }
   };
 
+  const handleStatusUpdate = async (mailId, statusData) => {
+    try {
+      await updateStatus(mailId, statusData);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut:', error);
+      throw error;
+    }
+  };
+
   const filteredMails = displayedMails.filter(mail => {
     if (!search) return true;
     const searchLower = search.toLowerCase();
@@ -106,6 +114,7 @@ export default function CourrierDepartPage() {
               onView={handleViewMail}
               onEdit={handleEditMail}
               isProgressiveLoad={isProgressiveLoad}
+              onStatusUpdate={handleStatusUpdate}
             />
           </div>
         )}
@@ -137,7 +146,7 @@ export default function CourrierDepartPage() {
                   ×
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -177,7 +186,7 @@ export default function CourrierDepartPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   onClick={() => {

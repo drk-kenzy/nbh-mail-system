@@ -145,26 +145,129 @@ export function MailModalForm({ mail, onClose, onSave }) {
  * @param {Object} props
  * @param {Object} props.mail - Données du courrier à afficher
  * @param {Function} props.onClose - Fonction de fermeture
+ * @param {Function} props.onStatusUpdate - Fonction de mise à jour du statut
  */
-export function MailModalDetail({ mail, onClose }) {
+export function MailModalDetail({ mail, onClose, onStatusUpdate }) {
+  const [currentStatus, setCurrentStatus] = useState(mail?.statut || mail?.status || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+
   if (!mail) return null;
+
+  const statusOptions = [
+    'En attente',
+    'En cours',
+    'Traité',
+    'Rejeté',
+    'Archivé',
+    'nouveau'
+  ];
+
+  const handleStatusChange = async (newStatus) => {
+    if (newStatus === currentStatus || !onStatusUpdate) return;
+    
+    setIsUpdating(true);
+    try {
+      await onStatusUpdate(mail.id, { statut: newStatus });
+      setCurrentStatus(newStatus);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition">
-      <div className="bg-surface rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition px-4 pb-20">
+      <div className="bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto relative animate-fade-in border border-gray-700">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-2 rounded-full bg-light hover:bg-danger/20 transition"
+          className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-700/50 transition"
           aria-label="Fermer"
         >
-          <XMarkIcon className="w-6 h-6 text-danger" />
+          <XMarkIcon className="w-5 h-5 text-gray-400 hover:text-white" />
         </button>
-        <h2 className="text-xl font-bold text-primary mb-4">Détail du courrier</h2>
-        <div className="space-y-2 text-gray-100">
-          <div><span className="font-semibold">N° :</span> {mail.numero}</div>
-          <div><span className="font-semibold">Objet :</span> {mail.objet}</div>
-          <div><span className="font-semibold">Partenaire :</span> {mail.partenaire}</div>
-          <div><span className="font-semibold">Statut :</span> {mail.statut}</div>
-          <div><span className="font-semibold">Date :</span> {mail.date}</div>
+        
+        <h2 className="text-xl font-bold text-primary mb-6 pr-10">Détail du courrier</h2>
+        
+        <div className="space-y-4 text-gray-100">
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">N° d'enregistrement :</span>
+              <span className="text-white">{mail.numero}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">Date de réception :</span>
+              <span className="text-white">{formatDate(mail.dateReception || mail.date)}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">Expéditeur :</span>
+              <span className="text-white">{mail.expediteur || mail.sender}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">Destinataire :</span>
+              <span className="text-white">{mail.destinataire || mail.recipient}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">Objet :</span>
+              <span className="text-white break-words">{mail.objet || mail.subject}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-1">Canal :</span>
+              <span className="text-white">{mail.canal || mail.channel}</span>
+            </div>
+            
+            <div>
+              <span className="font-semibold text-gray-300 block mb-2">Statut :</span>
+              <select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                disabled={isUpdating}
+                className="w-full bg-gray-800 text-gray-100 rounded-lg px-3 py-2 border border-gray-600 focus:border-primary focus:ring-1 focus:ring-primary transition disabled:opacity-50"
+              >
+                {statusOptions.map(status => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              {isUpdating && (
+                <div className="text-xs text-gray-400 mt-1">Mise à jour en cours...</div>
+              )}
+            </div>
+            
+            {(mail.planif || mail.delai) && (
+              <>
+                {mail.planif && (
+                  <div>
+                    <span className="font-semibold text-gray-300 block mb-1">Planification :</span>
+                    <span className="text-white">{formatDate(mail.planif)}</span>
+                  </div>
+                )}
+                
+                {mail.delai && (
+                  <div>
+                    <span className="font-semibold text-gray-300 block mb-1">Délai de réponse :</span>
+                    <span className="text-white">{formatDate(mail.delai)}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

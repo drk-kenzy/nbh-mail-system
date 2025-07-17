@@ -115,6 +115,47 @@ export function useMailList(type = "arrive") {
     }
   };
 
+  const updateStatus = async (id, statusData) => {
+    try {
+      // Mise à jour optimiste de l'état local
+      setMails(prevMails => 
+        prevMails.map(mail => 
+          mail.id === id 
+            ? { ...mail, statut: statusData.statut, status: statusData.statut }
+            : mail
+        )
+      );
+
+      const formData = new FormData();
+      formData.append('statut', statusData.statut);
+
+      const response = await fetch(`${apiUrl}?id=${id}`, {
+        method: 'PUT',
+        body: formData
+      });
+
+      if (response.ok) {
+        const courrier = await response.json();
+        
+        // Déclencher les événements de synchronisation
+        window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+          detail: { type, action: 'update', courrier } 
+        }));
+        
+        return courrier;
+      } else {
+        // Revenir à l'état précédent en cas d'erreur
+        await fetchMails();
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut:", error);
+      // Revenir à l'état précédent en cas d'erreur
+      await fetchMails();
+      throw error;
+    }
+  };
+
   const deleteMail = async (id) => {
     try {
       const response = await fetch(`${apiUrl}?id=${id}`, {
@@ -174,6 +215,7 @@ export function useMailList(type = "arrive") {
     loading,
     addMail,
     updateMail,
+    updateStatus,
     deleteMail,
     refresh: fetchMails
   };
