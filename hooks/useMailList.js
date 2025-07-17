@@ -5,20 +5,38 @@ export function useMailList(type = "arrive") {
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const apiUrl = type === "arrive" ? "/api/courrier-arrive" : "/api/courrier-depart";
+  const storageKey = type === "arrive" ? "courriers-arrive" : "courriers-depart";
+
+  // Fonction pour charger les données depuis localStorage
+  const loadFromLocalStorage = () => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      const data = stored ? JSON.parse(stored) : [];
+      console.log(`Chargement ${type} depuis localStorage:`, data);
+      setMails(data);
+      return data;
+    } catch (error) {
+      console.error(`Erreur lors du chargement des courriers ${type}:`, error);
+      setMails([]);
+      return [];
+    }
+  };
+
+  // Fonction pour sauvegarder dans localStorage
+  const saveToLocalStorage = (data) => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      console.log(`Sauvegarde ${type} dans localStorage:`, data);
+    } catch (error) {
+      console.error(`Erreur lors de la sauvegarde:`, error);
+    }
+  };
 
   const fetchMails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(apiUrl);
-      if (response.ok) {
-        const courriers = await response.json();
-        console.log(`Chargement ${type} depuis API:`, courriers);
-        setMails(courriers);
-      } else {
-        console.error(`Erreur lors du chargement des courriers ${type}:`, response.status);
-        setMails([]);
-      }
+      const data = loadFromLocalStorage();
+      setMails(data);
     } catch (error) {
       console.error(`Erreur lors du chargement des courriers ${type}:`, error);
       setMails([]);
@@ -29,42 +47,24 @@ export function useMailList(type = "arrive") {
 
   const addMail = async (newMail) => {
     try {
-      const formData = new FormData();
+      const currentMails = loadFromLocalStorage();
+      const courrier = {
+        ...newMail,
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
       
-      // Ajouter tous les champs du courrier
-      Object.keys(newMail).forEach(key => {
-        if (key !== 'fichiers') {
-          formData.append(key, newMail[key]);
-        }
-      });
-
-      // Ajouter les fichiers s'il y en a
-      if (newMail.fichiers && Array.isArray(newMail.fichiers)) {
-        newMail.fichiers.forEach(file => {
-          formData.append('fichiers', file);
-        });
-      }
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const courrier = await response.json();
-        
-        // Rafraîchir la liste depuis l'API
-        await fetchMails();
-        
-        // Déclencher les événements de synchronisation
-        window.dispatchEvent(new CustomEvent('courriersUpdated', { 
-          detail: { type, action: 'add', courrier } 
-        }));
-        
-        return courrier;
-      } else {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
+      const updatedMails = [courrier, ...currentMails];
+      saveToLocalStorage(updatedMails);
+      setMails(updatedMails);
+      
+      // Déclencher les événements de synchronisation
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+        detail: { type, action: 'add', courrier } 
+      }));
+      
+      return courrier;
     } catch (error) {
       console.error('Erreur ajout courrier:', error);
       throw error;
@@ -73,42 +73,24 @@ export function useMailList(type = "arrive") {
 
   const updateMail = async (id, updatedData) => {
     try {
-      const formData = new FormData();
+      const currentMails = loadFromLocalStorage();
+      const updatedMails = currentMails.map(mail => 
+        mail.id === id 
+          ? { ...mail, ...updatedData, updatedAt: new Date().toISOString() }
+          : mail
+      );
       
-      // Ajouter tous les champs du courrier
-      Object.keys(updatedData).forEach(key => {
-        if (key !== 'fichiers') {
-          formData.append(key, updatedData[key]);
-        }
-      });
-
-      // Ajouter les fichiers s'il y en a
-      if (updatedData.fichiers && Array.isArray(updatedData.fichiers)) {
-        updatedData.fichiers.forEach(file => {
-          formData.append('fichiers', file);
-        });
-      }
-
-      const response = await fetch(`${apiUrl}?id=${id}`, {
-        method: 'PUT',
-        body: formData
-      });
-
-      if (response.ok) {
-        const courrier = await response.json();
-        
-        // Rafraîchir la liste depuis l'API
-        await fetchMails();
-        
-        // Déclencher les événements de synchronisation
-        window.dispatchEvent(new CustomEvent('courriersUpdated', { 
-          detail: { type, action: 'update', courrier } 
-        }));
-        
-        return courrier;
-      } else {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
+      saveToLocalStorage(updatedMails);
+      setMails(updatedMails);
+      
+      const updatedCourrier = updatedMails.find(mail => mail.id === id);
+      
+      // Déclencher les événements de synchronisation
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+        detail: { type, action: 'update', courrier: updatedCourrier } 
+      }));
+      
+      return updatedCourrier;
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
       throw error;
@@ -126,55 +108,44 @@ export function useMailList(type = "arrive") {
         )
       );
 
-      const formData = new FormData();
-      formData.append('statut', statusData.statut);
-
-      const response = await fetch(`${apiUrl}?id=${id}`, {
-        method: 'PUT',
-        body: formData
-      });
-
-      if (response.ok) {
-        const courrier = await response.json();
-        
-        // Déclencher les événements de synchronisation
-        window.dispatchEvent(new CustomEvent('courriersUpdated', { 
-          detail: { type, action: 'update', courrier } 
-        }));
-        
-        return courrier;
-      } else {
-        // Revenir à l'état précédent en cas d'erreur
-        await fetchMails();
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
+      const currentMails = loadFromLocalStorage();
+      const updatedMails = currentMails.map(mail => 
+        mail.id === id 
+          ? { ...mail, statut: statusData.statut, status: statusData.statut, updatedAt: new Date().toISOString() }
+          : mail
+      );
+      
+      saveToLocalStorage(updatedMails);
+      setMails(updatedMails);
+      
+      const updatedCourrier = updatedMails.find(mail => mail.id === id);
+      
+      // Déclencher les événements de synchronisation
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+        detail: { type, action: 'update', courrier: updatedCourrier } 
+      }));
+      
+      return updatedCourrier;
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error);
-      // Revenir à l'état précédent en cas d'erreur
-      await fetchMails();
       throw error;
     }
   };
 
   const deleteMail = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}?id=${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        // Rafraîchir la liste depuis l'API
-        await fetchMails();
-        
-        // Déclencher les événements de synchronisation
-        window.dispatchEvent(new CustomEvent('courriersUpdated', { 
-          detail: { type, action: 'delete', id } 
-        }));
-        
-        return true;
-      } else {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
+      const currentMails = loadFromLocalStorage();
+      const updatedMails = currentMails.filter(mail => mail.id !== id);
+      
+      saveToLocalStorage(updatedMails);
+      setMails(updatedMails);
+      
+      // Déclencher les événements de synchronisation
+      window.dispatchEvent(new CustomEvent('courriersUpdated', { 
+        detail: { type, action: 'delete', id } 
+      }));
+      
+      return true;
     } catch (error) {
       console.error('Erreur suppression courrier:', error);
       throw error;
@@ -182,14 +153,22 @@ export function useMailList(type = "arrive") {
   };
 
   useEffect(() => {
-    // Chargement initial
+    // Chargement initial depuis localStorage
     fetchMails();
 
     // Écouter les changements depuis d'autres composants/onglets
     const handleCourriersUpdated = (event) => {
       console.log('Événement courriersUpdated détecté pour type:', type, event?.detail);
       // Rafraîchir uniquement si cela concerne notre type ou si c'est général
-      if (!event.detail?.type || event.detail.type === (type === "arrive" ? "ARRIVE" : "DEPART")) {
+      if (!event.detail?.type || event.detail.type === type) {
+        fetchMails();
+      }
+    };
+
+    const handleStorageChange = (event) => {
+      // Écouter les changements de localStorage depuis d'autres onglets
+      if (event.key === storageKey) {
+        console.log('Changement localStorage détecté pour:', storageKey);
         fetchMails();
       }
     };
@@ -197,6 +176,7 @@ export function useMailList(type = "arrive") {
     // Écouter les événements de synchronisation
     window.addEventListener('courriersUpdated', handleCourriersUpdated);
     window.addEventListener('focus', fetchMails);
+    window.addEventListener('storage', handleStorageChange);
     window.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         fetchMails();
@@ -206,9 +186,10 @@ export function useMailList(type = "arrive") {
     return () => {
       window.removeEventListener('courriersUpdated', handleCourriersUpdated);
       window.removeEventListener('focus', fetchMails);
+      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('visibilitychange', fetchMails);
     };
-  }, [type]);
+  }, [type, storageKey]);
 
   return {
     mails,
