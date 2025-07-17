@@ -7,8 +7,12 @@ import { useMailList } from '../hooks/useMailList';
 import MailModal from '../components/MailModal';
 
 function MailDetailModal({ mail, onClose, updateMail }) {
+
+  // Hooks déclarés tout en haut, avant tout return/condition
+  const [statut, setStatut] = useState(mail?.statut || 'En attente');
+  const [saving, setSaving] = useState(false);
   if (!mail) return null;
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return 'Non spécifiée';
     const date = new Date(dateString);
@@ -20,22 +24,32 @@ function MailDetailModal({ mail, onClose, updateMail }) {
     });
   };
 
-  const getStatusBadge = (status) => {
-    const statusClasses = {
-      'nouveau': 'bg-blue-100 text-blue-800 border-blue-200',
-      'en cours': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'traité': 'bg-green-100 text-green-800 border-green-200',
-      'archivé': 'bg-gray-100 text-gray-800 border-gray-200',
-      'rejeté': 'bg-red-100 text-red-800 border-red-200'
-    };
-    
-    const className = statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200';
-    
-    return (
-      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${className}`}>
-        {status || 'Non défini'}
-      </span>
-    );
+  const statusOptions = [
+    'En attente',
+    'En cours',
+    'Traité',
+    'Archivé',
+    'Rejeté',
+    'Nouveau'
+  ];
+  const statusClasses = {
+    'nouveau': 'bg-blue-100 text-blue-800 border-blue-200',
+    'en cours': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'traité': 'bg-green-100 text-green-800 border-green-200',
+    'archivé': 'bg-gray-100 text-gray-800 border-gray-200',
+    'rejeté': 'bg-red-100 text-red-800 border-red-200',
+    'en attente': 'bg-yellow-100 text-yellow-800 border-yellow-200'
+  };
+
+  const handleStatusChange = async (e) => {
+    const newStatus = e.target.value;
+    setStatut(newStatus);
+    setSaving(true);
+    try {
+      await updateMail(mail.id, { ...mail, statut: newStatus });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -61,10 +75,20 @@ function MailDetailModal({ mail, onClose, updateMail }) {
 
         {/* Content */}
         <div className="p-4 overflow-y-auto max-h-[calc(85vh-100px)]">
-          {/* Statut */}
+          {/* Statut modifiable */}
           <div className="mb-4 flex justify-between items-center">
             <h3 className="text-base font-semibold text-gray-900">Statut</h3>
-            {getStatusBadge(mail.statut)}
+            <select
+              value={statut}
+              onChange={handleStatusChange}
+              className={`px-3 py-1 rounded-full text-sm font-medium border outline-none transition ${statusClasses[statut?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'}`}
+              disabled={saving}
+              style={{ minWidth: 120 }}
+            >
+              {statusOptions.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
           </div>
 
           {/* Informations principales */}
@@ -209,9 +233,9 @@ export default function CourrierArrive() {
   const [lastAddedId, setLastAddedId] = useState(null);
 
   // Utiliser le hook useMailList pour gérer les données localement
-  const { mails, loading, addMail, deleteMail, updateMail, updateStatus } = useMailList('arrive');
+  const { mails, loading, addMail, deleteMail, updateMail, updateStatus, refreshMails } = useMailList('arrive');
 
-  // Ajouter un courrier
+  // Ajouter un courrier uniquement côté client (localStorage via useMailList)
   const handleAddMail = async (mail) => {
     try {
       const newMail = await addMail(mail);
@@ -224,7 +248,7 @@ export default function CourrierArrive() {
     }
   };
 
-  // Supprimer un courrier
+  // Supprimer un courrier uniquement côté client (localStorage via useMailList)
   const handleRemove = async (id) => {
     try {
       await deleteMail(id);

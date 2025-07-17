@@ -1,84 +1,115 @@
-import { useState, useEffect } from 'react';
 
-const STORAGE_KEYS = {
-  arrive: 'courriers_arrive',
-  depart: 'courriers_depart'
-};
+import { useState, useEffect } from 'react';
 
 export function useMailList(type) {
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const storageKey = STORAGE_KEYS[type];
-
-  // Charger les données du localStorage au montage
+  // Charger les données depuis l'API au montage
   useEffect(() => {
-    loadFromLocalStorage();
+    const fetchMails = async () => {
+      setLoading(true);
+      try {
+        let url = '';
+        if (type === 'arrive') url = '/api/courrier-arrive';
+        else if (type === 'depart') url = '/api/courrier-depart';
+        else return setMails([]);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erreur API');
+        const data = await res.json();
+        setMails(data);
+      } catch (error) {
+        console.error('Erreur chargement API:', error);
+        setMails([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMails();
   }, [type]);
 
-  const loadFromLocalStorage = () => {
+
+  // Ajout d'un courrier via l'API
+  const addMail = async (newMail) => {
     try {
-      const stored = localStorage.getItem(storageKey);
-      const data = stored ? JSON.parse(stored) : [];
-      setMails(data);
-      console.log(`Courriers ${type} chargés depuis localStorage:`, data);
+      const res = await fetch(
+        type === 'arrive' ? '/api/courrier-arrive' : '/api/courrier-depart',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newMail)
+        }
+      );
+      if (!res.ok) throw new Error('Erreur API');
+      await fetchMails();
+      return await res.json();
     } catch (error) {
-      console.error('Erreur chargement localStorage:', error);
+      console.error('Erreur ajout API:', error);
+      throw error;
+    }
+  };
+
+  // Suppression d'un courrier via l'API
+  const deleteMail = async (id) => {
+    try {
+      const res = await fetch(
+        (type === 'arrive' ? '/api/courrier-arrive' : '/api/courrier-depart') + `?id=${id}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Erreur API');
+      await fetchMails();
+    } catch (error) {
+      console.error('Erreur suppression API:', error);
+      throw error;
+    }
+  };
+
+  // Pour recharger la liste après ajout/suppression
+  const fetchMails = async () => {
+    setLoading(true);
+    try {
+      let url = '';
+      if (type === 'arrive') url = '/api/courrier-arrive';
+      else if (type === 'depart') url = '/api/courrier-depart';
+      else return setMails([]);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Erreur API');
+      const data = await res.json();
+      setMails(data);
+    } catch (error) {
+      console.error('Erreur chargement API:', error);
       setMails([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const saveToLocalStorage = (data) => {
+  // Mise à jour d'un courrier via l'API
+  const updateMail = async (id, updates) => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(data));
-      console.log(`Courriers ${type} sauvegardés dans localStorage:`, data);
+      const res = await fetch(
+        (type === 'arrive' ? '/api/courrier-arrive' : '/api/courrier-depart') + `?id=${id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates)
+        }
+      );
+      if (!res.ok) throw new Error('Erreur API');
+      await fetchMails();
+      return await res.json();
     } catch (error) {
-      console.error('Erreur sauvegarde localStorage:', error);
+      console.error('Erreur modification API:', error);
+      throw error;
     }
-  };
-
-  const addMail = (newMail) => {
-    const mailWithId = {
-      ...newMail,
-      id: Date.now() + Math.random(),
-      createdAt: new Date().toISOString(),
-      type: type.toUpperCase()
-    };
-
-    const updatedMails = [mailWithId, ...mails];
-    setMails(updatedMails);
-    saveToLocalStorage(updatedMails);
-    return mailWithId;
-  };
-
-  const updateMail = (id, updates) => {
-    const updatedMails = mails.map(mail => 
-      mail.id === id ? { ...mail, ...updates, updatedAt: new Date().toISOString() } : mail
-    );
-    setMails(updatedMails);
-    saveToLocalStorage(updatedMails);
-    return updatedMails.find(mail => mail.id === id);
-  };
-
-  const deleteMail = (id) => {
-    const updatedMails = mails.filter(mail => mail.id !== id);
-    setMails(updatedMails);
-    saveToLocalStorage(updatedMails);
-  };
-
-  const updateStatus = (id, newStatus) => {
-    return updateMail(id, { statut: newStatus });
   };
 
   return {
     mails,
     loading,
     addMail,
-    updateMail,
     deleteMail,
-    updateStatus,
-    refreshMails: loadFromLocalStorage
+    updateMail,
+    refreshMails: fetchMails
   };
 }

@@ -23,6 +23,24 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
+      // Si Content-Type: application/json, traiter comme JSON
+      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        let body = '';
+        await new Promise((resolve, reject) => {
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', resolve);
+          req.on('error', reject);
+        });
+        const courrierData = JSON.parse(body);
+        const courrier = localStorage.addCourrier({
+          ...courrierData,
+          fichiers: courrierData.fichiers || '[]',
+          type: 'ARRIVE'
+        });
+        return res.status(201).json(courrier);
+      }
+
+      // Sinon, fallback sur formidable (upload de fichiers)
       const form = formidable({
         uploadDir: './public/courrier_uploads',
         keepExtensions: true,
