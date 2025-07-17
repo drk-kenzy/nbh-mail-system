@@ -1,91 +1,119 @@
 
 # NBH Mail System
 
-Système moderne et complet de gestion de courriers développé avec **Next.js**, **Tailwind CSS** et **React**. Une solution inspirée de lePremier.net offrant une interface intuitive et des fonctionnalités avancées pour la gestion des courriers entrants et sortants.
+Système complet de gestion de courriers développé avec **Next.js 14**, **React 18**, **Tailwind CSS** et **SQLite**. Une solution moderne offrant une interface intuitive pour la gestion des courriers entrants et sortants avec stockage persistant.
 
-## ✨ Fonctionnalités principales
+## 🚀 Fonctionnalités principales
 
 ### 📧 Gestion des courriers
 - **Courriers arrivés** : Enregistrement, suivi et traitement des courriers entrants
-- **Courriers départs** : Création et suivi des courriers sortants
-- **Brouillons** : Sauvegarde et modification des courriers en cours de rédaction
-- **Archives** : Archivage automatique et recherche dans l'historique
+- **Courriers départs** : Création et suivi des courriers sortants  
+- **Brouillons** : Sauvegarde et modification des courriers en cours
+- **Archives** : Archivage et recherche dans l'historique
 
 ### 🎯 Interface utilisateur
-- **Design responsive** : Adaptation parfaite mobile, tablette et desktop
-- **Navigation intuitive** : Sidebar desktop, bottom nav mobile, header adaptatif
-- **Dark mode** optimisé pour une utilisation prolongée
-- **Animations fluides** avec Framer Motion pour les transitions de page
-- **Accessibilité (a11y)** : Navigation clavier, ARIA labels, contraste optimisé
+- **Design responsive** : Adaptation mobile, tablette et desktop
+- **Navigation adaptative** : Sidebar desktop, bottom navigation mobile
+- **Dark mode** optimisé
+- **Animations fluides** avec Framer Motion
+- **Composants réutilisables** : Button, Modal, Card, Badge, etc.
 
-### 📊 Tableau de bord et statistiques
-- **Dashboard interactif** avec statistiques en temps réel
-- **Activité récente** : Suivi des dernières actions
-- **Tâches en attente** : Gestion des priorités et urgences
-- **Métriques avancées** : Temps de traitement, taux de réponse, partenaires actifs
+### 📊 Tableau de bord
+- **Dashboard interactif** avec statistiques temps réel
+- **Gestion des partenaires** : Carnet d'adresses intégré
+- **Paramètres utilisateur** : Configuration personnalisée
+- **Système de rôles** : Admin, Employé, RH, Manager
 
 ### 🔍 Fonctionnalités avancées
-- **Recherche intelligente** : Filtrage par objet, expéditeur, destinataire
-- **Tri et pagination** : Organisation flexible des données
-- **Gestion des pièces jointes** : Upload et prévisualisation de fichiers
-- **Gestion des partenaires** : Carnet d'adresses intégré
-- **Paramètres utilisateur** : Personnalisation de l'interface
-
-### 🔐 Sécurité et authentification
-- **Système d'authentification** complet (login, register, reset password)
-- **Gestion des rôles** : Admin, Employé, RH, Manager
-- **Protection des routes** avec guards de sécurité
-
-### 📱 Progressive Web App (PWA)
-- **Installation** : Ajout à l'écran d'accueil mobile/desktop
-- **Mode hors-ligne** : Fonctionnement sans connexion sur les pages visitées
-- **Manifest et Service Worker** configurés
-- **Notifications push** (prêt pour l'implémentation)
+- **Recherche intelligente** : Filtrage multi-critères
+- **Tri dynamique** : Par date, expéditeur, destinataire, statut
+- **Pagination** : Navigation par pages
+- **Gestion de fichiers** : Upload et prévisualisation
+- **Expansion de contenu** : Affichage tronqué avec extension
 
 ## 🏗️ Architecture technique
 
 ### Structure du projet
 ```
 nbh-mail-system/
-├── components/           # Composants React réutilisables
-│   ├── Layout.js        # Layout principal avec sidebar/header
-│   ├── MailTable.js     # Tableau de courriers avec tri/pagination
-│   ├── Dashboard.jsx    # Tableau de bord avec statistiques
-│   ├── CourrierForm.jsx # Formulaires courriers arrive/depart
+├── components/           # Composants React
+│   ├── Layout.js        # Layout principal
+│   ├── MailTable.js     # Tableau courriers avec tri/pagination
+│   ├── Dashboard.jsx    # Tableau de bord
+│   ├── CourrierArrive.jsx # Gestion courriers arrivés
+│   ├── CourrierDepart.jsx # Gestion courriers départs
+│   ├── FileUploader.jsx # Upload de fichiers
 │   └── ...
 ├── pages/               # Pages Next.js
-│   ├── dashboard/       # Pages du tableau de bord
-│   ├── api/            # API routes Next.js
+│   ├── api/            # API routes
+│   │   ├── courrier-arrive.js
+│   │   ├── courrier-depart.js
+│   │   └── partenaires.js
+│   ├── dashboard/       # Pages dashboard
 │   └── ...
-├── hooks/              # Hooks React personnalisés
-│   ├── useMailList.js  # Gestion des données courriers
+├── hooks/              # Hooks personnalisés
+│   ├── useMailList.js  # Gestion données courriers
 │   └── useTranslation.js # Internationalisation
-├── locales/            # Fichiers de traduction (FR/EN)
-├── styles/             # Styles globaux Tailwind CSS
-└── public/             # Assets statiques et PWA
+├── models/             # Modèles Sequelize
+│   └── Courrier.js     # Modèle courrier
+├── config/             # Configuration base de données
+├── data/               # Fichiers JSON de stockage
+├── locales/            # Traductions FR/EN
+└── utils/              # Utilitaires
 ```
 
 ### Technologies utilisées
 - **Framework** : Next.js 14 (React 18)
-- **Styling** : Tailwind CSS avec configuration personnalisée
+- **Base de données** : SQLite avec Sequelize ORM
+- **Styling** : Tailwind CSS
 - **Animations** : Framer Motion
-- **Icons** : React Icons (Feather Icons)
-- **Storage** : LocalStorage (prêt pour API backend)
-- **Tests** : Jest avec testing-library
-- **PWA** : Service Worker et Manifest
+- **Icons** : React Icons (Feather)
+- **Tests** : Jest avec React Testing Library
+- **Accessibilité** : Tests axe-core intégrés
 
-## 🚀 Installation et développement
+## 🗄️ Gestion des données
+
+### Modèle de données
+Le système utilise un modèle unifié pour les courriers :
+```javascript
+{
+  id: Number,
+  numero: String,
+  date: Date,
+  expediteur: String,
+  destinataire: String,
+  objet: String,
+  canal: String,
+  statut: String,
+  type: 'ARRIVE' | 'DEPART',
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Stockage hybride
+- **SQLite** : Base de données principale avec Sequelize
+- **LocalStorage** : Cache côté client via `useMailList` hook
+- **Synchronisation** : Sync automatique entre client et serveur
+
+## 🚀 Installation et démarrage
 
 ### Prérequis
 - Node.js 18+
 - npm ou yarn
 
-### Démarrage rapide
+### Installation
 ```bash
-# Installation des dépendances
+# Cloner le projet
+git clone [repository-url]
+
+# Installer les dépendances
 npm install
 
-# Lancement en mode développement
+# Configurer la base de données
+npx sequelize-cli db:migrate
+
+# Lancer en développement
 npm run dev
 ```
 
@@ -93,110 +121,184 @@ L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
 
 ### Scripts disponibles
 ```bash
-npm run dev      # Démarrage en mode développement
-npm run build    # Build de production
-npm run start    # Démarrage du serveur de production
+npm run dev      # Démarrage développement
+npm run build    # Build production
+npm run start    # Serveur production
 npm run lint     # Vérification ESLint
-npm run test     # Lancement des tests Jest
+npm run test     # Tests Jest
 ```
 
-## 🌐 Fonctionnalités multilingues
+## 📱 Interface utilisateur
 
-Le système supporte actuellement :
-- **Français** (par défaut)
+### Composants principaux
+- **MailTable** : Tableau avec tri, pagination, recherche
+- **CourrierForm** : Formulaires arrive/départ
+- **Dashboard** : Statistiques et métriques
+- **FileUploader** : Gestion des pièces jointes
+- **Modal** : Fenêtres modales réutilisables
+
+### Navigation
+- **Desktop** : Sidebar avec navigation principale
+- **Mobile** : Bottom navigation + header responsive
+- **Accessibilité** : Navigation clavier, ARIA labels
+
+## 🔐 Authentification et sécurité
+
+### Système d'authentification
+- **Pages** : Login, Register, Reset Password
+- **Composants** : AuthProvider, RoleGuard
+- **Rôles** : Admin, Employé, RH, Manager
+
+### Protection des routes
+```javascript
+// Exemple d'utilisation
+<RoleGuard allowedRoles={['admin', 'employee']}>
+  <ProtectedComponent />
+</RoleGuard>
+```
+
+## 📊 Fonctionnalités du tableau
+
+### MailTable.js
+- **Tri dynamique** : Clic sur colonnes pour trier
+- **Pagination** : Navigation par pages (10 items/page)
+- **Recherche** : Filtrage temps réel
+- **Expansion** : Boutons [...] pour contenu tronqué
+- **Actions** : Voir, modifier, supprimer
+- **Responsive** : Vue mobile optimisée
+
+### Statuts et couleurs
+```javascript
+const STATUS_COLORS = {
+  'nouveau': 'bg-blue-500/20 text-blue-400',
+  'en cours': 'bg-yellow-500/20 text-yellow-400',
+  'traité': 'bg-green-500/20 text-green-400',
+  'rejeté': 'bg-red-500/20 text-red-400',
+  'archivé': 'bg-gray-500/20 text-gray-300'
+};
+```
+
+## 🌐 Internationalisation
+
+Support multilingue avec `useTranslation` hook :
+- **Français** (défaut)
 - **Anglais**
 
-Configuration via les fichiers dans `/locales/` avec hook `useTranslation`.
-
-## 📊 Fonctionnalités du tableau de courriers
-
-- **Expansion d'objet** : Affichage tronqué avec bouton [...] pour voir le texte complet
-- **Tri dynamique** : Par date, expéditeur, destinataire, statut
-- **Pagination** : Navigation par pages avec contrôles
-- **Recherche en temps réel** : Filtrage instantané
-- **Actions rapides** : Voir, modifier, archiver, supprimer
-- **Statuts colorés** : Identification visuelle des priorités
-
-## 🎨 Thème et personnalisation
-
-### Couleurs principales
-- **Primary** : Bleu (#3B82F6) pour les actions principales
-- **Secondary** : Vert (#10B981) pour les statuts positifs
-- **Warning** : Jaune (#F59E0B) pour les alertes
-- **Danger** : Rouge (#EF4444) pour les actions critiques
-
-### Responsive Design
-- **Mobile-first** : Interface optimisée pour mobile
-- **Breakpoints** : sm (640px), md (768px), lg (1024px), xl (1280px)
-- **Navigation adaptative** : Bottom nav mobile, sidebar desktop
+Configuration dans `/locales/[langue]/common.json`
 
 ## 🧪 Tests et qualité
 
 ### Tests inclus
-- Tests de composants avec React Testing Library
-- Tests d'accessibilité automatisés
-- Validation ESLint avec configuration personnalisée
+- **Composants** : React Testing Library
+- **Accessibilité** : Tests axe-core automatisés
+- **Navigation** : Tests clavier et ARIA
 
 ### Lancement des tests
 ```bash
-npm run test     # Tests unitaires
-npm run lint     # Vérification du code
+npm test                    # Tests unitaires
+npm run lint               # Vérification code
 ```
 
-## 📱 PWA - Installation
+## 📱 PWA (Progressive Web App)
 
-### Sur mobile
-1. Ouvrir l'application dans Chrome/Safari
-2. Cliquer sur "Ajouter à l'écran d'accueil"
-3. L'application s'installe comme une app native
+### Fonctionnalités PWA
+- **Manifest** : `/public/manifest.json`
+- **Service Worker** : Cache et offline
+- **Installation** : Ajout écran d'accueil
+- **Mode offline** : Fonctionnement sans connexion
 
-### Sur desktop
-1. Ouvrir dans Chrome/Edge
-2. Cliquer sur l'icône d'installation dans la barre d'adresse
-3. L'application s'installe dans le système
+## 🔄 API Routes
 
-## 🚀 Déploiement
+### Endpoints disponibles
+- `GET/POST /api/courrier-arrive` : Courriers entrants
+- `GET/POST /api/courrier-depart` : Courriers sortants  
+- `GET/POST /api/partenaires` : Gestion partenaires
+- `POST /api/send-email` : Envoi emails
 
-### Déploiement sur Replit
-Le projet est optimisé pour Replit avec configuration automatique.
+## 🚀 Déploiement sur Replit
+
+### Configuration automatique
+Le projet est optimisé pour Replit :
+- **Fichier .replit** : Configuration automatique
+- **Base de données** : SQLite locale
+- **Port** : 3000 (configuré pour Replit)
 
 ### Variables d'environnement
 ```env
-# Optionnel pour features avancées
+# Optionnel
 NEXT_PUBLIC_API_URL=your_api_url
 ```
 
+## 📋 Fonctionnalités détaillées
+
+### Dashboard
+- **Statistiques** : Courriers traités, en attente, archivés
+- **Graphiques** : Visualisation des données
+- **Activité récente** : Dernières actions
+
+### Gestion des partenaires
+- **CRUD complet** : Ajout, modification, suppression
+- **Recherche** : Filtrage par nom, email
+- **Intégration** : Sélection dans formulaires courriers
+
+### Upload de fichiers
+- **MultiUpload** : Plusieurs fichiers simultanément
+- **Prévisualisation** : Images et documents
+- **Validation** : Types et tailles de fichiers
+
+## 🎨 Personnalisation
+
+### Thème Tailwind
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#3B82F6',
+        secondary: '#10B981',
+        danger: '#EF4444'
+      }
+    }
+  }
+}
+```
+
+### Composants réutilisables
+- **Button** : Variantes et tailles
+- **Modal** : Fenêtres modales
+- **Card** : Conteneurs stylés
+- **Badge** : Étiquettes de statut
+
 ## 🔄 Roadmap
 
-### Prochaines fonctionnalités
-- [ ] Intégration API backend
-- [ ] Notifications push en temps réel
-- [ ] Export PDF des courriers
+### Prochaines versions
+- [ ] Notifications temps réel
+- [ ] Export PDF/Excel
 - [ ] Workflow d'approbation
+- [ ] Intégration email
 - [ ] Signature électronique
-- [ ] Intégration calendrier
 - [ ] Rapports avancés
 
 ## 🤝 Contribution
 
 ### Standards de développement
-- **Code style** : ESLint + Prettier
-- **Commits** : Convention Conventional Commits
+- **ESLint** : Configuration Next.js
 - **Tests** : Couverture minimum 80%
-- **Accessibilité** : Conformité WCAG 2.1 AA
+- **Accessibilité** : WCAG 2.1 AA
+- **TypeScript** : Prêt pour migration
 
-### Structure des composants
+### Structure composants
 ```jsx
-// Exemple de composant
 import { useState } from 'react';
 import { FiIcon } from 'react-icons/fi';
 
-export default function Component({ prop1, prop2 }) {
+export default function Component({ props }) {
   const [state, setState] = useState();
   
   return (
-    <div className="component-class">
-      {/* JSX content */}
+    <div className="component-styles">
+      {/* Contenu */}
     </div>
   );
 }
@@ -204,15 +306,14 @@ export default function Component({ prop1, prop2 }) {
 
 ## 📞 Support
 
-Pour toute question ou problème :
-- Créer une issue sur le repository
-- Consulter la documentation des composants
-- Vérifier les tests existants pour les exemples d'usage
+- **Documentation** : Commentaires dans le code
+- **Tests** : Exemples d'utilisation
+- **Issues** : Rapporter problèmes sur repository
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+Projet sous licence MIT.
 
 ---
 
-> **NBH Mail System** - Une solution complète et moderne pour la gestion de courriers, pensée pour l'efficacité et l'expérience utilisateur.
+> **NBH Mail System** - Solution complète de gestion de courriers avec Next.js, SQLite et interface moderne.
