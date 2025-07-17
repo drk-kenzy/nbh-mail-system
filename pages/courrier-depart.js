@@ -4,6 +4,7 @@ import AddCourierButton from '../components/AddCourierButton.jsx';
 import CourrierForm from '../components/CourrierForm.jsx';
 import MailTable from '../components/MailTable.js';
 import { useMailList } from '../hooks/useMailList.js';
+import { MailModalDetail } from '../components/MailModal.js';
 
 export default function CourrierDepartPage() {
   const [open, setOpen] = useState(false);
@@ -132,84 +133,14 @@ export default function CourrierDepartPage() {
 
         {/* Modal de visualisation */}
         {viewModalOpen && selectedMail && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Détails du Courrier</h2>
-                <button
-                  onClick={() => {
-                    setViewModalOpen(false);
-                    setSelectedMail(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">N° d'enregistrement</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedMail.numero || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Date d'envoi</label>
-                    <p className="mt-1 text-sm text-gray-900">
-                      {selectedMail.dateReception || selectedMail.date ? 
-                        new Date(selectedMail.dateReception || selectedMail.date).toLocaleDateString('fr-FR') : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Expéditeur</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedMail.expediteur || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Destinataire</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedMail.destinataire || 'N/A'}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Objet</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedMail.objet || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Canal</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedMail.canal || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Statut</label>
-                    <p className="mt-1 text-sm text-gray-900">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {selectedMail.statut || 'N/A'}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setViewModalOpen(false);
-                    setSelectedMail(null);
-                    handleEditMail(selectedMail);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => {
-                    setViewModalOpen(false);
-                    setSelectedMail(null);
-                  }}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
+          <MailModalDetail
+            mail={selectedMail}
+            onClose={() => {
+              setViewModalOpen(false);
+              setSelectedMail(null);
+            }}
+            onStatusUpdate={handleStatusUpdate}
+          />
         )}
       </div>
     </MainLayout>
