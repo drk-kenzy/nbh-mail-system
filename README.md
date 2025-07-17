@@ -317,3 +317,4 @@ Projet sous licence MIT.
 ---
 
 > **NBH Mail System** - Solution complète de gestion de courriers avec Next.js, SQLite et interface moderne.
+# nbh-mail-system
